@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Basworld Purchase Flow</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&amp;family=Source+Sans+3:ital,wght@0,400;0,600;1,400&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f5f6f4; --surface:#ffffff; --ink:#1d2421; --muted:#5c6862; --line:#d9dedb;
+  --en:#3f5f8a;
+  --native:#6b7570; --native-bg:#eceeed;
+  --card:#0f6e66; --card-bg:#e1f1ef;
+  --int:#9a5b00; --int-bg:#fbefdc;
+  --ext:#7a3b72; --ext-bg:#f4e6f2;
+  --q:#b3261e; --q-bg:#fde8e6;
+  --lane:#f0f2f1;
+  --f-display:"Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#131816; --surface:#1b211f; --ink:#e6ebe8; --muted:#9aa6a0; --line:#2f3834;
+    --en:#9dbbe6;
+    --native:#aab4af; --native-bg:#262d2a;
+    --card:#5fc9bd; --card-bg:#123330;
+    --int:#f0b35c; --int-bg:#35270f;
+    --ext:#e29ad8; --ext-bg:#34202f;
+    --q:#ff8a80; --q-bg:#3a1b19;
+    --lane:#171d1b;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#131816; --surface:#1b211f; --ink:#e6ebe8; --muted:#9aa6a0; --line:#2f3834;
+  --en:#9dbbe6;
+  --native:#aab4af; --native-bg:#262d2a;
+  --card:#5fc9bd; --card-bg:#123330;
+  --int:#f0b35c; --int-bg:#35270f;
+  --ext:#e29ad8; --ext-bg:#34202f;
+  --q:#ff8a80; --q-bg:#3a1b19;
+  --lane:#171d1b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--f-body);padding-inline:20px;padding-block:32px 64px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:clamp(28px,4vw,40px);font-weight:700}
+h2{font-size:24px;font-weight:600}
+h3{font-size:17px;font-weight:600}
+p{margin:0;max-width:72ch}
+code{font-family:var(--f-mono);font-size:.9em}
+
+/* Traducción inglesa: siempre justo debajo del texto en castellano */
+.en{display:block;color:var(--en);font-style:italic;font-weight:400;font-size:.9em;line-height:1.4;margin-top:3px}
+h1 .en{font-size:.55em;font-family:var(--f-body);margin-top:8px}
+h2 .en,h3 .en{font-size:.68em;font-family:var(--f-body);margin-top:4px}
+.chip .en,.eyebrow .en{display:inline;font-style:normal;margin:0;font-size:1em;color:inherit;opacity:.75}
+.chip .en::before,.eyebrow .en::before{content:" · "}
+.langkey{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.langkey .en{display:inline;margin:0}
+
+.eyebrow{font:500 12px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header{display:flex;flex-direction:column;gap:12px}
+header p{color:var(--muted);font-size:17px}
+section{display:flex;flex-direction:column;gap:18px}
+
+/* chips */
+.chip{display:inline-flex;align-items:center;font:500 11px/1.2 var(--f-mono);letter-spacing:.03em;padding:5px 7px;border-radius:4px;white-space:nowrap}
+.chip.native{color:var(--native);background:var(--native-bg)}
+.chip.card{color:var(--card);background:var(--card-bg)}
+.chip.int{color:var(--int);background:var(--int-bg)}
+.chip.ext{color:var(--ext);background:var(--ext-bg)}
+.chip.us{color:var(--ink);background:transparent;border:1px solid var(--line)}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px 18px;font-size:14px;color:var(--muted)}
+.legend .item{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+
+/* who's who */
+.people{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.person{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.person .side{font:500 11px/1 var(--f-mono);text-transform:uppercase;letter-spacing:.06em}
+.person .side.in{color:var(--card)}
+.person .side.out{color:var(--ext)}
+.person .side.us{color:var(--int)}
+.person p{font-size:15px}
+
+/* role */
+.verdict{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.opt{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.opt.rec{border-color:var(--card);box-shadow:inset 0 0 0 1px var(--card)}
+.opt .tag{font:500 11px/1.3 var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.opt.rec .tag{color:var(--card)}
+.opt ul{margin:0;padding-left:18px;font-size:15px;display:flex;flex-direction:column;gap:8px}
+.callout{background:var(--surface);border-left:3px solid var(--card);padding:14px 18px;border-radius:0 6px 6px 0;font-size:15.5px}
+.callout strong{font-weight:600}
+.note{color:var(--muted);font-size:15px}
+
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* swimlane */
+.lanes{display:grid;grid-template-columns:160px repeat(4,minmax(215px,1fr));min-width:1040px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.stage{padding:14px 12px;border-bottom:1px solid var(--line);border-left:1px solid var(--line);display:flex;flex-direction:column;gap:4px;background:var(--lane)}
+.stage b{font-family:var(--f-display);font-size:15px;font-weight:600}
+.stage small{font:500 11px/1.3 var(--f-mono);color:var(--muted)}
+.corner{background:var(--lane);border-bottom:1px solid var(--line)}
+.who{padding:14px 12px;border-bottom:1px solid var(--line);font-family:var(--f-display);font-weight:600;font-size:14px;display:flex;flex-direction:column;gap:4px;background:var(--lane)}
+.who small{font:400 13px/1.35 var(--f-body);color:var(--muted)}
+.cell{padding:10px;border-bottom:1px solid var(--line);border-left:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.lanes > :nth-last-child(-n+5){border-bottom:0}
+.step{border:1px solid var(--line);border-radius:7px;padding:10px 11px;background:var(--bg);display:flex;flex-direction:column;gap:7px}
+.step .top{display:flex;gap:8px;align-items:baseline}
+.step .n{font:500 12px/1 var(--f-mono);color:var(--muted);min-width:20px}
+.step h4{margin:0;font:600 14.5px/1.3 var(--f-body)}
+.step p{font-size:13.5px;line-height:1.45;color:var(--muted)}
+.step .chips{display:flex;flex-wrap:wrap;gap:5px}
+.step.card{border-color:color-mix(in srgb,var(--card) 45%,var(--line));background:var(--card-bg)}
+.q{font-size:12.5px;line-height:1.4;color:var(--q);background:var(--q-bg);padding:6px 8px;border-radius:5px}
+.q::before{content:"? ";font-weight:700;font-family:var(--f-mono)}
+.q .en{color:var(--q);opacity:.8}
+.c,.r{font-size:12.5px;line-height:1.4;padding:6px 8px;border-radius:5px}
+.c{color:var(--card);background:var(--card-bg);border:1px solid color-mix(in srgb,var(--card) 30%,transparent)}
+.c::before{content:"✓ ";font-weight:700}
+.r{color:var(--int);background:var(--int-bg)}
+.r::before{content:"+ ";font-weight:700;font-family:var(--f-mono)}
+.c .en,.r .en{color:inherit;opacity:.8}
+.legend .c,.legend .r,.legend .q{display:inline-block}
+ol.mini{margin:0;padding-left:18px;font-size:13px;line-height:1.4;color:var(--muted);display:flex;flex-direction:column;gap:5px}
+ol.mini b{color:var(--ink);font-weight:600}
+ol.mini .en{font-size:.92em}
+
+/* linear detail */
+ol.detail{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+ol.detail li{display:grid;grid-template-columns:44px 1fr;gap:4px 14px;padding:14px 0;border-bottom:1px solid var(--line)}
+ol.detail li.phase{display:block;border:0;font:500 12px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--card);padding:22px 0 4px}
+ol.detail li.phase .en{display:inline;font-style:normal;color:inherit;opacity:.75;font-size:1em;margin:0}
+ol.detail li.phase .en::before{content:" · "}
+ol.detail li:last-child{border-bottom:0}
+ol.detail .num{font:500 13px/1.6 var(--f-mono);color:var(--muted);grid-row:span 2}
+ol.detail .t{font-weight:600}
+ol.detail .d{font-size:15px;color:var(--muted);max-width:78ch}
+
+@media (max-width:640px){
+  body{padding-inline:16px}
+  ol.detail li{grid-template-columns:32px 1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<span class="eyebrow">Basworld · HubSpot · reviewed flow</span>
+<h1>Vehicle purchase flow, from lead to proposal</h1>
+<p>What the client wants inside HubSpot, based on the user stories and the Bidmonitor videos. Reviewed with Basworld on 29 Sep: confirmed items in green, new requirements in orange, still-open points in red. The developer has already validated technical feasibility; here we only care about what the user sees and does.</p>
+
+</header>
+<section>
+<span class="eyebrow">Who's who</span>
+<h2>The people in the flow</h2>
+<div class="people">
+<div class="person">
+<span class="side out">External</span>
+<h3>Supplier / seller</h3>
+<p>Company or person selling a truck to Basworld. Has no HubSpot access: only receives the proposal on a public web page.</p>
+</div>
+<div class="person">
+<span class="side in">Basworld, uses HubSpot</span>
+<h3>Purchaser</h3>
+<p>Basworld employee who negotiates the purchase with the supplier. The main user of what we design.</p>
+</div>
+<div class="person">
+<span class="side in">Basworld</span>
+<h3>Lead generator</h3>
+<p>Basworld employee who brings in the lead (the contact with the supplier). Assigned on each bid.</p>
+</div>
+<div class="person">
+<span class="side in">Basworld, in Bidmonitor</span>
+<h3>Product Manager (PM)</h3>
+<p>Basworld employee who sets the price limits for each vehicle. Keeps working in Bidmonitor (or a separate pricing tool): doesn't use HubSpot.</p>
+</div>
+<div class="person">
+<span class="side us">Project team</span>
+<h3>Developer</h3>
+<p>Builds the app in HubSpot and the Bidmonitor integration. Has already validated feasibility.</p>
+</div>
+<div class="person">
+<span class="side us">Project team</span>
+<h3>Us (design)</h3>
+<p>We design the screens and the experience, and hand the developer a visual to reproduce.</p>
+</div>
+</div>
+</section>
+<section>
+<span class="eyebrow">Our role</span>
+<h2>Feasibility is already validated. We design what the developer will build</h2>
+<div class="callout">The developer has already checked that all of this can be built and chose how to build it. Our job is to turn the flow into screens with good UX and hand over a visual they can reproduce as is. We don't decide the technology or the Bidmonitor integration.
+</div>
+<div class="verdict">
+<div class="opt rec">
+<span class="tag">What we deliver</span>
+<h3>A visual of every screen and state</h3>
+<ul>
+<li>Where each piece sits on the Purchase record</li>
+<li>Each card or modal with its content and hierarchy</li>
+<li>States: empty, loading, filled, error, locked</li>
+<li>UI copy in English</li>
+</ul>
+</div>
+<div class="opt">
+<span class="tag">Not ours</span>
+<h3>Technology, integration and logic</h3>
+<ul>
+<li>How it's coded (UI Extensions, iframe, etc.)</li>
+<li>The Bidmonitor connection and the proposal API</li>
+<li>Calculations (commission, inspection) and the public proposal page</li>
+</ul>
+</div>
+<div class="opt">
+<span class="tag">Agreed with the dev</span>
+<h3>Design rules</h3>
+<ul>
+<li>Native HubSpot components first</li>
+<li>Iframe only when essential, always as a pop-up modal</li>
+<li>Placement and modal / panel / tab are our UX decision</li>
+<li>Each block in the HTML is labelled with its HubSpot component</li>
+</ul>
+</div>
+</div>
+<p class="note">Developer's answer, 29 Sep. What he left for Basworld is now settled: photos aren't reordered and the slider uses native components (our decision), and PM responds within 24 hours at most. Details in the open-questions document.</p>
+</section>
+<section>
+<span class="eyebrow">The flow</span>
+<h2>Who does what at each pipeline stage</h2>
+<div class="callout">The stages (Pre-leads, Pricing…) are not tabs of the app. They are the Purchase pipeline stages, i.e. where the purchase stands. HubSpot shows them out of the box: in the record header and as columns of the Purchases board (what the list tabs were in Bidmonitor). In our design they only change what the user can do at each point: for example, "Create proposal" is only enabled once PM prices exist. The tabs we do add to the record are Vehicle information and Proposal.
+</div>
+<div class="legend">
+<span class="item"><span class="chip native">Native</span><span>Already exists, not designed by us</span></span>
+<span class="item"><span class="chip card">Design</span><span>We design it, the developer builds it</span></span>
+<span class="item"><span class="chip int">Integration</span><span>Developer's backend, not visible</span></span>
+<span class="item"><span class="chip ext">Outside HubSpot</span><span>Not ours</span></span>
+<span class="item"><span class="c">Confirmed</span><span>Reviewed on 29 Sep</span></span>
+<span class="item"><span class="r">New requirement</span><span>Came up in the review: needs designing</span></span>
+<span class="item"><span class="q">Open</span><span>Still unanswered</span></span>
+</div>
+<div class="scroll">
+<div aria-label="Flujo por carriles / Swimlane flow" class="lanes" role="table">
+<div class="corner"></div>
+<div class="stage"><b>1 · Pre-leads</b><small>stage: Pre-leads</small></div>
+<div class="stage"><b>2 · Pricing</b><small>stage: Pricing</small></div>
+<div class="stage"><b>3 · Price available</b><small>stage: Price available</small></div>
+<div class="stage"><b>4 · Proposal sent</b><small>Bidmonitor: "Under offer"</small></div>
+<!-- Proveedor -->
+<div class="who">Supplier<small>external, no HubSpot</small></div>
+<div class="cell">
+<div class="step"><div class="top"><span class="n">0</span><h4>Offers a vehicle</h4></div>
+<p>Through multiple channels: trade-ins, calls, email, WhatsApp, tickets (form) or manual search.</p>
+<div class="chips"><span class="chip ext">Outside</span></div>
+<div class="c">Channels: trade-ins (added by sales), incoming calls (Elevate service), email, WhatsApp (forwarding a message creates the vehicle automatically), tickets (someone fills in a form) and manual search.</div>
+</div>
+</div>
+<div class="cell"></div>
+<div class="cell"></div>
+<div class="cell">
+<div class="step"><div class="top"><span class="n">12</span><h4>Views the proposal and chooses</h4></div>
+<p>Public page proposal.basworld.com: direct sale, commission sale or auction.</p>
+<div class="chips"><span class="chip ext">Outside</span></div>
+<div class="c">Sent by email or WhatsApp.</div>
+<div class="c">Their choice doesn't come back to HubSpot: the purchaser handles it manually.</div>
+</div>
+</div>
+<!-- Comprador -->
+<div class="who">Purchaser<small>Basworld, works in HubSpot</small></div>
+<div class="cell">
+<div class="step"><div class="top"><span class="n">1</span><h4>Creates the Purchase</h4></div>
+<p>Fills in the fields by hand: supplier (company and contact), source and lead generator.</p>
+<div class="chips"><span class="chip native">Native</span></div>
+<div class="c">The purchaser usually enters the data by hand. WhatsApp leads are created automatically: the purchaser reviews and completes them.</div>
+</div>
+<div class="step card"><div class="top"><span class="n">2</span><h4>Adds vehicles</h4></div>
+<p>Picks a type → its fields appear → saves. Each vehicle, or bundle of identical vehicles, = 1 line item. Can add several.</p>
+<div class="chips"><span class="chip card">Design</span><span class="chip us">US-02</span></div>
+<div class="c">Flow confirmed.</div>
+<div class="r">Identical vehicles: one line item with a quantity and a unit price (5 × €20,000 = €100,000). Units in a bundle differ only in mileage and VIN, which are entered per unit. Design two options for Basworld to choose from: (A) quantity, (B) duplicate the vehicle.</div>
+<div class="r">Nice-to-have: button to fill in data from the license plate. Dutch registry (RDW) only.</div>
+<div class="c">Documents and remarks: at Purchase level for now (native), not per vehicle.</div>
+<div class="q">Fields missing for 5 of the 6 types. Basworld delivers them by 7 October at the latest.</div>
+</div>
+<div class="step card"><div class="top"><span class="n">3</span><h4>Uploads vehicle photos</h4></div>
+<p>Shown in the record's image slider.</p>
+<div class="chips"><span class="chip card">Design</span><span class="chip us">US-01</span></div>
+<div class="r">Maximum 10 photos per vehicle. If none is chosen, the first is the main one; it can be changed with "Set as main photo". No reordering.</div>
+<div class="c">One slider per vehicle: a vehicle selector is needed.</div>
+<div class="c">Our decision: native slider with large photo, arrows, "3 / 10" counter, thumbnails and zoom in a native modal. No iframe.</div>
+</div>
+</div>
+<div class="cell">
+<div class="step card"><div class="top"><span class="n">4</span><h4>Asks PM for a price</h4></div>
+<p>Checks asking / proposed / offer price, picks urgency and clicks "Ask for price". Once per vehicle.</p>
+<div class="chips"><span class="chip card">Design</span><span class="chip us">US-03</span></div>
+<div class="c">Confirmed.</div>
+<div class="c">If urgent, the vehicle goes to the top of PM's list in Bidmonitor.</div>
+</div>
+</div>
+<div class="cell">
+<div class="step card"><div class="top"><span class="n">8</span><h4>Sees PM's price constraints</h4></div>
+<p>Max offer, estimated selling range, minimum auction price, prefinance. Read-only.</p>
+<div class="chips"><span class="chip card">Design</span><span class="chip us">US-03</span></div>
+<div class="c">Confirmed.</div>
+</div>
+<div class="step card"><div class="top"><span class="n">9</span><h4>Creates the proposal</h4></div>
+<p>Modal: costs, days to sell, explanation, language + which solutions to offer and which one to recommend.</p>
+<div class="chips"><span class="chip card">Design</span><span class="chip us">US-04</span></div>
+<div class="r">Configurable proposal: the purchaser picks which offers are included (direct purchase, commission sale, auction) and which one is recommended. Ticked = included; unticked = left out.</div>
+<div class="r">Design two versions of the modal (full, as in Bidmonitor, and simplified) for Basworld to choose from.</div>
+<div class="c">One proposal per vehicle or bundle (line item with quantity). Different vehicles aren't combined.</div>
+</div>
+</div>
+<div class="cell">
+<div class="step card"><div class="top"><span class="n">11</span><h4>Reviews, sends and edits the proposal</h4></div>
+<ol class="mini">
+<li>Once created, the proposal is a Draft. The purchaser reviews it through the link on the record.</li>
+<li>Sends it to the supplier: "Copy link" to share it via WhatsApp or their own email, or "Send by email" from HubSpot with the link included. It becomes Sent.</li>
+<li>If something must change, clicks "Edit proposal" to edit it: the same modal opens prefilled. Every change is kept in the version history. If it was Sent, it goes back to Draft (if technically possible) and must be sent again.</li>
+</ol>
+<div class="chips"><span class="chip card">Design</span><span class="chip us">US-04</span></div>
+<div class="c">Statuses: only Draft and Sent. The button is called "Edit proposal" (in Bidmonitor, "Adjust proposal") because it modifies the existing proposal. Email keeps a tracked record of the link; customers often use WhatsApp.</div>
+<div class="c">Editing keeps the previous version in the history; it isn't overwritten. This is our assumption: if it works differently technically, the developer should correct it.</div>
+<div class="c">Sending: copy the link, with an option to email it from HubSpot. Editing a sent proposal sends it back to Draft.</div>
+<div class="r">Decide when it becomes Sent when "Copy link" is used (proposal: a "Mark as sent" button).</div>
+</div>
+<div class="step"><div class="top"><span class="n">13</span><h4>Closes the Purchase</h4></div>
+<p>If accepted, the purchase order is created. If not, it's marked closed-lost with a reason.</p>
+<div class="chips"><span class="chip native">Native</span></div>
+<div class="c">Confirmed.</div>
+<div class="c">"Create purchase" is phase 2. Today the purchase order is created manually in the ERP.</div>
+</div>
+</div>
+<!-- Integración -->
+<div class="who">Integration<small>developer's backend</small></div>
+<div class="cell">
+<div class="step"><div class="top"><span class="n">2b</span><h4>Syncs vehicles</h4></div>
+<p>Sends the line items to Bidmonitor.</p>
+<div class="chips"><span class="chip int">Integration</span></div>
+<div class="q">Should the user see whether the vehicle is synced?</div>
+</div>
+</div>
+<div class="cell">
+<div class="step"><div class="top"><span class="n">5</span><h4>Sends the request</h4></div>
+<p>Vehicle data + prices + urgency → Bidmonitor.</p>
+<div class="chips"><span class="chip int">Integration</span></div>
+<div class="c">Sent immediately, no batching delay.</div>
+</div>
+<div class="step"><div class="top"><span class="n">7</span><h4>Receives the answer</h4></div>
+<p>Saves the constraints in HubSpot and moves the stage to Price available.</p>
+<div class="chips"><span class="chip int">Integration</span></div>
+<div class="c">PM responds within 24 hours at most. The purchaser gets a notice when the price arrives.</div>
+</div>
+</div>
+<div class="cell">
+<div class="step"><div class="top"><span class="n">10</span><h4>Generates the proposal</h4></div>
+<p>Calls the existing proposal API and gets the URL back.</p>
+<div class="chips"><span class="chip int">Integration</span></div>
+<div class="c">Confirmed. We design generic loading and error states; the developer refines them.</div>
+</div>
+</div>
+<div class="cell"></div>
+<!-- Bidmonitor -->
+<div class="who">Bidmonitor · PM<small>Product Management (Basworld)</small></div>
+<div class="cell"></div>
+<div class="cell">
+<div class="step"><div class="top"><span class="n">6</span><h4>PM reviews and sets prices</h4></div>
+<p>Fills in max offer, selling range, minimum auction and prefinance. Today in Bidmonitor, discussed with the purchaser via chat.</p>
+<div class="chips"><span class="chip ext">Outside</span></div>
+<div class="c">PM stays in Bidmonitor (or a separate pricing tool). The price comes in through the integration and isn't changed in HubSpot.</div>
+<div class="c">Chat: HubSpot's native @mentions for now.</div>
+<div class="r">Nice-to-have: show how a purchaser–PM chat could work.</div>
+</div>
+</div>
+<div class="cell"></div>
+<div class="cell"></div>
+</div>
+</div>
+</section>
+<section>
+<span class="eyebrow">Step by step</span>
+<h2>The same flow, in order</h2>
+<ol class="detail">
+<li class="phase">Stage 1 · Pre-leads</li>
+<li><span class="num">0</span><span class="t">The supplier offers a vehicle</span><span class="d">It comes in through several channels: trade-ins (vehicles handed in when buying a new one; added by sales), incoming calls (Elevate service), email, WhatsApp (if the supplier forwards a message to BAS World's WhatsApp, the vehicle is created automatically), tickets (someone fills in a form) or manual search.</span></li>
+<li><span class="num">1</span><span class="t">The purchaser has a Purchase record in HubSpot</span><span class="d">Usually the purchaser creates it and fills in the fields by hand: linked supplier (company and contact), source and lead generator. WhatsApp leads arrive already created; the purchaser reviews and completes them. Documents and remarks sit at Purchase level, using native attachments and notes. This is the native record: header, columns and associations come with HubSpot.</span></li>
+<li><span class="num">2</span><span class="t">Adds one or more vehicles</span><span class="d">In the "Vehicle information" tab: a vehicle table + "Add vehicle". Picking a type shows only that type's fields. Brand → model → cabin are chained. Each vehicle, or each bundle of identical vehicles, is a line item. A bundle has a quantity and a unit price (5 × €20,000 = €100,000); its units differ only in mileage and VIN. We'll design two options for identical vehicles (quantity or duplicate) and Basworld will choose. Nice-to-have: fill in data from the license plate (Dutch registry only). Fields for the other 5 types arrive by 7 October at the latest.</span></li>
+<li><span class="num">3</span><span class="t">Uploads photos</span><span class="d">Per vehicle, up to 10. Each vehicle has its own slider, so the user picks which vehicle's photos to see. The slider uses native components: large photo, arrows, "3 / 10" counter, thumbnail row and zoom in a modal. The first photo is the main one and can be changed with "Set as main photo". Photos aren't reordered, so no iframe is needed.</span></li>
+<li class="phase">Stage 2 · Pricing</li>
+<li><span class="num">4</span><span class="t">Asks Product Management for a price</span><span class="d">With the supplier's prices filled in (asking, proposed sales, offer; per unit), the purchaser clicks "Ask for price" on each vehicle or bundle and picks the urgency. If urgent, the vehicle goes to the top of PM's list in Bidmonitor. The Purchase moves to Pricing.</span></li>
+<li><span class="num">5</span><span class="t">The request goes to Bidmonitor</span><span class="d">The developer's backend sends the vehicle data and prices. We don't design this, but we do design the "request sent" state.</span></li>
+<li><span class="num">6</span><span class="t">PM sets the price constraints</span><span class="d">Max offer price, estimated selling price range (min/max), minimum auction price, prefinance amount and pricing strategy. PM keeps working in Bidmonitor (or a separate pricing tool). Prices come in through the integration and aren't changed in HubSpot. For purchaser–PM communication, HubSpot @mentions for now.</span></li>
+<li><span class="num">7</span><span class="t">The answer comes back to HubSpot</span><span class="d">Saved as vehicle properties; the Purchase moves to Price available. PM takes 24 hours at most: we design a visible waiting state and a notice to the purchaser when the price arrives.</span></li>
+<li class="phase">Stage 3 · Price available</li>
+<li><span class="num">8</span><span class="t">The purchaser sees the constraints</span><span class="d">In the pricing card, next to the supplier's prices.</span></li>
+<li><span class="num">9</span><span class="t">Creates the proposal</span><span class="d">One proposal per vehicle or bundle. A modal prefilled with PM's data. Adds expected days to sell, logistics and workshop costs, a price explanation and the language. Picks which offers are included (direct purchase, commission sale, auction), with amounts, and which is recommended: ticked = included, unticked = left out. We'll design two versions of the modal (full and simplified) for Basworld to choose from.</span></li>
+<li><span class="num">10</span><span class="t">Generated with the existing API</span><span class="d">The same one Bidmonitor uses today. It calculates commission and inspection and returns a URL.</span></li>
+<li class="phase">Stage 4 · Proposal sent · Propuesta enviada</li>
+<li><span class="num">11</span><span class="t">Reviews, sends and edits the proposal</span><span class="d">Once created, the proposal is a Draft and its link appears on the record; the button becomes "Edit proposal". The purchaser reviews and sends it: "Copy link" to share it via WhatsApp or their own email, or "Send by email" to open HubSpot's email with the link included. It then becomes Sent. Those are the only two statuses. "Edit proposal" is for editing it: the same modal opens with the previous data and every change is kept in the version history. If it was Sent, it goes back to Draft and must be sent again.</span></li>
+<li><span class="num">12</span><span class="t">The supplier picks a solution</span><span class="d">On Basworld's public page, which we don't build. Their choice doesn't come back to HubSpot: it's communicated to the purchaser and handled manually.</span></li>
+<li><span class="num">13</span><span class="t">Closing</span><span class="d">If accepted, the purchase order is created. Today that's done manually in the ERP; "Create purchase" in HubSpot is phase 2. If not, it's closed with a reason.</span></li>
+</ol>
+</section>
+</div>
+</body>
+</html>
