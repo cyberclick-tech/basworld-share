@@ -1,3 +1,7 @@
-# Basworld · HubSpot design deliverables
+# Basworld · HubSpot purchase app
 
-Published with GitHub Pages. **Do not edit here**: these files are generated from the private working repo with `entregables/publish.py`.
+Design deliverables prepared by Cyberclick.
+
+**View online:** https://cyberclick-tech.github.io/basworld-share/
+
+- [Purchase flow](https://cyberclick-tech.github.io/basworld-share/purchase-flow.html)
