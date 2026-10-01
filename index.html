@@ -31,8 +31,11 @@ a.item:hover,a.item:focus-visible{border-color:var(--accent);outline:none}
 a.item h2{font:600 18px/1.3 var(--f-display);margin:0 0 4px}
 a.item span.meta{font-size:14px;color:var(--muted)}
 .arrow{font:500 14px var(--f-mono);color:var(--accent);white-space:nowrap}
-.soon{background:transparent;border:1px dashed var(--line);border-radius:8px;padding:18px 20px}
-.soon h2{font:600 18px/1.3 var(--f-display);margin:0 0 4px;color:var(--muted)}
+a.item.main{background:var(--accent-bg);border:2px solid var(--accent);padding:24px 26px}
+a.item.main h2{font-size:24px}
+a.item.main span.meta{color:var(--ink);font-size:16px}
+.tag{display:inline-block;font:500 11px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;background:var(--accent);color:#fff;border-radius:999px;padding:5px 10px;margin-bottom:10px}
+.also{font:500 12px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:8px}
 footer{font-size:13px;color:var(--muted)}
 </style>
 </head>
@@ -45,6 +48,22 @@ footer{font-size:13px;color:var(--muted)}
   </header>
 
   <div class="list">
+    <a class="item main" href="prototype/prototype.html">
+      <div>
+        <span class="tag">Start here</span>
+        <h2>Interactive prototype</h2>
+        <span class="meta">The purchase record simulated inside HubSpot: add vehicles, ask for prices, create and send proposals. Try it and tell us what you think.</span>
+      </div>
+      <span class="arrow">Open the prototype →</span>
+    </a>
+    <p class="also">Also</p>
+    <a class="item" href="prototype/guide.html">
+      <div>
+        <h2>Prototype guide</h2>
+        <span class="meta">How to try the prototype step by step, and the questions we need you to answer.</span>
+      </div>
+      <span class="arrow">Open →</span>
+    </a>
     <a class="item" href="purchase-flow.html">
       <div>
         <h2>Purchase flow</h2>
@@ -52,10 +71,6 @@ footer{font-size:13px;color:var(--muted)}
       </div>
       <span class="arrow">Open →</span>
     </a>
-    <div class="soon">
-      <h2>Interactive prototype</h2>
-      <span class="meta" style="font-size:14px;color:var(--muted)">Coming soon. It will simulate the screens inside HubSpot.</span>
-    </div>
   </div>
 
   <footer>Prepared by Cyberclick. Example data only.</footer>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Basworld Prototype Guide</title>
+<style>
+:root{
+  --bg:#f5f6f4; --surface:#ffffff; --ink:#1d2421; --muted:#5c6862; --line:#d9dedb;
+  --en:#3f5f8a; --accent:#0f6e66; --accent-bg:#e1f1ef; --warn:#9a5b00; --warn-bg:#fbefdc; --q:#b3261e;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif; --f-mono:ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ color-scheme:dark; --bg:#131816; --surface:#1b211f; --ink:#e6ebe8; --muted:#9aa6a0; --line:#2f3834; --en:#9dbbe6; --accent:#5fc9bd; --accent-bg:#123330; --warn:#f0b35c; --warn-bg:#35270f; --q:#ff8a80; }
+}
+:root[data-theme="dark"]{ color-scheme:dark; --bg:#131816; --surface:#1b211f; --ink:#e6ebe8; --muted:#9aa6a0; --line:#2f3834; --en:#9dbbe6; --accent:#5fc9bd; --accent-bg:#123330; --warn:#f0b35c; --warn-bg:#35270f; --q:#ff8a80; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--f-body);padding:32px 20px 64px}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{margin:0;line-height:1.25;text-wrap:balance}
+h1{font-size:clamp(28px,4vw,38px)} h2{font-size:24px} h3{font-size:18px}
+p{margin:0;max-width:72ch} p+p{margin-top:10px}
+code{font-family:var(--f-mono);font-size:.9em;background:var(--accent-bg);padding:1px 6px;border-radius:6px}
+.en{display:block;color:var(--en);font-style:italic;font-weight:400;font-size:.92em;line-height:1.4;margin-top:3px}
+h1 .en{font-size:.5em;font-style:normal;margin-top:8px} h2 .en,h3 .en{font-size:.62em;font-style:normal;margin-top:4px}
+section{display:flex;flex-direction:column;gap:14px}
+.langkey{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--muted)} .langkey .en{display:inline;margin:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+.note{background:var(--warn-bg);border-left:4px solid var(--warn);border-radius:8px;padding:12px 16px}
+ol,ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px} li{max-width:72ch}
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:15px}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)} th{background:var(--accent-bg);font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+tr:last-child td{border-bottom:0} td.id{font-family:var(--f-mono);font-weight:600;white-space:nowrap;color:var(--accent)}
+@media (max-width:640px){ table{display:block;overflow-x:auto} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Prototype guide · vehicle purchasing in HubSpot</h1>
+
+</header>
+<section>
+<h2>1. What this is</h2>
+<p>It is a prototype that <b>simulates a Purchase record inside HubSpot</b>. It shows how the app would behave before it is built. It is not the real HubSpot: nothing is saved, no email is sent, and the data (vehicles, prices, license plates) is made up.</p>
+<p>The record has two tabs of ours: <b>Vehicle information</b> (vehicles, photos and pricing) and <b>Proposal</b> (proposals). Everything else (header, stage, contacts, attachments) is HubSpot's own and we haven't redesigned it.</p>
+</section>
+<section>
+<h2>2. Finding your way around</h2>
+<ol>
+<li><b>The record</b> (centre of the screen): click a vehicle to see its photos, pricing and details. «‹ All vehicles» takes you back to the table.</li>
+<li><b>Prototype controls</b> (bottom right, dark box): not part of HubSpot. It is your remote control to try things without having to trigger them. Open and close it with the arrow.</li>
+<li><b>Pink bar at the top</b>: «↺ Reset demo» puts everything back to the start. The other two switches are for the developer.</li>
+<li><b>For the developer</b> (you can ignore this): «Component names» shows pink labels with the HubSpot component of each block, and «Accessibility notes» shows blue labels with accessibility notes. Both can be switched off for a clean view; «Accessibility notes» starts off.</li>
+<li><b>Tips</b>: when you click a scenario, a green box appears above the panel saying what to do. Close it with the ×.</li>
+</ol>
+<p class="note">If anything looks odd, click «↺ Reset demo».</p>
+</section>
+<section>
+<h2>3. Guided scenarios</h2>
+<p>«Prototype controls» has buttons that take you straight to each situation. Try them in this order:</p>
+<table>
+<thead><tr><th>Button</th><th>What you will see</th></tr></thead>
+<tbody>
+<tr><td><b>Add a vehicle</b></td><td>The form to add a vehicle. Change the type (Tractor head, Truck…) to see each one's fields, or try a Dutch plate such as 12-BLX-7.</td></tr>
+<tr><td><b>Complete a WhatsApp vehicle</b></td><td>A vehicle that arrived by WhatsApp with incomplete data («Needs review»). Fill in what is missing and save.</td></tr>
+<tr><td><b>Ask for a price</b></td><td>Asking PM for a price: choose an urgency and click «Ask for price». Afterwards you can change the urgency or cancel the request.</td></tr>
+<tr><td><b>PM price arrives</b></td><td>PM's answer arrives: a floating message, the notification bell and a «New price» tag in the table. Open the DAF to see PM's limits and the warning that the offer is above the maximum.</td></tr>
+<tr><td><b>Bidmonitor error</b></td><td>Bidmonitor does not answer. Click «Retry».</td></tr>
+<tr><td><b>Ask for a new price</b></td><td>Asking for a price again when the supplier changes theirs. The previous limits stay folded until the new ones arrive.</td></tr>
+<tr><td><b>Create a proposal</b></td><td>The proposal modal. Try unticking every solution to see the rules, then create it: you will see the wait and the proposal as a Draft.</td></tr>
+<tr><td><b>Proposal error</b></td><td>The proposal service does not answer. Click «Retry».</td></tr>
+<tr><td><b>Send a proposal</b></td><td>Sending: «Send by email» (opens HubSpot's email composer), «Copy link» or «Mark as sent». All three end in Sent.</td></tr>
+<tr><td><b>Edit a sent proposal</b></td><td>When you edit a sent proposal, the yellow notice explains that a new Draft version is saved. Then check «Version history».</td></tr>
+</tbody>
+</table>
+</section>
+<section>
+<h2>4. Two things we need you to choose</h2>
+<p>At the bottom of «Prototype controls» there are two selectors that change the design. Try both options of each and tell us which works better (they are questions C32 and C33 below):</p>
+<ul>
+<li><b>Identical vehicles</b>: <b>A · Quantity</b> (a single line item with a quantity; mileage and VIN per unit) or <b>B · Duplicate</b> (each unit is a row; «Duplicate» copies everything except mileage and VIN). <b>Note:</b> in B each unit is its own line item, so each would have its own price request and its own proposal (5 identical vehicles = 5 requests and 5 proposals); in A, a whole bundle has just one. The prototype flags this with a yellow notice when you choose B.</li>
+<li><b>Proposal modal</b>: <b>Full</b> (as in Bidmonitor, in two columns) or <b>Simplified</b> (just the solutions, with costs folded away).</li>
+</ul>
+<p>The other selectors (Vehicles table, Proposal tab) are only there to show the states: with data, empty, loading and error.</p>
+</section>
+<section>
+<h2>5. What we need you to confirm</h2>
+<p>We made some decisions ourselves so the design works. They are in the panel, under <b>«Our proposals · to confirm»</b> (open it with the arrow): each line takes you to the screen where it shows. Here they are as questions:</p>
+<table>
+<thead><tr><th>No.</th><th>Question</th></tr></thead>
+<tbody>
+<tr><td class="id">C22</td><td>Can a price be requested for a WhatsApp vehicle before its details are complete? Right now the button is disabled until then.</td></tr>
+<tr><td class="id">C23</td><td>For each type we used your required and optional fields (spreadsheet of 30/09). We also made the <b>asking price</b> required and folded the optional fields. Is that right?</td></tr>
+<tr><td class="id">C24</td><td>The license plate is used to look up the details. Should it also be stored as a vehicle field?</td></tr>
+<tr><td class="id">C25</td><td>Once a price has been requested, should the purchaser be able to change the urgency or cancel the request?</td></tr>
+<tr><td class="id">C26</td><td>What is the difference between «Urgent today» and «Urgent now» for PM? Are both needed?</td></tr>
+<tr><td class="id">C27</td><td>If the supplier changes their price after PM has answered, should the purchaser be able to ask for a price again?</td></tr>
+<tr><td class="id">C28</td><td>Proposal rules: at least one solution included, the recommended one must be included, and the amounts of the included solutions are required. Is that right? Are any other fields required?</td></tr>
+<tr><td class="id">C29</td><td>When a proposal becomes Sent, should the Purchase stage change by itself (for example to «Proposal sent»)? With several proposals, we suggest it changes only when <b>all</b> of them are Sent, not with the first one. Is that right?</td></tr>
+<tr><td class="id">C30</td><td>When a sent proposal is edited, does the supplier keep the same link (which then shows the latest version) or get a new link per version? We assumed one link per version.</td></tr>
+<tr><td class="id">C31</td><td>Bundles and fields: (1) in a bundle each unit has mileage and VIN; in construction equipment and agriculture, working hours and VIN; in semi trailers, only the VIN. Is that right? (2) Power, mileage and working hours allow «Don't know» in your form; here they don't, because they are required. Should they? (3) What unit does «Capacity» use in Truck and Semi trailer?</td></tr>
+<tr><td class="id">C32</td><td>Identical vehicles: variant <b>A · Quantity</b> or <b>B · Duplicate</b>? In B, each unit would have its own price request and its own proposal (5 identical = 5 and 5).</td></tr>
+<tr><td class="id">C33</td><td>Proposal modal: <b>Full</b> or <b>Simplified</b> version? If you choose the simplified one, which fields must always be visible?</td></tr>
+</tbody>
+</table>
+<h3>Our ideas</h3>
+<p>These ideas (numbered I1 to I6 in the panel, so we can refer to them) aren't questions, but we'd like your opinion: do you want them, would you change them, or would you drop them?</p>
+<table>
+<thead><tr><th>No.</th><th>Idea</th><th>What it is and where to see it</th></tr></thead>
+<tbody>
+<tr><td class="id">I1</td><td><b>Offer above PM's max</b></td><td>A warning, and a red tag next to the Offer price, when your offer is above PM's maximum. It warns, it doesn't block. Seen on the vehicle with a PM price (the DAF, after «PM price arrives»).</td></tr>
+<tr><td class="id">I2</td><td><b>Notification and «New price» tag</b></td><td>When PM's price arrives: a floating message, the notification bell with a counter and a «New price» tag in the table until you open the vehicle.</td></tr>
+<tr><td class="id">I3</td><td><b>Duplicate without opening the form</b></td><td>In variant B, «Duplicate» copies the row at once, without opening the form; the copy stays in «Needs review» until mileage and VIN are filled in.</td></tr>
+<tr><td class="id">I4</td><td><b>«Mark as sent» and «Send again»</b></td><td>On a Draft proposal, «Mark as sent» is always available (for example if you sent it on WhatsApp). On a Sent one, there is «Send again by email».</td></tr>
+<tr><td class="id">I5</td><td><b>Offers summary on the proposal card</b></td><td>The proposal card lists the included offers, their amounts and the recommended one, without opening the link.</td></tr>
+<tr><td class="id">I6</td><td><b>Unselect an optional choice</b></td><td>In the form's «Optional information», clicking the selected option again (or pressing Enter on it with the keyboard) unselects it and leaves the field empty.</td></tr>
+</tbody>
+</table>
+</section>
+<section>
+<h2>6. What is not real</h2>
+<ul>
+<li>The data is made up and nothing is saved: reloading the page or clicking «Reset demo» puts everything back.</li>
+<li>PM's prices, the license plate registry, sending emails and «Copy link» are simulated.</li>
+<li>Uploading photos opens HubSpot's native file picker; here only a message appears.</li>
+<li>The public proposal page (<code>proposal.basworld.com</code>) is not part of this design: «Open v1 ↗» only says that it would open.</li>
+<li>The look is «similar, not exact» to HubSpot: what matters is where each piece goes and how it behaves.</li>
+</ul>
+</section>
+<section>
+<h2>7. Words we use</h2>
+<table>
+<tbody>
+<tr><td class="id">Purchase</td><td>The whole purchase from a supplier (the record).</td></tr>
+<tr><td class="id">Line item</td><td>One vehicle, or a bundle of identical vehicles. Each one has its own price and proposal.</td></tr>
+<tr><td class="id">Bundle</td><td>A batch of identical vehicles: quantity and price per unit (5 × €20,000 = €100,000).</td></tr>
+<tr><td class="id">PM</td><td>The pricing team. They keep working in Bidmonitor; here we only see their answer.</td></tr>
+<tr><td class="id">Draft · Sent</td><td>The two statuses of a proposal.</td></tr>
+</tbody>
+</table>
+</section>
+</div>
+</body>
+</html>

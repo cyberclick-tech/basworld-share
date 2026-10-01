@@ -1,0 +1,166 @@
+/*
+ * HubSpot · tema nuevo (Trellis) — tokens para el prototipo
+ *
+ * Fuente: variables CSS reales de un portal de HubSpot con el tema nuevo, extraídas el 2026-09-29
+ * con tools/extract-hubspot-styles.js (captura en bruto: tools/hubspot-styles*.json, fuera de git).
+ * Se conservan los NOMBRES ORIGINALES de HubSpot (--t-…, --trellis-…) para que el desarrollador
+ * reconozca cada valor. Solo se incluyen los que usa el prototipo.
+ *
+ * Tipografías:
+ *  - "Lexend Deca" (texto, formularios, botones, tablas): pública, se carga de Google Fonts.
+ *  - "HubSpot Sans" (títulos de página y de card) y "HubSpot Serif" (cifras grandes): son
+ *    propietarias de HubSpot y no se pueden cargar. El prototipo usa Lexend Deca como sustituto,
+ *    así que los títulos se verán algo distintos que en HubSpot. En la app real los pinta HubSpot.
+ */
+
+:root {
+  /* ---------------------------------------------------------------- Tipografía */
+  --hs-font-body: "Lexend Deca", Helvetica, Arial, sans-serif;
+  --hs-font-heading: "HubSpot Sans", "Lexend Deca", Helvetica, Arial, sans-serif;
+  --hs-font-data: "Source Code Pro", ui-monospace, Consolas, monospace;
+
+  --t-sys-typography-heading-h1-36-font: 300 36px/42px var(--hs-font-heading);
+  --t-sys-typography-heading-h2-28-font: 400 28px/34px var(--hs-font-heading);
+  --t-sys-typography-heading-h3-24-font: 400 24px/30px var(--hs-font-heading);
+  --t-sys-typography-heading-h4-18-font: 400 18px/24px var(--hs-font-heading);
+  --hs-record-title-font: 500 22px/27px var(--hs-font-heading);      /* nombre del registro en la ficha */
+  --hs-card-title-font: 600 16px/20px var(--hs-font-body);          /* título de card en la ficha (medido) */
+  --t-card-content-title-font: 400 18px/24px var(--hs-font-heading); /* título de card de app (token) */
+
+  --t-sys-typography-body-md-14-regular-font: 300 14px/20px var(--hs-font-body);
+  --t-sys-typography-body-md-14-strong-font: 500 14px/20px var(--hs-font-body);
+  --t-sys-typography-body-sm-12-regular-font: 300 12px/18px var(--hs-font-body);
+  --t-sys-typography-body-sm-12-strong-font: 500 12px/18px var(--hs-font-body);
+  --t-field-label-font: 500 14px/20px var(--hs-font-body);
+  --t-field-supportMessage-description-font: 300 12px/18px var(--hs-font-body);
+  --t-button-label-font: 300 14px/20px var(--hs-font-body);
+  --t-tag-label-font: 300 12px/18px var(--hs-font-body);
+  --t-tabs-item-label-font: 300 14px/20px var(--hs-font-body);
+
+  /* ---------------------------------------------------------------- Color · base */
+  --t-sys-color-foundational-fg-normal-default: #333;     /* texto principal */
+  --t-sys-color-foundational-fg-subtle-default: #666;     /* texto secundario */
+  --t-sys-color-foundational-fg-normal-disabled: #8a8a8a;
+  --t-sys-color-foundational-fg-inverse-default: #fff;
+  --t-sys-color-foundational-fg-link-default: #006162;
+  --t-sys-color-foundational-fg-link-hover: #00494b;
+  --t-sys-color-foundational-fg-link-pressed: #033637;
+
+  --t-sys-color-foundational-bg-normal-default: #fff;
+  --t-sys-color-foundational-bg-normal-hover: #f0f0f0;
+  --t-sys-color-foundational-bg-normal-pressed: #e6e6e6;
+  --t-sys-color-foundational-bg-normal-disabled: #f5f5f5;
+  --t-sys-color-foundational-bg-subtle-default: #f0f0f0;
+  --trellis-color-fill-surface-default: #fff;              /* cards */
+  --trellis-color-fill-surface-recessed: #f0f0f0;          /* fondo de la página */
+
+  --t-sys-color-foundational-border-normal-default: #8a8a8a; /* inputs, botón secundario */
+  --t-sys-color-foundational-border-normal-hover: #666;
+  --t-sys-color-foundational-border-strong-default: #333;
+  --t-sys-color-foundational-border-subtle-default: #ccc;    /* cards, tablas, separadores */
+
+  /* Barra superior y navegación lateral (oscuras) */
+  --trellis-color-global-shell-fill-surface-default: #333;
+  --trellis-color-global-shell-fill-nav-item-hover: #4d4d4d;
+  --trellis-color-global-shell-fill-nav-item-selected: #666;
+  --trellis-color-global-shell-fill-logo-default: #ff4800;
+
+  /* ---------------------------------------------------------------- Color · acción (botones) */
+  --t-button-container-backgroundColor-primary-default: #00494b;
+  --t-button-container-backgroundColor-primary-hover: #006162;
+  --t-button-container-backgroundColor-primary-pressed: #00494b;
+  --t-button-container-backgroundColor-primary-disabled: #f5f5f5;
+  --t-button-label-color-primary-default: #fff;
+  --t-button-label-color-primary-disabled: #8a8a8a;
+
+  --t-button-container-backgroundColor-secondary-default: #fff;
+  --t-button-container-backgroundColor-secondary-hover: #e0fcfa;
+  --t-button-container-backgroundColor-secondary-pressed: #cdf8f5;
+  --t-button-container-borderColor-secondary-default: #8a8a8a;
+  --t-button-label-color-secondary-default: #333;
+
+  --t-button-container-backgroundColor-tertiary-default: rgba(255, 255, 255, 0);
+  --t-button-container-backgroundColor-tertiary-hover: #e0fcfa;
+  --t-button-label-color-tertiary-default: #333;
+
+  --trellis-color-fwc-button-fill-alert-default: #ac0020;   /* destructivo */
+  --trellis-color-fwc-button-text-alert-hover: #d9002b;
+
+  --t-focus-container-outlineColor: #0050c7;
+
+  /* ---------------------------------------------------------------- Color · semántico (Alert, StatusTag) */
+  --t-sys-color-semantic-info-bg-default: #eff8fc;
+  --t-sys-color-semantic-info-fg-default: #016de1;
+  --t-sys-color-semantic-success-bg-default: #f4fcf7;
+  --t-sys-color-semantic-success-border-default: #00823a;
+  --t-sys-color-semantic-success-fg-default: #006831;
+  --t-sys-color-semantic-caution-bg-default: #fcf6e6;
+  --t-sys-color-semantic-caution-border-default: #d39913;
+  --t-sys-color-semantic-caution-fg-default: #956309;
+  --t-sys-color-semantic-error-bg-default: #fcece9;
+  --t-sys-color-semantic-error-border-default: #d9002b;
+  --t-sys-color-semantic-error-fg-default: #ac0020;
+  --t-sys-color-semantic-neutral-bg-default: #ebebeb;
+  --t-sys-color-semantic-neutral-border-default: #8a8a8a;
+  --t-sys-color-semantic-neutral-fg-default: #666;
+  --t-alert-container-borderColor-info: #8a8a8a;
+
+  /* ---------------------------------------------------------------- Color · etiquetas (Tag) */
+  --t-tag-container-backgroundColor-neutral-default: #e6e6e6;
+  --t-tag-container-backgroundColor-green-default: #97dbae;
+  --t-tag-container-backgroundColor-yellow-default: #fbe0a5;
+  --t-tag-container-backgroundColor-red-default: #fcc5be;
+  --t-tag-container-backgroundColor-blue-default: #acdaf4;
+  --t-tag-container-backgroundColor-teal-default: #b3f0ed;
+  --t-tag-container-backgroundColor-purple-default: #d7cdfc;
+  --t-tag-container-backgroundColor-magenta-default: #fcc3dc;
+  --t-tag-container-backgroundColor-orange-default: #fcc6b1;
+
+  /* Etapas del pipeline (etiqueta de color con texto blanco, como en la ficha y el tablero) */
+  --trellis-color-fill-accent-blue-default: #016de1;
+  --trellis-color-fill-accent-red-default: #ac0020;
+  --trellis-color-fill-accent-magenta-default: #d20688;
+  --trellis-color-fill-accent-purple-default: #7d53e9;
+  --trellis-color-fill-caution-default: #f7c03e;
+  --trellis-color-fill-accent-green-default: #00823a;
+  --trellis-color-fill-accent-teal-default: #007c7d;
+  --trellis-color-fill-accent-neutral-default: #141414;
+
+  /* ---------------------------------------------------------------- Radios */
+  --trellis-border-radius-100: 6px;          /* etiquetas, pestañas, elementos pequeños */
+  --trellis-border-radius-300: 16px;         /* cards, modales, avisos, menús */
+  --trellis-border-radius-full: 999999px;    /* botones, inputs, selects: píldora */
+  --t-card-container-borderRadius: 16px;
+  --t-tag-container-borderRadius: 6px;
+  --t-alert-container-borderRadius: 16px;
+
+  /* ---------------------------------------------------------------- Sombras (medidas en pantalla) */
+  --hs-shadow-card: 0 1px 8px 0 rgba(20, 20, 20, 0.08);       /* cards de la ficha */
+  --hs-shadow-floating: 0 16px 32px 0 rgba(20, 20, 20, 0.08); /* modales, paneles, menús */
+  --t-sys-shadow-100: 0 1px 2px 0 rgba(44, 61, 79, 0.12);
+
+  /* ---------------------------------------------------------------- Tamaños y espacios */
+  --t-button-container-blockSize-sm: 32px;
+  --t-button-container-blockSize-md: 40px;
+  --t-button-container-paddingInline-sm: 16px;
+  --t-button-container-paddingInline-md: 20px;
+  --hs-field-height: 40px;
+  --t-tag-container-blockSize: 24px;
+  --t-tag-container-paddingInline: 8px;
+  --t-tabs-item-container-minBlockSize-line: 32px;
+  --t-tabs-item-container-paddingInline: 20px;
+  --t-card-container-padding-spacious: 24px;
+  --t-card-container-gap: 16px;
+  --t-field-label-spaceBottom: 8px;
+  --t-sidePanel-container-width: 400px;
+  --hs-table-row-height: 40px;
+  --hs-table-cell-padding-inline: 24px;
+
+  /* Espaciado de UI Extensions (AllDistances): flush | extra-small | small | medium | large | extra-large */
+  --hs-space-flush: 0px;
+  --hs-space-xs: 4px;
+  --hs-space-sm: 8px;
+  --hs-space-md: 16px;
+  --hs-space-lg: 24px;
+  --hs-space-xl: 32px;
+}
