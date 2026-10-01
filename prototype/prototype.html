@@ -99,6 +99,7 @@
   .proto-toggle input:checked + .proto-toggle__track { background: #d6247f; }
   .proto-toggle input:checked + .proto-toggle__track::after { left: 14px; }
   .proto-toggle input:focus-visible + .proto-toggle__track { outline: 2px solid #ff8fc4; outline-offset: 2px; }
+  .proto-back { display: inline-flex; align-items: center; text-decoration: none; margin-right: 10px; }
   .proto-reset:hover { background: rgba(255,143,196,.15); }
   .pc-props { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
   .pc-props button { width: 100%; text-align: left; background: none; border: 0; border-radius: 8px; padding: 4px 6px; color: #e6ebe8; font: 400 12px/16px var(--hs-font-body); cursor: pointer; }
@@ -134,11 +135,11 @@
   .proto-controls .pc-check { display: flex; gap: 8px; align-items: center; cursor: pointer; }
 </style>
 </head>
-<body class="hs show-annotations">
+<body class="hs">
 
 <div class="hs-shell">
   <div class="hs-topbar" data-hs="HubSpot shell (native)">
-    <span class="hs-topbar__logo"></span><span class="hs-topbar__search">Search HubSpot</span><span class="hs-topbar__spacer"></span><label class="proto-toggle" title="Prototype only: shows the HubSpot component behind each block, for the developer"><input type="checkbox" id="pc-ann" role="switch" checked><span class="proto-toggle__track"></span>Component names</label><label class="proto-toggle" title="Prototype only, for the developer: shows accessibility notes on the blocks that need them"><input type="checkbox" id="pc-a11y" role="switch"><span class="proto-toggle__track"></span>Accessibility notes</label><button class="proto-reset" data-pc-action="reset" title="Prototype only: back to the initial data">↺ Reset demo</button><span class="bell-wrap" id="bell"></span><span>BAS World</span>
+    <span class="hs-topbar__logo"></span><span class="hs-topbar__search">Search HubSpot</span><span class="hs-topbar__spacer"></span><a class="proto-reset proto-back" href="../index.html" title="Prototype only: back to the index page">← Back to index</a><label class="proto-toggle" title="Prototype only: shows the HubSpot component behind each block, for the developer"><input type="checkbox" id="pc-ann" role="switch"><span class="proto-toggle__track"></span>Component names</label><label class="proto-toggle" title="Prototype only, for the developer: shows accessibility notes on the blocks that need them"><input type="checkbox" id="pc-a11y" role="switch"><span class="proto-toggle__track"></span>Accessibility notes</label><button class="proto-reset" data-pc-action="reset" title="Prototype only: back to the initial data">↺ Reset demo</button><span class="bell-wrap" id="bell"></span><span>BAS World</span>
   </div>
   <nav class="hs-nav" aria-label="Main"><span class="hs-nav__item">⌂</span><span class="hs-nav__item is-selected">▤</span><span class="hs-nav__item">✉</span><span class="hs-nav__item">◷</span></nav>
 
@@ -1289,7 +1290,7 @@ document.addEventListener('keyup', e => { if (skipKeyup && (e.key === ' ' || e.k
 document.addEventListener('toggle', e => { if (S.overlay?.kind === 'vehicle' && e.target.dataset?.hs?.startsWith('Accordion · optional')) S.overlay.optOpen = e.target.open; }, true);
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && S.overlay) closeOverlay(); });
 
-try { const saved = localStorage.getItem('hs-annotations'); if (saved === '0') document.body.classList.remove('show-annotations'); } catch (e) {}
+try { if (localStorage.getItem('hs-annotations') === '1') document.body.classList.add('show-annotations'); } catch (e) {}   // apagado por defecto
 $('#pc-ann').checked = document.body.classList.contains('show-annotations');
 try { if (localStorage.getItem('hs-a11y') === '1') document.body.classList.add('show-a11y'); } catch (e) {}
 $('#pc-a11y').checked = document.body.classList.contains('show-a11y');
