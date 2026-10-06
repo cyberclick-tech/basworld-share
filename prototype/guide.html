@@ -67,25 +67,28 @@ tr:last-child td{border-bottom:0} td.id{font-family:var(--f-mono);font-weight:60
 <tbody>
 <tr><td><b>Add a vehicle</b></td><td>The form to add a vehicle. Change the type (Tractor head, Truck…) to see each one's fields, or try a Dutch plate such as 12-BLX-7.</td></tr>
 <tr><td><b>Complete a WhatsApp vehicle</b></td><td>A vehicle that arrived by WhatsApp with incomplete data («Needs review»). Fill in what is missing and save.</td></tr>
-<tr><td><b>Ask for a price</b></td><td>Asking PM for a price: choose an urgency and click «Ask for price». Afterwards you can change the urgency or cancel the request.</td></tr>
-<tr><td><b>PM price arrives</b></td><td>PM's answer arrives: a floating message, the notification bell and a «New price» tag in the table. Open the DAF to see PM's limits and the warning that the offer is above the maximum.</td></tr>
+<tr><td><b>Ask for a price</b></td><td>Asking PM for a price: choose an urgency (below it you can see when PM answers) and click «Ask for price». The urgency can't be changed afterwards.</td></tr>
+<tr><td><b>PM price arrives</b></td><td>PM's answer arrives: a notification in the bell. The open record doesn't update by itself: click «Refresh» or open the notification to see PM's limits and the warning that the offer is above the maximum.</td></tr>
 <tr><td><b>Bidmonitor error</b></td><td>Bidmonitor does not answer. Click «Retry».</td></tr>
 <tr><td><b>Ask for a new price</b></td><td>Asking for a price again when the supplier changes theirs. The previous limits stay folded until the new ones arrive.</td></tr>
 <tr><td><b>Create a proposal</b></td><td>The proposal modal. Try unticking every solution to see the rules, then create it: you will see the wait and the proposal as a Draft.</td></tr>
 <tr><td><b>Proposal error</b></td><td>The proposal service does not answer. Click «Retry».</td></tr>
-<tr><td><b>Send a proposal</b></td><td>Sending: «Send by email» (opens HubSpot's email composer), «Copy link» or «Mark as sent». All three end in Sent.</td></tr>
-<tr><td><b>Edit a sent proposal</b></td><td>When you edit a sent proposal, the yellow notice explains that a new Draft version is saved. Then check «Version history».</td></tr>
+<tr><td><b>Send a proposal</b></td><td>Send it with «Send by email» (opens HubSpot's email composer) or «Copy link». Then «Mark as sent» moves it to Sent.</td></tr>
+<tr><td><b>Edit a sent proposal</b></td><td>When you edit a sent proposal, the yellow notice explains that the supplier will see the changes on the same link. It stays Sent.</td></tr>
 </tbody>
 </table>
 </section>
 <section>
-<h2>4. Two things we need you to choose</h2>
-<p>At the bottom of «Prototype controls» there are two selectors that change the design. Try both options of each and tell us which works better (they are questions C32 and C33 below):</p>
+<h2>4. What you have already chosen</h2>
+<p>With your answers of 6 October, the prototype now shows only the chosen option:</p>
 <ul>
-<li><b>Identical vehicles</b>: <b>A · Quantity</b> (a single line item with a quantity; mileage and VIN per unit) or <b>B · Duplicate</b> (each unit is a row; «Duplicate» copies everything except mileage and VIN). <b>Note:</b> in B each unit is its own line item, so each would have its own price request and its own proposal (5 identical vehicles = 5 requests and 5 proposals); in A, a whole bundle has just one. The prototype flags this with a yellow notice when you choose B.</li>
-<li><b>Proposal modal</b>: <b>Full</b> (as in Bidmonitor, in two columns) or <b>Simplified</b> (just the solutions, with costs folded away).</li>
+<li><b>Identical vehicles: A · Quantity.</b> A single line item with a quantity. Mileage (or hours), license plate and VIN are entered per unit.</li>
+<li><b>Proposal modal: Full</b>, as in Bidmonitor, in two columns.</li>
+<li><b>One proposal, with one link</b> and no versions: when it's edited, the supplier sees the changes on the same link.</li>
+<li><b>Urgency is chosen once</b>, with each level's timing shown. <b>The license plate is stored</b> with the vehicle. <b>Capacity</b> is in m³.</li>
 </ul>
-<p>The other selectors (Vehicles table, Proposal tab) are only there to show the states: with data, empty, loading and error.</p>
+<p>We have also adjusted several screens so they look like what can be built with HubSpot's components: the photo slider, photo upload, the photos and pricing card, and the notices when PM's price arrives.</p>
+<p>The selectors in «Prototype controls» (Vehicles table, Proposal tab) are only there to show the states: with data, empty, loading and error.</p>
 </section>
 <section>
 <h2>5. What we need you to confirm</h2>
@@ -93,29 +96,22 @@ tr:last-child td{border-bottom:0} td.id{font-family:var(--f-mono);font-weight:60
 <table>
 <thead><tr><th>No.</th><th>Question</th></tr></thead>
 <tbody>
-<tr><td class="id">C22</td><td>Can a price be requested for a WhatsApp vehicle before its details are complete? Right now the button is disabled until then.</td></tr>
-<tr><td class="id">C23</td><td>For each type we used your required and optional fields (spreadsheet of 30/09). We also made the <b>asking price</b> required and folded the optional fields. Is that right?</td></tr>
-<tr><td class="id">C24</td><td>The license plate is used to look up the details. Should it also be stored as a vehicle field?</td></tr>
-<tr><td class="id">C25</td><td>Once a price has been requested, should the purchaser be able to change the urgency or cancel the request?</td></tr>
-<tr><td class="id">C26</td><td>What is the difference between «Urgent today» and «Urgent now» for PM? Are both needed?</td></tr>
-<tr><td class="id">C27</td><td>If the supplier changes their price after PM has answered, should the purchaser be able to ask for a price again?</td></tr>
+<tr><td class="id">C23</td><td>We made the <b>asking price</b> required. Is that right?</td></tr>
 <tr><td class="id">C28</td><td>Proposal rules: at least one solution included, the recommended one must be included, and the amounts of the included solutions are required. Is that right? Are any other fields required?</td></tr>
 <tr><td class="id">C29</td><td>When a proposal becomes Sent, should the Purchase stage change by itself (for example to «Proposal sent»)? With several proposals, we suggest it changes only when <b>all</b> of them are Sent, not with the first one. Is that right?</td></tr>
-<tr><td class="id">C30</td><td>When a sent proposal is edited, does the supplier keep the same link (which then shows the latest version) or get a new link per version? We assumed one link per version.</td></tr>
-<tr><td class="id">C31</td><td>Bundles and fields: (1) in a bundle each unit has mileage and VIN; in construction equipment and agriculture, working hours and VIN; in semi trailers, only the VIN. Is that right? (2) Power, mileage and working hours allow «Don't know» in your form; here they don't, because they are required. Should they? (3) What unit does «Capacity» use in Truck and Semi trailer?</td></tr>
-<tr><td class="id">C32</td><td>Identical vehicles: variant <b>A · Quantity</b> or <b>B · Duplicate</b>? In B, each unit would have its own price request and its own proposal (5 identical = 5 and 5).</td></tr>
-<tr><td class="id">C33</td><td>Proposal modal: <b>Full</b> or <b>Simplified</b> version? If you choose the simplified one, which fields must always be visible?</td></tr>
+<tr><td class="id">C34</td><td>In a bundle, each unit has its own license plate. We put it <b>per unit</b>, like the VIN, and in every vehicle type. Is that right?</td></tr>
+<tr><td class="id">C35</td><td>With a single link, when a sent proposal is edited the supplier sees the changes straight away. We suggest it <b>stays Sent</b> and you let them know with «Send again by email». Does that work for you?</td></tr>
+<tr><td class="id">P8</td><td>If the license plate registry says something different from what the supplier sent, the lookup <b>only fills in the empty fields</b> and shows you the differences so you can decide. Is that right?</td></tr>
 </tbody>
 </table>
 <h3>Our ideas</h3>
-<p>These ideas (numbered I1 to I6 in the panel, so we can refer to them) aren't questions, but we'd like your opinion: do you want them, would you change them, or would you drop them?</p>
+<p>These ideas (numbered in the panel, so we can refer to them) aren't questions, but we'd like your opinion: do you want them, would you change them, or would you drop them?</p>
 <table>
 <thead><tr><th>No.</th><th>Idea</th><th>What it is and where to see it</th></tr></thead>
 <tbody>
 <tr><td class="id">I1</td><td><b>Offer above PM's max</b></td><td>A warning, and a red tag next to the Offer price, when your offer is above PM's maximum. It warns, it doesn't block. Seen on the vehicle with a PM price (the DAF, after «PM price arrives»).</td></tr>
-<tr><td class="id">I2</td><td><b>Notification and «New price» tag</b></td><td>When PM's price arrives: a floating message, the notification bell with a counter and a «New price» tag in the table until you open the vehicle.</td></tr>
-<tr><td class="id">I3</td><td><b>Duplicate without opening the form</b></td><td>In variant B, «Duplicate» copies the row at once, without opening the form; the copy stays in «Needs review» until mileage and VIN are filled in.</td></tr>
-<tr><td class="id">I4</td><td><b>«Mark as sent» and «Send again»</b></td><td>On a Draft proposal, «Mark as sent» is always available (for example if you sent it on WhatsApp). On a Sent one, there is «Send again by email».</td></tr>
+<tr><td class="id">I2</td><td><b>Notification and «New price» tag</b></td><td>When PM's price arrives: a HubSpot notification in the bell and a «New price» tag in the table until you open the vehicle.</td></tr>
+<tr><td class="id">I4</td><td><b>«Mark as sent» and «Send again»</b></td><td>On a Draft proposal, «Mark as sent» is always available: after sending it by email or on WhatsApp. On a Sent one, there is «Send again by email».</td></tr>
 <tr><td class="id">I5</td><td><b>Offers summary on the proposal card</b></td><td>The proposal card lists the included offers, their amounts and the recommended one, without opening the link.</td></tr>
 <tr><td class="id">I6</td><td><b>Unselect an optional choice</b></td><td>In the form's «Optional information», clicking the selected option again (or pressing Enter on it with the keyboard) unselects it and leaves the field empty.</td></tr>
 </tbody>
@@ -127,8 +123,9 @@ tr:last-child td{border-bottom:0} td.id{font-family:var(--f-mono);font-weight:60
 <li>The data is made up and nothing is saved: reloading the page or clicking «Reset demo» puts everything back.</li>
 <li>PM's prices, the license plate registry, sending emails and «Copy link» are simulated.</li>
 <li>Uploading photos opens HubSpot's native file picker; here only a message appears.</li>
-<li>The public proposal page (<code>proposal.basworld.com</code>) is not part of this design: «Open v1 ↗» only says that it would open.</li>
+<li>The public proposal page (<code>proposal.basworld.com</code>) is not part of this design: the proposal link only says that it would open.</li>
 <li>The look is «similar, not exact» to HubSpot: what matters is where each piece goes and how it behaves.</li>
+<li><b>For the developer:</b> colours and type come from the variables of a portal with HubSpot's new theme. Components and their variants come from the <code>@hubspot/ui-extensions</code> 0.17.0 package and the official Figma kit, which <b>uses the old theme</b> (there is no kit for the new theme). Where we couldn't see a component in the new theme (for example <code>Modal</code> danger, <code>ErrorState</code>, <code>StepperInput</code>), the prototype draws it in a neutral way and the annotation says so: what the real component renders is what counts.</li>
 </ul>
 </section>
 <section>

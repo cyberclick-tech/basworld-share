@@ -285,8 +285,9 @@ ol.detail .d{font-size:15px;color:var(--muted);max-width:78ch}
 <p>Picks a type → its fields appear → saves. Each vehicle, or bundle of identical vehicles, = 1 line item. Can add several.</p>
 <div class="chips"><span class="chip card">Design</span><span class="chip us">US-02</span></div>
 <div class="c">Flow confirmed.</div>
-<div class="r">Identical vehicles: one line item with a quantity and a unit price (5 × €20,000 = €100,000). Units in a bundle differ only in mileage and VIN, which are entered per unit. Design two options for Basworld to choose from: (A) quantity, (B) duplicate the vehicle.</div>
-<div class="r">Nice-to-have: button to fill in data from the license plate. Dutch registry (RDW) only.</div>
+<div class="r">Identical vehicles: one line item with a quantity and a unit price (5 × €20,000 = €100,000). Units in a bundle differ only in mileage (or hours), license plate and VIN, which are entered per unit. BAS World chose option A (quantity) (6 Oct).</div>
+<div class="r">The license plate is stored on the vehicle (6 Oct). Nice-to-have: button to fill in the empty details from the license plate. Dutch registry (RDW) only.</div>
+<div class="c">The vehicle must be reviewed before asking for a price: PM needs complete details (6 Oct).</div>
 <div class="c">Documents and remarks: at Purchase level for now (native), not per vehicle.</div>
 <div class="q">Fields missing for 5 of the 6 types. Basworld delivers them by 7 October at the latest.</div>
 </div>
@@ -300,10 +301,11 @@ ol.detail .d{font-size:15px;color:var(--muted);max-width:78ch}
 </div>
 <div class="cell">
 <div class="step card"><div class="top"><span class="n">4</span><h4>Asks PM for a price</h4></div>
-<p>Checks asking / proposed / offer price, picks urgency and clicks "Ask for price". Once per vehicle.</p>
+<p>Checks asking / proposed / offer price, picks urgency and clicks "Ask for price". Once per vehicle. The urgency can't be changed afterwards.</p>
 <div class="chips"><span class="chip card">Design</span><span class="chip us">US-03</span></div>
 <div class="c">Confirmed.</div>
-<div class="c">If urgent, the vehicle goes to the top of PM's list in Bidmonitor.</div>
+<div class="c">If urgent, the vehicle goes to the top of PM's list in Bidmonitor. Urgent today = before the end of the day; Urgent now = immediately (6 Oct).</div>
+<div class="c">If the supplier changes their price, a new one can be requested ("Ask for a new price") (6 Oct).</div>
 </div>
 </div>
 <div class="cell">
@@ -316,7 +318,7 @@ ol.detail .d{font-size:15px;color:var(--muted);max-width:78ch}
 <p>Modal: costs, days to sell, explanation, language + which solutions to offer and which one to recommend.</p>
 <div class="chips"><span class="chip card">Design</span><span class="chip us">US-04</span></div>
 <div class="r">Configurable proposal: the purchaser picks which offers are included (direct purchase, commission sale, auction) and which one is recommended. Ticked = included; unticked = left out.</div>
-<div class="r">Design two versions of the modal (full, as in Bidmonitor, and simplified) for Basworld to choose from.</div>
+<div class="c">Modal: the full version, as in Bidmonitor (BAS World, 6 Oct).</div>
 <div class="c">One proposal per vehicle or bundle (line item with quantity). Different vehicles aren't combined.</div>
 </div>
 </div>
@@ -324,14 +326,14 @@ ol.detail .d{font-size:15px;color:var(--muted);max-width:78ch}
 <div class="step card"><div class="top"><span class="n">11</span><h4>Reviews, sends and edits the proposal</h4></div>
 <ol class="mini">
 <li>Once created, the proposal is a Draft. The purchaser reviews it through the link on the record.</li>
-<li>Sends it to the supplier: "Copy link" to share it via WhatsApp or their own email, or "Send by email" from HubSpot with the link included. It becomes Sent.</li>
-<li>If something must change, clicks "Edit proposal" to edit it: the same modal opens prefilled. Every change is kept in the version history. If it was Sent, it goes back to Draft (if technically possible) and must be sent again.</li>
+<li>Sends it to the supplier: "Copy link" to share it via WhatsApp or their own email, or "Send by email" from HubSpot with the link included. Then clicks "Mark as sent" and it becomes Sent.</li>
+<li>If something must change, clicks "Edit proposal" to edit it: the same modal opens prefilled. The link is always the same: the supplier sees the changes once they're saved. If it was Sent, it stays Sent and the supplier is told with "Send again by email".</li>
 </ol>
 <div class="chips"><span class="chip card">Design</span><span class="chip us">US-04</span></div>
 <div class="c">Statuses: only Draft and Sent. The button is called "Edit proposal" (in Bidmonitor, "Adjust proposal") because it modifies the existing proposal. Email keeps a tracked record of the link; customers often use WhatsApp.</div>
-<div class="c">Editing keeps the previous version in the history; it isn't overwritten. This is our assumption: if it works differently technically, the developer should correct it.</div>
-<div class="c">Sending: copy the link, with an option to email it from HubSpot. Editing a sent proposal sends it back to Draft.</div>
-<div class="r">Decide when it becomes Sent when "Copy link" is used (proposal: a "Mark as sent" button).</div>
+<div class="c">One sent proposal, the same link and no version history in HubSpot (BAS World, 6 Oct).</div>
+<div class="c">Sending: copy the link, with an option to email it from HubSpot. Either way it's marked with "Mark as sent": the app isn't told whether the email went out.</div>
+<div class="r">Open: the status of a sent proposal that is edited (proposal: it stays Sent) and where the supplier's answer is recorded.</div>
 </div>
 <div class="step"><div class="top"><span class="n">13</span><h4>Closes the Purchase</h4></div>
 <p>If accepted, the purchase order is created. If not, it's marked closed-lost with a reason.</p>
@@ -393,19 +395,19 @@ ol.detail .d{font-size:15px;color:var(--muted);max-width:78ch}
 <li class="phase">Stage 1 · Pre-leads</li>
 <li><span class="num">0</span><span class="t">The supplier offers a vehicle</span><span class="d">It comes in through several channels: trade-ins (vehicles handed in when buying a new one; added by sales), incoming calls (Elevate service), email, WhatsApp (if the supplier forwards a message to BAS World's WhatsApp, the vehicle is created automatically), tickets (someone fills in a form) or manual search.</span></li>
 <li><span class="num">1</span><span class="t">The purchaser has a Purchase record in HubSpot</span><span class="d">Usually the purchaser creates it and fills in the fields by hand: linked supplier (company and contact), source and lead generator. WhatsApp leads arrive already created; the purchaser reviews and completes them. Documents and remarks sit at Purchase level, using native attachments and notes. This is the native record: header, columns and associations come with HubSpot.</span></li>
-<li><span class="num">2</span><span class="t">Adds one or more vehicles</span><span class="d">In the "Vehicle information" tab: a vehicle table + "Add vehicle". Picking a type shows only that type's fields. Brand → model → cabin are chained. Each vehicle, or each bundle of identical vehicles, is a line item. A bundle has a quantity and a unit price (5 × €20,000 = €100,000); its units differ only in mileage and VIN. We'll design two options for identical vehicles (quantity or duplicate) and Basworld will choose. Nice-to-have: fill in data from the license plate (Dutch registry only). Fields for the other 5 types arrive by 7 October at the latest.</span></li>
+<li><span class="num">2</span><span class="t">Adds one or more vehicles</span><span class="d">In the "Vehicle information" tab: a vehicle table + "Add vehicle". Picking a type shows only that type's fields. Brand → model → cabin are chained. Each vehicle, or each bundle of identical vehicles, is a line item. A bundle has a quantity and a unit price (5 × €20,000 = €100,000); its units differ only in mileage (or hours), license plate and VIN. The license plate is stored. Nice-to-have: fill in data from the license plate (Dutch registry only).</span></li>
 <li><span class="num">3</span><span class="t">Uploads photos</span><span class="d">Per vehicle, up to 10. Each vehicle has its own slider, so the user picks which vehicle's photos to see. The slider uses native components: large photo, arrows, "3 / 10" counter, thumbnail row and zoom in a modal. The first photo is the main one and can be changed with "Set as main photo". Photos aren't reordered, so no iframe is needed.</span></li>
 <li class="phase">Stage 2 · Pricing</li>
-<li><span class="num">4</span><span class="t">Asks Product Management for a price</span><span class="d">With the supplier's prices filled in (asking, proposed sales, offer; per unit), the purchaser clicks "Ask for price" on each vehicle or bundle and picks the urgency. If urgent, the vehicle goes to the top of PM's list in Bidmonitor. The Purchase moves to Pricing.</span></li>
+<li><span class="num">4</span><span class="t">Asks Product Management for a price</span><span class="d">With the supplier's prices filled in (asking, proposed sales, offer; per unit), the purchaser clicks "Ask for price" on each vehicle or bundle and picks the urgency: not urgent (24 h), urgent today (before the end of the day) or urgent now (immediately). It can't be changed afterwards. If urgent, the vehicle goes to the top of PM's list in Bidmonitor. The Purchase moves to Pricing.</span></li>
 <li><span class="num">5</span><span class="t">The request goes to Bidmonitor</span><span class="d">The developer's backend sends the vehicle data and prices. We don't design this, but we do design the "request sent" state.</span></li>
 <li><span class="num">6</span><span class="t">PM sets the price constraints</span><span class="d">Max offer price, estimated selling price range (min/max), minimum auction price, prefinance amount and pricing strategy. PM keeps working in Bidmonitor (or a separate pricing tool). Prices come in through the integration and aren't changed in HubSpot. For purchaser–PM communication, HubSpot @mentions for now.</span></li>
 <li><span class="num">7</span><span class="t">The answer comes back to HubSpot</span><span class="d">Saved as vehicle properties; the Purchase moves to Price available. PM takes 24 hours at most: we design a visible waiting state and a notice to the purchaser when the price arrives.</span></li>
 <li class="phase">Stage 3 · Price available</li>
 <li><span class="num">8</span><span class="t">The purchaser sees the constraints</span><span class="d">In the pricing card, next to the supplier's prices.</span></li>
-<li><span class="num">9</span><span class="t">Creates the proposal</span><span class="d">One proposal per vehicle or bundle. A modal prefilled with PM's data. Adds expected days to sell, logistics and workshop costs, a price explanation and the language. Picks which offers are included (direct purchase, commission sale, auction), with amounts, and which is recommended: ticked = included, unticked = left out. We'll design two versions of the modal (full and simplified) for Basworld to choose from.</span></li>
+<li><span class="num">9</span><span class="t">Creates the proposal</span><span class="d">One proposal per vehicle or bundle. A modal prefilled with PM's data. Adds expected days to sell, logistics and workshop costs, a price explanation and the language. Picks which offers are included (direct purchase, commission sale, auction), with amounts, and which is recommended: ticked = included, unticked = left out. The modal is the full version, as in Bidmonitor.</span></li>
 <li><span class="num">10</span><span class="t">Generated with the existing API</span><span class="d">The same one Bidmonitor uses today. It calculates commission and inspection and returns a URL.</span></li>
 <li class="phase">Stage 4 · Proposal sent · Propuesta enviada</li>
-<li><span class="num">11</span><span class="t">Reviews, sends and edits the proposal</span><span class="d">Once created, the proposal is a Draft and its link appears on the record; the button becomes "Edit proposal". The purchaser reviews and sends it: "Copy link" to share it via WhatsApp or their own email, or "Send by email" to open HubSpot's email with the link included. It then becomes Sent. Those are the only two statuses. "Edit proposal" is for editing it: the same modal opens with the previous data and every change is kept in the version history. If it was Sent, it goes back to Draft and must be sent again.</span></li>
+<li><span class="num">11</span><span class="t">Reviews, sends and edits the proposal</span><span class="d">Once created, the proposal is a Draft and its link appears on the record; the button becomes "Edit proposal". The purchaser reviews and sends it: "Copy link" to share it via WhatsApp or their own email, or "Send by email" to open HubSpot's email with the link included. Then clicks "Mark as sent" and it becomes Sent. Those are the only two statuses. "Edit proposal" is for editing it: the same modal opens with the current data. The link is always the same and no versions are kept: the supplier sees the changes once they're saved. If it was Sent, it stays Sent and the supplier is told with "Send again by email".</span></li>
 <li><span class="num">12</span><span class="t">The supplier picks a solution</span><span class="d">On Basworld's public page, which we don't build. Their choice doesn't come back to HubSpot: it's communicated to the purchaser and handled manually.</span></li>
 <li><span class="num">13</span><span class="t">Closing</span><span class="d">If accepted, the purchase order is created. Today that's done manually in the ERP; "Create purchase" in HubSpot is phase 2. If not, it's closed with a reason.</span></li>
 </ol>

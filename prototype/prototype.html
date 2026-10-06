@@ -27,8 +27,6 @@
   .hs-record.is-right-collapsed .sidebar-toggle__fill { opacity: 0; }
   .quick-fill { background: var(--trellis-color-fill-surface-recessed, #f5f5f5); border: 1px solid #ebebeb; border-radius: 16px; padding: 16px; }
   .proto-hint { margin: 6px 0 0; font: 400 11px/16px var(--hs-font-body); color: #b0005a; }
-  .hs-table tr.is-new td { animation: row-new 2.6s ease-out; }
-  @keyframes row-new { from { background: #fdf0c8; } to { background: transparent; } }
   .tab-body { background: #fff; border: 1px solid #ccc; border-top: 0; border-radius: 0 0 16px 16px; padding: 16px; display: flex; flex-direction: column; gap: 16px; min-height: 480px; }
   .tab-body > .hs-card { box-shadow: none; }
   .record-head { display: flex; flex-direction: column; gap: 12px; }
@@ -47,24 +45,28 @@
   .price-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
   .divider { height: 1px; background: #ebebeb; margin: 0; border: 0; }
   .muted { color: #666; }
-  .slider-stage { position: relative; }
-  .slider-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; border: 1px solid #8a8a8a; background: #fff; cursor: pointer; font: 400 18px/1 var(--hs-font-body); }
-  .slider-nav.prev { left: 10px; } .slider-nav.next { right: 10px; }
-  .slider-count { position: absolute; right: 12px; bottom: 12px; padding: 2px 8px; border-radius: 6px; background: rgba(20,20,20,.72); color: #fff; font: 500 12px/18px var(--hs-font-body); }
-  .slider-main { position: absolute; left: 12px; top: 12px; }
-  .slider-zoom { position: absolute; right: 12px; top: 12px; }
+  /* Slider con componentes nativos (U1–U4): nada encima de la foto; flechas y contador debajo; miniaturas en filas */
+  .slider-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .slider-bar .hs-text { min-width: 48px; text-align: center; }
   .hs-image { cursor: zoom-in; }
+  .hs-thumbs { flex-wrap: wrap; overflow: visible; }
   .hs-thumbs button { background-size: cover; background-position: center; }
+  .hs-thumbs button[aria-current="true"] { border-color: transparent; }   /* nativo: sin estilo de "seleccionada" */
+  /* Card de foto + precio: dos columnas dentro de una sola card que se apilan si no caben (U8) */
+  .card-cols { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+  .card-cols > section { flex: 1 1 240px; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+  .card-cols h3 { margin: 0; }
+  /* Kilometraje, matrícula y VIN por unidad: filas sin líneas de tabla (U6) */
+  .unit-rows { display: flex; flex-direction: column; gap: 12px; }
+  .unit-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+  .unit-row > .hs-field { flex: 1 1 140px; min-width: 0; }
+  .unit-row > .unit-n { flex: 0 0 56px; padding-top: 30px; font: 500 14px/20px var(--hs-font-body); }
   .solutions { display: flex; flex-direction: column; gap: 12px; }
   .solution { border: 1px solid #ccc; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-  .solution.is-off { background: #f5f5f5; }
   .solution.is-off .solution__fields { display: none; }
   .solution__head { display: flex; align-items: center; gap: 12px; }
   .solution__head .hs-check { flex: 1; font-weight: 500; }
   .modal-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .version-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-  .version-list li { display: grid; grid-template-columns: 56px 1fr auto auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid #ebebeb; font: 300 14px/20px var(--hs-font-body); }
-  .version-list li:last-child { border-bottom: 0; }
   .proposal-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .proposal-head .hs-card__title { flex: 1; min-width: 200px; }
   .hs-tip { position: fixed; z-index: 90; transform: translate(-50%, -100%); padding: 6px 10px; border-radius: 8px; background: #2d2d2d; color: #fff; font: 500 12px/16px var(--hs-font-body); white-space: nowrap; pointer-events: none; animation: hs-fade-in 120ms ease-out; }
@@ -77,7 +79,14 @@
   .offer-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
   .offer-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .nice { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 6px; border: 1px dashed #7d53e9; color: #5a36c4; font: 500 11px/1 var(--hs-font-body); }
-  .units-table td .hs-input { height: 32px; padding: 4px 12px; }
+  /* Tabla de vehículos: solo el nombre se abre; la fila entera no es clicable ni se resalta (U7) */
+  .tab-body .hs-table tbody tr:hover td { background: transparent; }
+  /* Botones que acompañan a un Alert: justo debajo, no dentro (Alert no documenta botones dentro) */
+  .hs-alert + .hs-button-row { margin-top: -4px; }
+  .quick-fill .hs-alert + .hs-button-row { margin-top: 8px; }
+  /* StepperInput: − campo + */
+  .hs-stepper { display: flex; gap: 8px; align-items: center; }
+  .hs-stepper .hs-input { width: 80px; text-align: center; }
   .note-pending { border: 1px dashed #8a8a8a; border-radius: 16px; padding: 16px; color: #666; }
 
   .bell-wrap { position: relative; margin-right: 16px; }
@@ -227,50 +236,48 @@ const eur = n => n == null || n === '' ? '—' : new Intl.NumberFormat('en-IE', 
 
 const vehicles = [
   { id: 1, name: 'Volvo FH 460 4x2', type: 'Tractor head', source: 'Manual', brand: 'Volvo', model: 'FH', hp: '460', config: '4X2', cabin: 'Globetrotter', firstReg: '12/03/2020', euro: 'Euro 6', gearbox: 'Automatic gearbox', retarder: 'Retarder',
-    units: [{ mileage: 412000, vin: 'YV2RT40A5LB123456' }], asking: 48500, proposed: 52000, offer: 46000,
+    units: [{ mileage: 412000, plate: '73-BKX-4', vin: 'YV2RT40A5LB123456' }], asking: 48500, proposed: 52000, offer: 46000,
     photos: photos(6, 200), main: 0,
     price: { status: 'received', urgency: 'Urgent today', requestedAt: '28/09/2026 10:12', receivedAt: '28/09/2026 16:40',
              maxOffer: 47000, estMin: 52000, estMax: 56000, minAuction: 44000, prefinance: 25000 },
-    proposals: [
-      { v: 1, status: 'Sent', date: '29/09/2026 09:30', by: 'Anna de Vries' },
-      { v: 2, status: 'Draft', date: '29/09/2026 11:05', by: 'Anna de Vries' } ] },
+    proposal: { status: 'Sent', createdAt: '29/09/2026 09:30', sentAt: '29/09/2026 09:42', by: 'Anna de Vries' } },
   { id: 2, name: 'DAF XF 480 FT', type: 'Tractor head', source: 'Incoming call', brand: 'DAF', model: 'XF', hp: '480', config: '4X2', cabin: 'Super Space Cab', firstReg: '08/06/2021', euro: 'Euro 6', gearbox: 'Automatic gearbox', retarder: 'Intarder',
-    units: [{ mileage: 380000, vin: 'XLRTEH4300G100001' }, { mileage: 395500, vin: 'XLRTEH4300G100002' }, { mileage: 402100, vin: 'XLRTEH4300G100003' }, { mileage: 377800, vin: 'XLRTEH4300G100004' }, { mileage: 410250, vin: 'XLRTEH4300G100005' }],
+    units: [{ mileage: 380000, plate: '41-BPL-6', vin: 'XLRTEH4300G100001' }, { mileage: 395500, plate: '41-BPL-7', vin: 'XLRTEH4300G100002' }, { mileage: 402100, plate: '41-BPL-8', vin: 'XLRTEH4300G100003' }, { mileage: 377800, plate: '', vin: 'XLRTEH4300G100004' }, { mileage: 410250, plate: '', vin: 'XLRTEH4300G100005' }],
     asking: 20000, proposed: 23500, offer: 19000, photos: photos(10, 12), main: 2,
-    price: { status: 'requested', urgency: 'Urgent today', requestedAt: '29/09/2026 08:45' }, proposals: [] },
+    price: { status: 'requested', urgency: 'Urgent today', requestedAt: '29/09/2026 08:45' }, proposal: null },
   { id: 3, name: 'Schmitz Cargobull SKO 24', type: 'Semi trailer', source: 'Manual', brand: 'Schmitz Cargobull', superstructure: 'Closed', axleCount: '3 axles', firstReg: '15/01/2019',
-    units: [{ mileage: null, vin: 'WSM00000003123456' }], asking: 15000, proposed: null, offer: null,
-    photos: [], main: 0, price: { status: 'none' }, proposals: [] },
+    units: [{ mileage: null, plate: 'OK-48-TR', vin: 'WSM00000003123456' }], asking: 15000, proposed: null, offer: null,
+    photos: [], main: 0, price: { status: 'none' }, proposal: null },
   // Llega de WhatsApp con datos incompletos: le faltan cabina, retarder, euronorma, matriculación, configuración y kilometraje (Needs review)
   { id: 4, name: 'Mercedes-Benz Actros 1845', type: 'Tractor head', source: 'WhatsApp', brand: 'Mercedes', model: 'Actros', hp: '450',
-    units: [{ mileage: null, vin: '' }], asking: 36000, proposed: null, offer: null,
-    photos: photos(3, 150), main: 0, price: { status: 'none' }, proposals: [] },
+    units: [{ mileage: null, plate: '', vin: '' }], asking: 36000, proposed: null, offer: null,
+    photos: photos(3, 150), main: 0, price: { status: 'none' }, proposal: null },
 ];
 
 // ================================================================ Estado de la interfaz
 const S = {
   tab: 'vehicles', view: 'list', vehicleId: null,
   listState: 'filled',        // filled | empty | loading | error
-  bundle: 'A',                // A = cantidad · B = duplicar
-  proposalModal: 'full',      // full | simple
   propState: 'filled',        // filled | loading | error (pestaña Proposal)
   failNext: false,            // simular error de Bidmonitor en la próxima petición
-  photoIdx: {}, copied: {}, requesting: {}, errors: {}, urg: {},
+  photoIdx: {}, copied: {}, requesting: {}, errors: {}, urg: {}, emailed: {},
+  incoming: {}, refreshing: {},   // precio que ya llegó a HubSpot pero la card abierta aún no muestra (U10)
   notifications: [], bellOpen: false, hint: '',
   overlay: null,              // { kind, ...datos }
 };
 const $ = s => document.querySelector(s);
 const find = id => vehicles.find(v => v.id === id);
 const qty = v => v.units.length;
-const bq = v => S.bundle === 'A' ? qty(v) : 1;   // cantidad de lote visible: en la variante B no hay lotes
-const latest = v => v.proposals[v.proposals.length - 1];
+// Una sola propuesta por vehículo o lote, con un solo enlace y sin versiones en HubSpot (C30)
+const latest = v => v.proposal;
 let nextId = 200;
 
 // Campos por tipo de vehículo: vienen del Excel de Basworld (30/09/2026), hoja "Overzicht" y una hoja por tipo.
 // Obligatorio = sección "Vehicle info"; opcional = "Optional info" (plegada). Marcas, modelos y cabinas: hojas
 // "Merken & modellen" y "Cabines". Kilometraje / horas de uso: van por unidad (metric). VIN: siempre por unidad.
-// Los obligatorios del precio (asking) siguen siendo suposición nuestra (C23).
-const TYPES = {"Tractor head":{"fields":[{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"model","label":"Model","req":true,"kind":"select"},{"k":"cabin","label":"Cabin","req":true,"kind":"select"},{"k":"retarder","label":"Retarder","req":true,"kind":"select","opts":["No","Retarder","Intarder"],"dk":true},{"k":"euro","label":"Euronorm","req":true,"kind":"select","opts":["Euro 1","Euro 2","Euro 3","Euro 4","Euro 5","Euro 6"],"dk":true},{"k":"hp","label":"Power","req":true,"kind":"hp"},{"k":"firstReg","label":"First registration","req":true,"kind":"date"},{"k":"config","label":"Configuration","req":true,"kind":"select","opts":["4X2","4X4","6X2","6X4","6X6","8X2","8X4","8X6","8X8","10X4","10X6","10X8","10X10","12X4","12X6","12X12","14X14","16X16"]},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"gearbox","label":"Gearbox","req":false,"kind":"select","opts":["Automatic gearbox","Manual"],"dk":true},{"k":"optMega","label":"Low-deck (mega)","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"bedAmount","label":"Beds","req":false,"kind":"select","opts":["No","1","2"],"dk":true},{"k":"tanks","label":"Tanks","req":false,"kind":"select","opts":["1","2"],"dk":true},{"k":"hyd","label":"Hydraulics","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true}],"metric":{"k":"mileage","label":"Mileage","unit":"km","req":true}},"Truck":{"fields":[{"k":"superstructure","label":"Superstructure","req":true,"kind":"select","opts":["Tipper","Closed","Curtainsides","Open","BDF hoist equipment","Containersystem","Chassis","Refrigerated","Dumper","Concrete mixer","Concrete pump","Garbage truck","Tank","pump/mixer","Silo","Car Truck transport","car/truck recovery","Cattle transport","Other"]},{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"model","label":"Model","req":true,"kind":"select"},{"k":"cabin","label":"Cabin","req":true,"kind":"select"},{"k":"euro","label":"Euronorm","req":true,"kind":"select","opts":["Euro 1","Euro 2","Euro 3","Euro 4","Euro 5","Euro 6"],"dk":true},{"k":"hp","label":"Power","req":true,"kind":"hp"},{"k":"config","label":"Configuration","req":true,"kind":"select","opts":["4X2","4X4","6X2","6X4","6X6","8X2","8X4","8X6","8X8","10X4","10X6","10X8","10X10","12X4","12X6","12X12","14X14","16X16"]},{"k":"firstReg","label":"First registration","req":true,"kind":"date"},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"axleCount","label":"Number of axles","req":false,"kind":"select","opts":["1 Axle","2 axles","3 axles","4 axles","5 axles","6 axles","7 axles","8 axles","9 axles","10 axles","11 axles","12 axles","Other"]},{"k":"axleReduction","label":"Hub reduction","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"gearbox","label":"Gearbox","req":false,"kind":"select","opts":["Automatic gearbox","Semi-automatic","Manual"],"dk":true},{"k":"optCrane","label":"Crane","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"craneBrand","label":"Crane brand and model","req":false,"kind":"text"},{"k":"bedAmount","label":"Beds","req":false,"kind":"select","opts":["No","1","2"],"dk":true},{"k":"structureBrand","label":"Superstructure brand","req":false,"kind":"select","opts":["Cifa","Putzmeister","Schwing","Liebherr","Sermac","Sany","Other"]},{"k":"capacityAmount","label":"Capacity","req":false,"kind":"number"},{"k":"tailgate","label":"Tail lift","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"tipperSide","label":"Tipper side","req":false,"kind":"select","opts":["Rear axle","Left","Right"],"dk":true},{"k":"retarder","label":"Retarder","req":false,"kind":"select","opts":["No","Retarder","Intarder"],"dk":true}],"metric":{"k":"mileage","label":"Mileage","unit":"km","req":true}},"Semi trailer":{"fields":[{"k":"superstructure","label":"Superstructure","req":true,"kind":"select","opts":["Tipper","Closed","Curtainsides","Open","Container chassis","Containersystem","Refrigerated","Concrete mixer","Tank","Silo","Car Truck transport","Deeploader","Walking floor","Cattle transport","Other"]},{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"firstReg","label":"First registration","req":true,"kind":"date"},{"k":"axleCount","label":"Number of axles","req":true,"kind":"select","opts":["1 Axle","2 axles","3 axles","4 axles","5 axles","6 axles","7 axles","8 axles","9 axles","10 axles","11 axles","12 axles","Other"]},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"liftAxle","label":"Lift axle","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"steeringAxle","label":"Steering axle","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"optCrane","label":"Crane","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"capacityAmount","label":"Capacity","req":false,"kind":"number"},{"k":"tailgate","label":"Tail lift","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"coil","label":"Coil","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"roof","label":"Roof","req":false,"kind":"multi","opts":["Lift roof","Slide roof","None"],"dk":true},{"k":"tipperSide","label":"Tipper side","req":false,"kind":"select","opts":["Rear axle","Left","Right"],"dk":true},{"k":"material","label":"Material","req":false,"kind":"select","opts":["Steel","Aluminum"],"dk":true},{"k":"floorThickness","label":"Floor thickness (cm)","req":false,"kind":"number","unit":"cm"},{"k":"optMega","label":"Low-deck (mega)","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"coolingEngineAvailable","label":"Cooling engine","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"coolingEngineOperator","label":"Cooling engine drive","req":false,"kind":"select","opts":["DIESEL","DIESEL/ELECTRONIC","ELECTRONIC"],"dk":true}],"metric":null},"Construction equipment":{"fields":[{"k":"superstructure","label":"Superstructure","req":true,"kind":"select","opts":["Loader","Backhoe","Track excavator","Wheel excavator","Mini excavator <10t","Material handler","Bulldozer","Grader","Roller","Single drum roller","Twin drum rollers","Combi(nation) rollers","Pneumatic Tired Roller","Forklift","Articulated dumper","Rigid dumper","Mobile crusher","Screening plant","All terrain crane","Construction crane","Other"]},{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"model","label":"Model","req":true,"kind":"text"},{"k":"productionDate","label":"Production date","req":true,"kind":"date"},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"weight","label":"Weight (tons)","req":false,"kind":"number","unit":"tons"},{"k":"config","label":"Configuration","req":false,"kind":"select","opts":["4X2","4X4","6X2","6X4","6X6","8X2","8X4","8X6","8X8","10X4","10X6","10X8","10X10","12X4","12X6","12X12","14X14","16X16","Single Roller","Double Roller","Pneumatic Roller"]},{"k":"machineryCeDocuments","label":"CE certified, with documents","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"machineryEpaSticker","label":"EPA sticker","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"machineryCabinAirco","label":"Cabin air conditioning","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true}],"metric":{"k":"mileage","label":"Working hours","unit":"h","req":true}},"Light commercial vehicle":{"fields":[{"k":"superstructure","label":"Superstructure","req":true,"kind":"select","opts":["Closed van","Closed box","Tipper","Open box","Refrigerated","Closed box refrigerated","Ambulance","Chassis cabin","Small van","Passenger transport","Car transporter van","Curtainsides","BE Tractorhead","Horse truck","Other"]},{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"model","label":"Model","req":true,"kind":"select"},{"k":"gearbox","label":"Gearbox","req":true,"kind":"select","opts":["Automatic gearbox","Semi-automatic","Manual"],"dk":true},{"k":"typeExtended","label":"Type","req":true,"kind":"text"},{"k":"firstReg","label":"First registration","req":true,"kind":"date"},{"k":"hp","label":"Power","req":true,"kind":"hp"},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"optAirco","label":"Air conditioning","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"cruiseControl","label":"Cruise control","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"navigation","label":"Navigation","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"towbar","label":"Towbar","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"cabin","label":"Cabin","req":false,"kind":"select"},{"k":"euro","label":"Euronorm","req":false,"kind":"select","opts":["Euro 1","Euro 2","Euro 3","Euro 4","Euro 5","Euro 6"],"dk":true},{"k":"coolingEngineAvailable","label":"Cooling engine","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"tipperSide","label":"Tipper side","req":false,"kind":"select","opts":["Rear axle","Left","Right"],"dk":true},{"k":"edition","label":"Edition (van size)","req":false,"kind":"select","opts":["L1H1","L1H2","L1H3","L2H1","L2H2","L2H3","L2LH2","L2LH3","L3H1","L3H2","L3H3","L4H1","L4H2","L4H3","L5H3"]}],"metric":{"k":"mileage","label":"Mileage","unit":"km","req":true}},"Agriculture":{"fields":[{"k":"superstructure","label":"Superstructure","req":true,"kind":"select","opts":["Tractor","Manure spreader","Combine harvester","Potato harvester","Forage harvester","Agriculture sprayer"]},{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"model","label":"Model","req":true,"kind":"text"},{"k":"productionDate","label":"Production date","req":true,"kind":"date"},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"gearbox","label":"Gearbox","req":false,"kind":"select","opts":["mechanical","semi-powershift","full powershift","vario"],"dk":true},{"k":"machineryMaxSpeed","label":"Max speed (km/h)","req":false,"kind":"select","opts":["25","30","40","50","60"],"dk":true},{"k":"newSpringFrontAxle","label":"Spring front axle","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"machineryTankCapacity","label":"Tank capacity (liter)","req":false,"kind":"number","unit":"liter"},{"k":"machineryPumpType","label":"Pump type","req":false,"kind":"multi","opts":["Centrifugal","Worm pump","Lobe pump"],"dk":true},{"k":"tumblingHours","label":"Tumbling hours","req":false,"kind":"number","unit":"h"},{"k":"machineryNumberOfRows","label":"Number of rows","req":false,"kind":"select","opts":["1","2","4","6","8"],"dk":true},{"k":"cutterHours","label":"Cutter hours","req":false,"kind":"number","unit":"h"},{"k":"newTrackWidth","label":"Track width","req":false,"kind":"select","opts":["21","24","27","30","32","36","40","42"],"dk":true}],"metric":{"k":"mileage","label":"Working hours","unit":"h","req":true}}};
+// Los obligatorios del precio (asking) siguen siendo suposición nuestra (C23). Capacity en m³ (C31).
+// Matrícula: se guarda (C24), opcional y por unidad, como el VIN (propuesta nuestra, C34).
+const TYPES = {"Tractor head":{"fields":[{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"model","label":"Model","req":true,"kind":"select"},{"k":"cabin","label":"Cabin","req":true,"kind":"select"},{"k":"retarder","label":"Retarder","req":true,"kind":"select","opts":["No","Retarder","Intarder"],"dk":true},{"k":"euro","label":"Euronorm","req":true,"kind":"select","opts":["Euro 1","Euro 2","Euro 3","Euro 4","Euro 5","Euro 6"],"dk":true},{"k":"hp","label":"Power","req":true,"kind":"hp"},{"k":"firstReg","label":"First registration","req":true,"kind":"date"},{"k":"config","label":"Configuration","req":true,"kind":"select","opts":["4X2","4X4","6X2","6X4","6X6","8X2","8X4","8X6","8X8","10X4","10X6","10X8","10X10","12X4","12X6","12X12","14X14","16X16"]},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"gearbox","label":"Gearbox","req":false,"kind":"select","opts":["Automatic gearbox","Manual"],"dk":true},{"k":"optMega","label":"Low-deck (mega)","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"bedAmount","label":"Beds","req":false,"kind":"select","opts":["No","1","2"],"dk":true},{"k":"tanks","label":"Tanks","req":false,"kind":"select","opts":["1","2"],"dk":true},{"k":"hyd","label":"Hydraulics","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true}],"metric":{"k":"mileage","label":"Mileage","unit":"km","req":true}},"Truck":{"fields":[{"k":"superstructure","label":"Superstructure","req":true,"kind":"select","opts":["Tipper","Closed","Curtainsides","Open","BDF hoist equipment","Containersystem","Chassis","Refrigerated","Dumper","Concrete mixer","Concrete pump","Garbage truck","Tank","pump/mixer","Silo","Car Truck transport","car/truck recovery","Cattle transport","Other"]},{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"model","label":"Model","req":true,"kind":"select"},{"k":"cabin","label":"Cabin","req":true,"kind":"select"},{"k":"euro","label":"Euronorm","req":true,"kind":"select","opts":["Euro 1","Euro 2","Euro 3","Euro 4","Euro 5","Euro 6"],"dk":true},{"k":"hp","label":"Power","req":true,"kind":"hp"},{"k":"config","label":"Configuration","req":true,"kind":"select","opts":["4X2","4X4","6X2","6X4","6X6","8X2","8X4","8X6","8X8","10X4","10X6","10X8","10X10","12X4","12X6","12X12","14X14","16X16"]},{"k":"firstReg","label":"First registration","req":true,"kind":"date"},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"axleCount","label":"Number of axles","req":false,"kind":"select","opts":["1 Axle","2 axles","3 axles","4 axles","5 axles","6 axles","7 axles","8 axles","9 axles","10 axles","11 axles","12 axles","Other"]},{"k":"axleReduction","label":"Hub reduction","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"gearbox","label":"Gearbox","req":false,"kind":"select","opts":["Automatic gearbox","Semi-automatic","Manual"],"dk":true},{"k":"optCrane","label":"Crane","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"craneBrand","label":"Crane brand and model","req":false,"kind":"text"},{"k":"bedAmount","label":"Beds","req":false,"kind":"select","opts":["No","1","2"],"dk":true},{"k":"structureBrand","label":"Superstructure brand","req":false,"kind":"select","opts":["Cifa","Putzmeister","Schwing","Liebherr","Sermac","Sany","Other"]},{"k":"capacityAmount","label":"Capacity","req":false,"kind":"number","unit":"m³"},{"k":"tailgate","label":"Tail lift","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"tipperSide","label":"Tipper side","req":false,"kind":"select","opts":["Rear axle","Left","Right"],"dk":true},{"k":"retarder","label":"Retarder","req":false,"kind":"select","opts":["No","Retarder","Intarder"],"dk":true}],"metric":{"k":"mileage","label":"Mileage","unit":"km","req":true}},"Semi trailer":{"fields":[{"k":"superstructure","label":"Superstructure","req":true,"kind":"select","opts":["Tipper","Closed","Curtainsides","Open","Container chassis","Containersystem","Refrigerated","Concrete mixer","Tank","Silo","Car Truck transport","Deeploader","Walking floor","Cattle transport","Other"]},{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"firstReg","label":"First registration","req":true,"kind":"date"},{"k":"axleCount","label":"Number of axles","req":true,"kind":"select","opts":["1 Axle","2 axles","3 axles","4 axles","5 axles","6 axles","7 axles","8 axles","9 axles","10 axles","11 axles","12 axles","Other"]},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"liftAxle","label":"Lift axle","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"steeringAxle","label":"Steering axle","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"optCrane","label":"Crane","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"capacityAmount","label":"Capacity","req":false,"kind":"number","unit":"m³"},{"k":"tailgate","label":"Tail lift","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"coil","label":"Coil","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"roof","label":"Roof","req":false,"kind":"multi","opts":["Lift roof","Slide roof","None"],"dk":true},{"k":"tipperSide","label":"Tipper side","req":false,"kind":"select","opts":["Rear axle","Left","Right"],"dk":true},{"k":"material","label":"Material","req":false,"kind":"select","opts":["Steel","Aluminum"],"dk":true},{"k":"floorThickness","label":"Floor thickness (cm)","req":false,"kind":"number","unit":"cm"},{"k":"optMega","label":"Low-deck (mega)","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"coolingEngineAvailable","label":"Cooling engine","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"coolingEngineOperator","label":"Cooling engine drive","req":false,"kind":"select","opts":["DIESEL","DIESEL/ELECTRONIC","ELECTRONIC"],"dk":true}],"metric":null},"Construction equipment":{"fields":[{"k":"superstructure","label":"Superstructure","req":true,"kind":"select","opts":["Loader","Backhoe","Track excavator","Wheel excavator","Mini excavator <10t","Material handler","Bulldozer","Grader","Roller","Single drum roller","Twin drum rollers","Combi(nation) rollers","Pneumatic Tired Roller","Forklift","Articulated dumper","Rigid dumper","Mobile crusher","Screening plant","All terrain crane","Construction crane","Other"]},{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"model","label":"Model","req":true,"kind":"text"},{"k":"productionDate","label":"Production date","req":true,"kind":"date"},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"weight","label":"Weight (tons)","req":false,"kind":"number","unit":"tons"},{"k":"config","label":"Configuration","req":false,"kind":"select","opts":["4X2","4X4","6X2","6X4","6X6","8X2","8X4","8X6","8X8","10X4","10X6","10X8","10X10","12X4","12X6","12X12","14X14","16X16","Single Roller","Double Roller","Pneumatic Roller"]},{"k":"machineryCeDocuments","label":"CE certified, with documents","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"machineryEpaSticker","label":"EPA sticker","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"machineryCabinAirco","label":"Cabin air conditioning","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true}],"metric":{"k":"mileage","label":"Working hours","unit":"h","req":true}},"Light commercial vehicle":{"fields":[{"k":"superstructure","label":"Superstructure","req":true,"kind":"select","opts":["Closed van","Closed box","Tipper","Open box","Refrigerated","Closed box refrigerated","Ambulance","Chassis cabin","Small van","Passenger transport","Car transporter van","Curtainsides","BE Tractorhead","Horse truck","Other"]},{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"model","label":"Model","req":true,"kind":"select"},{"k":"gearbox","label":"Gearbox","req":true,"kind":"select","opts":["Automatic gearbox","Semi-automatic","Manual"],"dk":true},{"k":"typeExtended","label":"Type","req":true,"kind":"text"},{"k":"firstReg","label":"First registration","req":true,"kind":"date"},{"k":"hp","label":"Power","req":true,"kind":"hp"},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"optAirco","label":"Air conditioning","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"cruiseControl","label":"Cruise control","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"navigation","label":"Navigation","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"towbar","label":"Towbar","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"cabin","label":"Cabin","req":false,"kind":"select"},{"k":"euro","label":"Euronorm","req":false,"kind":"select","opts":["Euro 1","Euro 2","Euro 3","Euro 4","Euro 5","Euro 6"],"dk":true},{"k":"coolingEngineAvailable","label":"Cooling engine","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"tipperSide","label":"Tipper side","req":false,"kind":"select","opts":["Rear axle","Left","Right"],"dk":true},{"k":"edition","label":"Edition (van size)","req":false,"kind":"select","opts":["L1H1","L1H2","L1H3","L2H1","L2H2","L2H3","L2LH2","L2LH3","L3H1","L3H2","L3H3","L4H1","L4H2","L4H3","L5H3"]}],"metric":{"k":"mileage","label":"Mileage","unit":"km","req":true}},"Agriculture":{"fields":[{"k":"superstructure","label":"Superstructure","req":true,"kind":"select","opts":["Tractor","Manure spreader","Combine harvester","Potato harvester","Forage harvester","Agriculture sprayer"]},{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"model","label":"Model","req":true,"kind":"text"},{"k":"productionDate","label":"Production date","req":true,"kind":"date"},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"gearbox","label":"Gearbox","req":false,"kind":"select","opts":["mechanical","semi-powershift","full powershift","vario"],"dk":true},{"k":"machineryMaxSpeed","label":"Max speed (km/h)","req":false,"kind":"select","opts":["25","30","40","50","60"],"dk":true},{"k":"newSpringFrontAxle","label":"Spring front axle","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"machineryTankCapacity","label":"Tank capacity (liter)","req":false,"kind":"number","unit":"liter"},{"k":"machineryPumpType","label":"Pump type","req":false,"kind":"multi","opts":["Centrifugal","Worm pump","Lobe pump"],"dk":true},{"k":"tumblingHours","label":"Tumbling hours","req":false,"kind":"number","unit":"h"},{"k":"machineryNumberOfRows","label":"Number of rows","req":false,"kind":"select","opts":["1","2","4","6","8"],"dk":true},{"k":"cutterHours","label":"Cutter hours","req":false,"kind":"number","unit":"h"},{"k":"newTrackWidth","label":"Track width","req":false,"kind":"select","opts":["21","24","27","30","32","36","40","42"],"dk":true}],"metric":{"k":"mileage","label":"Working hours","unit":"h","req":true}}};
 const BRANDS = {"Tractor head":["Volvo","DAF","MAN","Mercedes","Scania","Renault","IVECO","Other"],"Truck":["Volvo","Mercedes","DAF","MAN","IVECO","Renault","Scania","Other"],"Semi trailer":["Schmitz Cargobull","Kögel","Krone","Van Hool","Pacton","LAG","Knapen","Other"],"Construction equipment":["Caterpillar","Volvo","JCB","Doosan","Hitachi","Komatsu","Hyundai","Liebherr","CASE","Takeuchi","Kubota","Yanmar","Dynapac","Ammann","Bomag","Hamm","Terex","Toyota","Hyster","Linde","Still","Yale","Jungheinrich","Mitsubishi","Finlay","Atlas","Other"],"Light commercial vehicle":["Mercedes","IVECO","Renault","Volkswagen","Ford","MAN","Fiat","Other"],"Agriculture":["Agrifac","Amazone","AVR","Case","Caterpillar","Challenger","CHD","Claas","Delvano","Deutz-Fahr","Dewulf","Dubex","Evrard","Fendt","Fiat","Grimme","Hardi","JCB","John Deere","Joskin","Kaweco","Kirovets","Krone","Kubota","Kverneland","Massey Ferguson","Mc Cormick","New Holland","Peecon","Ploeger","Rabe","Ropa","Schuitemaker","Seko","Steyr","TATRA","Tecnoma","Terragator","Toro","Trioliet","Vervaet","Vredo","Zetor","Other"]};
 const MODELS = {"Tractor head":{"Volvo":["F","FE","FH","FH Aero","FH16","FH16 Aero","FL","FM","FMX","VNL","Other"],"DAF":["CF","LF","NXF","NXG","XD","XF","XG","XG+","Other"],"MAN":["EC220 DL","FAK","FNL","TGA","TGL","TGM","TGS","TGX","X3128","Other"],"Mercedes":["Actros","Antos","Arocs","Atego","Axor","SK","Unimog","Other"],"Scania":["G","P","R","S","T","Other"],"Renault":["C","D","K","Kerax","Lander","Magnum","Midlum","Premium","T","Other"],"IVECO":["Eurocargo","Eurostar","Eurotech","EuroTrakker","S-Way","Stralis","Stralis XP","T-Way","Trakker","X-Way","Other"],"Other":["Other"]},"Truck":{"Volvo":["F","FE","FH","FH16","FL","FM","FMX","Other"],"Mercedes":["Actros","Antos","Arocs","Atego","Axor","Econic","SK","Unimog","Other"],"DAF":["CF","F","LF","XB","XD","XF","XG","Other"],"MAN":["EC220 DL","FNL","TGA","TGL","TGM","TGS","TGX","X3128","Other"],"IVECO":["Eurocargo","Eurostar","Eurotech","EuroTrakker","S-Way","Stralis","Stralis XP","Trakker","X-Way","Other"],"Renault":["C","C2.3","D","D-ACCESS","D-WIDE","K","Kerax","Lander","Magnum","Midlum","Premium","T","Other"],"Scania":["G","L","P","R","S","T","Other"],"Other":["Other"]},"Light commercial vehicle":{"Mercedes":["Citan","Sprinter","V-Klasse","Vario","Vito","Other"],"IVECO":["Daily","Other"],"Renault":["Kangoo","Mascott","Master","Master Z.E.","Trafic","Other"],"Volkswagen":["Caddy","Caravelle","Crafter","E-Crafter","LT 35","Transporter","Other"],"Ford":["Courier","Ranger","Transit","Transit Connect","Transit Custom","Other"],"MAN":["ETGE","TGE","Other"],"Fiat":["Doblo","Ducato","E-Ducato","Fiorino","Scudo","Talento","Other"],"Other":["Other"]}};
 const CABINS = {"Tractor head":{"Volvo":["Comfort Cab","Day Cab","Eurotrotter","Globetrotter","Globetrotter LXL","Globetrotter XL","Globetrotter XLX","Globetrotter XXL","High-Roof Sleeper","Kort","Low Entry cabin","Manschappencabine","Slaap","Topsleeper","Other"],"DAF":["Comfort Cab","Day Cab","Kort","SH cab","Slaap","Sleeper Cab","Sleeper High Cab","Space Cab","Super Space Cab","SuperXC","Topsleeper","XB","XF","XG","XG+","Other"],"MAN":["C","CC","Commander","Commander XT","DN","Dubbel","Enkel","GM","GN","GX","Kort","L","LX","M","NN","Slaap","TM","TN","Topsleeper","XL","XLX","XXL","Other"],"Mercedes":["BigSpace","ClassicSpace","CompactSpace","Dubbel","Enkel","GigaSpace","Kort","Kort (F07)","Kort (S)","Megaspace (F15)","Middellang (F05)","Slaap","Slaap (F04)","Slaap (F04) (DD2)","Slaap (L)","Slaap (LH)","StreamSpace","Other"],"Scania":["CG14 L","CG17N","CG20N","CL20N","CP13N","CP17L","CP17N","CP20N","CR20 Highline","CS20 Highline","Highline CG19","Highline CP19","Highline CR19","Kort","Kort CG16","Kort CP14","Kort CP16","Kort CR14","Kort CR16","Kort CT14","Slaap","Slaap / Streamline CR19","Slaap CG19N","Slaap CP19","Slaap CR19","Slaap CR19N","Slaap CR20N","Slaap CT19","Top / Streamline CR19","Topline CP19","Topline CR19","Topline CT19","Topsleeper CR13","Topsleeper CR14","Other"],"Renault":["Crew Cab","Day Cab","Dubbel","Enkel","Global Cab","Global Slaap","High Sleeper Cab","Kort","Magnum","Major","Night & Day Cab","Privilége","Slaap","Sleeper cab","Small Sleeper Cab","Other"],"IVECO":["Active Day","Active Space","Active Time","Dubbel","Enkel","EuroStar","EuroStar Cursor","EuroTech","EuroTech Cursor","EuroTrakker Cursor Kort","EuroTrakker Kort","F3BE3681C *S","Hoge slaap","Kort","Slaap","TurboStar","Other"],"Other":["Other"]},"Truck":{"Volvo":["Comfort Cab","Day Cab","Eurotrotter","Globetrotter","Globetrotter LXL","Globetrotter XL","Globetrotter XLX","Globetrotter XXL","High-Roof Sleeper","Kort","Low Entry cabin","Manschappencabine","Slaap","Topsleeper","Other"],"Mercedes":["BigSpace","ClassicSpace","CompactSpace","Dubbel","Enkel","GigaSpace","Kort","Kort (F07)","Kort (S)","Megaspace (F15)","Middellang (F05)","Slaap","Slaap (F04)","Slaap (F04) (DD2)","Slaap (L)","Slaap (LH)","StreamSpace","Other"],"DAF":["Comfort Cab","Day Cab","Kort","SH cab","Slaap","Sleeper Cab","Sleeper High Cab","Space Cab","Super Space Cab","SuperXC","Topsleeper","XB","XF","XG","XG+","Other"],"MAN":["C","CC","Commander","Commander XT","DN","Dubbel","Enkel","GM","GN","GX","Kort","L","LX","M","NN","Slaap","TM","TN","Topsleeper","XL","XLX","XXL","Other"],"IVECO":["Active Day","Active Space","Active Time","Dubbel","Enkel","EuroStar","EuroStar Cursor","EuroTech","EuroTech Cursor","EuroTrakker Cursor Kort","EuroTrakker Kort","F3BE3681C *S","Hoge slaap","Kort","Slaap","TurboStar","Other"],"Renault":["Crew Cab","Day Cab","Dubbel","Enkel","Global Cab","Global Slaap","High Sleeper Cab","Kort","Magnum","Major","Night & Day Cab","Privilége","Slaap","Sleeper cab","Small Sleeper Cab","Other"],"Scania":["CG14 L","CG17N","CG20N","CL20N","CP13N","CP17L","CP17N","CP20N","CR20 Highline","CS20 Highline","Highline CG19","Highline CP19","Highline CR19","Kort","Kort CG16","Kort CP14","Kort CP16","Kort CR14","Kort CR16","Kort CT14","Slaap","Slaap / Streamline CR19","Slaap CG19N","Slaap CP19","Slaap CR19","Slaap CR19N","Slaap CR20N","Slaap CT19","Top / Streamline CR19","Topline CP19","Topline CR19","Topline CT19","Topsleeper CR13","Topsleeper CR14","Other"],"Other":["Other"]},"Light commercial vehicle":{"Mercedes":["Single","Double"],"IVECO":["Single","Double"],"Renault":["Single","Double"],"Volkswagen":["Single","Double"],"Ford":["Single","Double"],"MAN":["Single","Double"],"Fiat":["Single","Double"],"Other":["Single","Double"]}};
@@ -325,89 +332,88 @@ function priceStatus(v) {
 function proposalTag(v) {
   const p = latest(v);
   if (!p) return `<span class="hs-text hs-text--subtle">—</span>`;
-  return p.status === 'Sent' ? `<span class="hs-tag hs-tag--success">Sent · v${p.v}</span>` : `<span class="hs-tag">Draft · v${p.v}</span>`;
-}
-
-// Filas de la tabla según la variante de vehículos iguales
-function tableRows() {
-  if (S.bundle === 'A') return vehicles.map(v => ({ v, unit: null }));
-  return vehicles.flatMap(v => v.units.length > 1 ? v.units.map((u, i) => ({ v, unit: i })) : [{ v, unit: null }]);
+  return p.status === 'Sent' ? `<span class="hs-tag hs-tag--success">Sent</span>` : `<span class="hs-tag">Draft</span>`;
 }
 
 // ================================================================ Pestaña Vehicle information
 function vehiclesList() {
-  const header = `<div class="hs-card__header"><h2 class="hs-card__title">Vehicles${S.listState === 'filled' ? ` (${vehicles.reduce((n, v) => n + qty(v), 0)})` : ''}${S.listState === 'filled' && S.bundle === 'A' && vehicles.reduce((n, v) => n + qty(v), 0) !== vehicles.length ? ` <span class="hs-text--subtle" style="font-weight:300;font-size:14px">· ${vehicles.length} line items</span>` : ''}</h2>
+  const header = `<div class="hs-card__header"><h2 class="hs-card__title">Vehicles${S.listState === 'filled' ? ` (${vehicles.reduce((n, v) => n + qty(v), 0)})` : ''}${S.listState === 'filled' && vehicles.reduce((n, v) => n + qty(v), 0) !== vehicles.length ? ` <span class="hs-text--subtle" style="font-weight:300;font-size:14px">· ${vehicles.length} line items</span>` : ''}</h2>
     <span data-hs="Button"><button class="hs-button hs-button--primary hs-button--sm" data-action="add-vehicle">+ Add vehicle</button></span></div>`;
 
   if (S.listState === 'loading') return `<div class="hs-card" data-hs="App card · Vehicles">${header}<div data-hs="LoadingSpinner"><span class="hs-spinner">Loading vehicles…</span></div></div>`;
   if (S.listState === 'error') return `<div class="hs-card" data-hs="App card · Vehicles">${header}
-    <div class="hs-alert hs-alert--error" data-hs="Alert variant=error"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">Vehicles couldn't be loaded</p><p class="hs-alert__body">Something went wrong while loading the line items. Try again.</p><div class="hs-button-row" style="margin-top:12px"><button class="hs-button hs-button--secondary hs-button--sm" data-action="reload">Try again</button></div></div></div></div>`;
+    <div class="hs-empty" data-hs="ErrorState type=error · own illustration (look in the new theme unknown)"><span class="hs-empty__art hs-empty__art--error"></span><p class="hs-empty__title">Vehicles couldn't be loaded</p><p class="hs-empty__body">Something went wrong while loading the line items. Try again.</p><button class="hs-button hs-button--secondary hs-button--sm" data-action="reload">Try again</button></div></div>`;
   if (S.listState === 'empty') return `<div class="hs-card" data-hs="App card · Vehicles">${header}
     <div class="hs-empty" data-hs="EmptyState"><span class="hs-empty__art"></span><p class="hs-empty__title">No vehicles added yet</p><p class="hs-empty__body">Add the vehicles the supplier is offering. Each vehicle, or bundle of identical vehicles, becomes a line item.</p><button class="hs-button hs-button--primary hs-button--sm" data-action="add-vehicle">Add vehicle</button></div></div>`;
 
-  const rows = tableRows().map(({ v, unit }) => {
-    const q = unit == null ? qty(v) : 1;
-    const label = unit == null ? esc(v.name) : `${esc(v.name)} <span class="muted">(${unit + 1}/${qty(v)})</span>`;
+  const rows = vehicles.map(v => {
+    const q = qty(v), label = esc(v.name);
     const sub = [v.type, needsReview(v) ? null : v.source === 'WhatsApp' ? 'WhatsApp' : null].filter(Boolean).join(' · ');
-    return `<tr class="${S.flash === v.id ? 'is-new' : ''}">
-      <td><div class="vehicle-name"><a class="hs-link" data-action="open-vehicle" data-id="${v.id}">${label}</a><small>${esc(sub)}</small>
+    return `<tr>
+      <td><div class="vehicle-name"><a class="hs-link" data-action="open-vehicle" data-id="${v.id}" data-hs="Link (href required + onClick) · only the name opens the vehicle (rows aren't clickable)">${label}</a><small>${esc(sub)}</small>
         ${needsReview(v) || q > 1 || v.price.unseen ? `<span class="badges">${v.price.unseen ? '<span class="hs-tag hs-tag--success" data-hs="Tag variant=success">New price</span>' : ''}${needsReview(v) ? '<span class="hs-tag hs-tag--warning">Needs review</span>' : ''}${q > 1 ? `<span class="hs-tag hs-tag--info">Bundle × ${q}</span>` : ''}</span>` : ''}</div></td>
       <td class="num">${q}</td>
       <td class="num">${eur(v.asking)}${q > 1 ? `<br><small class="muted">${eur(v.asking * q)} total</small>` : ''}</td>
       <td><div class="status-stack">${priceStatus(v)}${latest(v) ? proposalTag(v) : ''}</div></td>
-      ${S.bundle === 'B' ? `<td><div class="row-actions"><button class="hs-button hs-button--transparent hs-button--sm" data-action="duplicate" data-id="${v.id}" title="Copies everything except mileage and VIN">Duplicate</button></div></td>` : ''}
     </tr>`;
   }).join('');
   const total = vehicles.reduce((n, v) => n + v.asking * qty(v), 0);
   return `<div class="hs-card" data-hs="App card · Vehicles">${header}
     <div class="hs-table-wrap" data-hs="Table · TableHead · TableRow · TableCell">
-      <table class="hs-table"><thead><tr><th>Vehicle</th><th class="num">Qty</th><th class="num">Asking / unit</th><th>Status</th>${S.bundle === 'B' ? '<th></th>' : ''}</tr></thead>
-      <tbody>${rows}</tbody><tfoot><tr><td colspan="2">Total asking price</td><td class="num">${eur(total)}</td><td colspan="${S.bundle === 'B' ? 2 : 1}"></td></tr></tfoot></table>
+      <table class="hs-table"><thead><tr><th>Vehicle</th><th class="num">Qty</th><th class="num">Asking / unit</th><th>Status</th></tr></thead>
+      <tbody>${rows}</tbody><tfoot><tr><td colspan="2">Total asking price</td><td class="num">${eur(total)}</td><td></td></tr></tfoot></table>
     </div>
     <p class="hs-text hs-text--micro hs-text--subtle">Prices are per unit. Select a vehicle to see its photos, details and pricing.</p>
   </div>`;
 }
 
-function photosCard(v) {
+// Fotos (U1–U5): con componentes nativos no se puede poner nada encima de la imagen. La etiqueta "Main photo" va
+// junto al título, las flechas y el contador debajo, y las miniaturas en filas. Se suben con la propiedad de archivo.
+function photoProperty(v) {
+  const n = v.photos.length;
+  return `<div data-hs="CrmPropertyList · file property “Photos” (up to 10 files · HubSpot's own uploader)">
+      <dl class="hs-dl hs-dl--stacked"><div><dt>Photo files</dt><dd>${n ? `${n} of 10 files · ` : ''}<a class="hs-link" data-action="add-photos" data-id="${v.id}">${n >= 10 ? 'Manage files' : n ? 'Upload or remove files' : 'Upload files'}</a></dd></div></dl>
+      ${n >= 10 ? '<p class="hs-text hs-text--micro hs-text--subtle">Maximum of 10 photos reached.</p>' : ''}</div>`;
+}
+function photosSection(v) {
   const idx = Math.min(S.photoIdx[v.id] ?? v.main, Math.max(v.photos.length - 1, 0));
-  if (!v.photos.length) return `<div class="hs-card" data-hs="App card · Photos (slider)">
-    <div class="hs-card__header"><h3 class="hs-card__title">Photos</h3></div>
-    <div class="hs-empty" data-hs="EmptyState"><span class="hs-empty__art"></span><p class="hs-empty__title">No photos yet</p><p class="hs-empty__body">Add up to 10 photos. The first one becomes the main photo unless you choose another.</p><button class="hs-button hs-button--secondary hs-button--sm" data-action="add-photos" data-id="${v.id}">Add photos</button></div></div>`;
-  const full = v.photos.length >= 10;
-  return `<div class="hs-card" data-hs="App card · Photos (slider: Image + Button + Text)">
-    <div class="hs-card__header"><h3 class="hs-card__title">Photos (${v.photos.length}/10)</h3>
-      <span data-hs="Button size=sm"><button class="hs-button hs-button--secondary hs-button--sm" data-action="add-photos" data-id="${v.id}" ${full ? 'disabled' : ''}>Add photos</button></span></div>
-    <div class="slider-stage" data-hs="Image">
-      <img class="hs-image" src="${v.photos[idx]}" alt="Photo ${idx + 1} of ${esc(v.name)}" data-action="zoom" data-id="${v.id}">
-      ${idx === v.main ? '<span class="hs-tag slider-main">Main photo</span>' : ''}
-      <button class="slider-nav prev" data-action="photo-prev" data-id="${v.id}" aria-label="Previous photo">‹</button>
-      <button class="slider-nav next" data-action="photo-next" data-id="${v.id}" aria-label="Next photo">›</button>
-      <span class="slider-count" aria-live="polite">${idx + 1} / ${v.photos.length}</span>
+  if (!v.photos.length) return `<section data-hs="Photos (slider) · empty">
+    <h3 class="hs-card__title">Photos</h3>
+    <div class="hs-empty" data-hs="EmptyState"><span class="hs-empty__art"></span><p class="hs-empty__title">No photos yet</p><p class="hs-empty__body">Upload up to 10 photos in “Photo files”. The first one becomes the main photo unless you choose another.</p></div>
+    ${photoProperty(v)}</section>`;
+  const n = v.photos.length;
+  return `<section data-hs="Photos (slider: Image + Button + Text + Tag)">
+    <div class="proposal-head"><h3 class="hs-card__title" style="flex:0 1 auto;min-width:0">Photos (${n}/10)</h3>${idx === v.main ? '<span class="hs-tag" data-hs="Tag · next to the heading, not on the photo">Main photo</span>' : ''}</div>
+    <div data-hs="Image · as wide as the card; height can vary with the photo's proportions"><img class="hs-image" src="${v.photos[idx]}" alt="Photo ${idx + 1} of ${esc(v.name)}" data-action="zoom" data-id="${v.id}"></div>
+    <div class="slider-bar" data-hs="Button × 2 + Text · arrows and counter below the photo">
+      <button class="hs-button hs-button--secondary hs-button--sm" data-action="photo-prev" data-id="${v.id}" aria-label="Previous photo">‹</button>
+      <span class="hs-text" aria-live="polite">${idx + 1} / ${n}</span>
+      <button class="hs-button hs-button--secondary hs-button--sm" data-action="photo-next" data-id="${v.id}" aria-label="Next photo">›</button>
+      <button class="hs-button hs-button--transparent hs-button--sm" data-action="zoom" data-id="${v.id}">View full size</button>
     </div>
-    <div class="hs-thumbs" aria-label="Photos">${v.photos.map((p, i) => `<button style="background-image:url(&quot;${p}&quot;)" aria-current="${i === idx}" data-action="photo-go" data-id="${v.id}" data-i="${i}" aria-label="Photo ${i + 1}"></button>`).join('')}</div>
+    <div class="hs-thumbs" aria-label="Photos" data-hs="Image × n · clickable, in rows that wrap (no selected style: the counter shows which one)">${v.photos.map((p, i) => `<button style="background-image:url(&quot;${p}&quot;)" aria-current="${i === idx}" data-action="photo-go" data-id="${v.id}" data-i="${i}" aria-label="Photo ${i + 1}"></button>`).join('')}</div>
     <div class="hs-button-row">
       ${idx === v.main && v.main !== 0
         ? `<span data-hs="Button size=sm"><button class="hs-button hs-button--secondary hs-button--sm" data-action="unset-main" data-id="${v.id}" title="The first photo becomes the main photo again">Remove as main photo</button></span>`
         : `<span data-hs="Button size=sm"><button class="hs-button hs-button--secondary hs-button--sm" data-action="set-main" data-id="${v.id}" ${idx === v.main ? 'disabled title="The first photo is the main photo by default"' : ''}>Set as main photo</button></span>`}
-      <button class="hs-button hs-button--transparent hs-button--sm" data-action="zoom" data-id="${v.id}">View full size</button>
     </div>
-    ${full ? '<p class="hs-text hs-text--micro hs-text--subtle">Maximum of 10 photos reached.</p>' : ''}
-  </div>`;
+    ${photoProperty(v)}
+  </section>`;
 }
 
 const shortLabel = fd => fd.label.replace(/ \(.*\)$/, '');
 function detailsCard(v) {
   const d = typeDef(v.type), m = d.metric;
   const fmt = n => n ? (+n).toLocaleString('en-IE') : '—';
-  const unitsBlock = S.bundle === 'A' && qty(v) > 1 ? `
+  const unitsBlock = qty(v) > 1 ? `
     <hr class="divider">
-    <div data-hs="Table · units of the bundle (variant A)">
+    <div data-hs="Table · units of the bundle (read-only text)">
       <p class="hs-text hs-text--strong" style="margin-bottom:8px">Units in this bundle (${qty(v)})</p>
-      <p class="hs-text hs-text--micro hs-text--subtle" style="margin-bottom:8px">All units share the same specifications. Only ${m ? `${m.label.toLowerCase()} and ` : ''}VIN are entered per unit.</p>
-      <div class="hs-table-wrap"><table class="hs-table"><thead><tr><th>#</th>${m ? `<th class="num">${m.label} (${m.unit})</th>` : ''}<th>VIN</th></tr></thead>
-      <tbody>${v.units.map((u, i) => `<tr><td>${i + 1}</td>${m ? `<td class="num">${fmt(u.mileage)}</td>` : ''}<td>${esc(u.vin) || '—'}</td></tr>`).join('')}</tbody></table></div>
+      <p class="hs-text hs-text--micro hs-text--subtle" style="margin-bottom:8px">All units share the same specifications. Only ${m ? `${m.label.toLowerCase()}, ` : ''}license plate and VIN are entered per unit.</p>
+      <div class="hs-table-wrap"><table class="hs-table"><thead><tr><th>#</th>${m ? `<th class="num">${m.label} (${m.unit})</th>` : ''}<th>License plate</th><th>VIN</th></tr></thead>
+      <tbody>${v.units.map((u, i) => `<tr><td>${i + 1}</td>${m ? `<td class="num">${fmt(u.mileage)}</td>` : ''}<td>${esc(u.plate) || '—'}</td><td>${esc(u.vin) || '—'}</td></tr>`).join('')}</tbody></table></div>
     </div>` : '';
-  const val = fd => fd.k === 'hp' ? (blank(v.hp) ? '—' : `${v.hp} ${v.hpUnit || 'HP'}`) : (v[fd.k] || '—');
+  const val = fd => fd.k === 'hp' ? (blank(v.hp) ? '—' : `${v.hp} ${v.hpUnit || 'HP'}`) : blank(v[fd.k]) ? '—' : fd.unit ? `${v[fd.k]} ${fd.unit}` : v[fd.k];
   const rows = d.fields.filter(fd => fd.req || !blank(v[fd.k])).map(fd => `<div><dt>${esc(shortLabel(fd))}</dt><dd>${esc(val(fd))}</dd></div>`).join('');
   return `<div class="hs-card" data-hs="App card · Vehicle details">
     <div class="hs-card__header"><h3 class="hs-card__title">Details</h3>
@@ -415,7 +421,7 @@ function detailsCard(v) {
     <dl class="hs-dl" data-hs="DescriptionList · fields depend on the vehicle type">
       <div><dt>Vehicle type</dt><dd>${esc(v.type)}</dd></div>
       ${rows}
-      ${qty(v) === 1 ? `${m ? `<div><dt>${m.label} (${m.unit})</dt><dd>${fmt(v.units[0].mileage)}</dd></div>` : ''}<div><dt>VIN</dt><dd>${esc(v.units[0].vin) || '—'}</dd></div>` : ''}
+      ${qty(v) === 1 ? `${m ? `<div><dt>${m.label} (${m.unit})</dt><dd>${fmt(v.units[0].mileage)}</dd></div>` : ''}<div><dt>License plate</dt><dd>${esc(v.units[0].plate) || '—'}</dd></div><div><dt>VIN</dt><dd>${esc(v.units[0].vin) || '—'}</dd></div>` : ''}
       <div><dt>Source</dt><dd>${esc(v.source)}</dd></div>
     </dl>
     ${unitsBlock}
@@ -423,8 +429,11 @@ function detailsCard(v) {
   </div>`;
 }
 
-function pricingCard(v) {
-  const q = bq(v);
+// Urgencia: se elige una vez, al pedir el precio, y no se cambia después (C25). Plazos de cada nivel (C26).
+const URG = ['Not urgent', 'Urgent today', 'Urgent now'];
+const URG_WHEN = { 'Not urgent': 'within 24 hours', 'Urgent today': 'before the end of today', 'Urgent now': 'as soon as possible' };
+function pricingSection(v) {
+  const q = qty(v);
   const overMax = v.price.status === 'received' && v.offer != null && v.price.maxOffer != null && v.offer > v.price.maxOffer;
   const supplier = `<dl class="hs-dl" data-hs="DescriptionList · supplier prices (per unit)">
       <div><dt>Asking price</dt><dd>${eur(v.asking)}</dd></div>
@@ -432,8 +441,6 @@ function pricingCard(v) {
       <div><dt>Offer price</dt><dd>${eur(v.offer)}${overMax ? ` <span class="hs-tag hs-tag--error" data-hs="Tag variant=error">${eur(v.offer - v.price.maxOffer)} above PM's max</span>` : ''}</dd></div>
     </dl>${q > 1 ? `<p class="hs-text hs-text--micro hs-text--subtle">Per unit. Bundle of ${q}: asking ${eur(v.asking * q)} in total.</p>` : ''}`;
 
-  const URG = ['Not urgent', 'Urgent today', 'Urgent now'];
-  const urgSelect = (id, sel, action = '') => `<select class="hs-select" id="${id}" ${action}>${URG.map(u => `<option ${u === sel ? 'selected' : ''}>${u}</option>`).join('')}</select>`;
   const constraints = (p, prev = false) => `<dl class="hs-dl" style="margin-top:12px">
         <div><dt>Max offer price</dt><dd>${eur(p.maxOffer)}</dd></div>
         <div><dt>Estimated selling price</dt><dd>${eur(p.estMin)} – ${eur(p.estMax)}</dd></div>
@@ -441,30 +448,26 @@ function pricingCard(v) {
         <div><dt>Prefinance amount</dt><dd>${eur(p.prefinance)}</dd></div>
       </dl>
       <p class="hs-text hs-text--micro hs-text--subtle" style="margin-top:8px">Received ${esc(p.receivedAt)} from Bidmonitor. Per unit.${prev ? ' Replaced when the new price arrives.' : ''}</p>`;
-  // Precio anterior: se sigue viendo, plegado, mientras se espera el nuevo (propuesta, C27)
+  // Precio anterior: se sigue viendo, plegado, mientras se espera el nuevo (C27)
   const prevBlock = v.price.prev ? `<details class="hs-accordion" data-hs="Accordion · previous PM constraints"><summary>Previous PM constraints (${esc(v.price.prev.receivedAt)})</summary><div class="hs-accordion__body">${constraints(v.price.prev, true)}</div></details>` : '';
 
   let request;
   if (S.requesting[v.id]) {
     request = `<div class="hs-button-row"><span data-hs="LoadingButton"><button class="hs-button hs-button--primary is-loading">Sending request…</button></span></div>`;
   } else if (S.errors[v.id]) {
-    request = `<div class="hs-alert hs-alert--error" data-hs="Alert variant=error"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">Couldn't reach Bidmonitor</p><p class="hs-alert__body">The price request wasn't sent. Nothing was changed. Try again in a moment.</p><div class="hs-button-row" style="margin-top:12px"><button class="hs-button hs-button--secondary hs-button--sm" data-action="ask-price" data-id="${v.id}">Retry</button></div></div></div>`;
+    request = `<div class="hs-alert hs-alert--error" data-hs="Alert variant=error"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">Couldn't reach Bidmonitor</p><p class="hs-alert__body">The price request wasn't sent. Nothing was changed. Try again in a moment.</p></div></div><div class="hs-button-row"><button class="hs-button hs-button--secondary hs-button--sm" data-action="ask-price" data-id="${v.id}">Retry</button></div>`;
   } else if (v.price.status === 'none') {
-    const blocked = needsReview(v);
+    const blocked = needsReview(v), sel = S.urg[v.id] || 'Not urgent';
     request = `<div class="hs-form-grid" style="align-items:end">
-      <div class="hs-field" data-hs="Select"><label class="hs-field__label" for="urg-${v.id}">Urgency</label>${urgSelect(`urg-${v.id}`, S.urg[v.id] || 'Not urgent', 'data-role="urgency"')}</div>
+      <div class="hs-field" data-hs="Select · with description"><label class="hs-field__label" for="urg-${v.id}">Urgency</label><select class="hs-select" id="urg-${v.id}" data-role="urgency" data-id="${v.id}">${URG.map(u => `<option ${u === sel ? 'selected' : ''}>${u}</option>`).join('')}</select></div>
       <div data-hs="Button"><button class="hs-button hs-button--primary" data-action="ask-price" data-id="${v.id}" ${blocked ? 'disabled' : ''}>${v.price.prev ? 'Ask for a new price' : 'Ask for price'}</button></div>
     </div>
+    <p class="hs-field__help">PM answers ${URG_WHEN[sel]}. You can't change the urgency once the request is sent.</p>
     <p class="hs-text hs-text--micro hs-text--subtle">${blocked ? 'Complete the vehicle details before asking for a price.' : 'Sends the vehicle and supplier prices to PM in Bidmonitor. Urgent requests go to the top of their list.'}</p>`;
   } else if (v.price.status === 'requested') {
-    request = `<div class="hs-alert hs-alert--info" data-hs="Alert variant=info"><span class="hs-alert__icon">i</span><div><p class="hs-alert__title">Waiting for PM · ${esc(v.price.urgency)}</p><p class="hs-alert__body">Requested on ${esc(v.price.requestedAt)}. PM answers within 24 hours. You'll get a HubSpot notification when the price arrives.</p></div></div>
-    <div data-hs="Select + Button · change urgency or cancel (proposal, to confirm)">
-      <p class="hs-field__label">Change the request <span class="nice">Proposal</span></p>
-      <div class="hs-form-grid" style="align-items:end">
-        <div class="hs-field"><label class="hs-field__label" for="urg-chg-${v.id}">Urgency</label>${urgSelect(`urg-chg-${v.id}`, v.price.urgency, `data-role="change-urgency" data-id="${v.id}"`)}</div>
-        <div><button class="hs-button hs-button--transparent" data-action="cancel-request" data-id="${v.id}">Cancel request</button></div>
-      </div>
-    </div>`;
+    // La card no se actualiza sola cuando llega el precio (U10): "Refresh" lo vuelve a leer
+    request = `<div class="hs-alert hs-alert--info" data-hs="Alert variant=info · waiting for PM"><span class="hs-alert__icon">i</span><div><p class="hs-alert__title">Waiting for PM · ${esc(v.price.urgency)}</p><p class="hs-alert__body">Requested on ${esc(v.price.requestedAt)}. PM answers ${URG_WHEN[v.price.urgency] || 'within 24 hours'}. You'll get a HubSpot notification when the price arrives.</p>
+      </div></div><div class="hs-button-row" data-hs="LoadingButton · re-reads the price (the card doesn't refresh by itself)"><button class="hs-button hs-button--secondary hs-button--sm ${S.refreshing[v.id] ? 'is-loading' : ''}" data-action="refresh-price" data-id="${v.id}">${S.refreshing[v.id] ? 'Refreshing…' : 'Refresh'}</button></div>`;
   } else {
     const p = v.price;
     const over = v.offer != null && p.maxOffer != null && v.offer > p.maxOffer;
@@ -472,71 +475,71 @@ function pricingCard(v) {
       <div class="hs-card__header" style="min-height:0"><p class="hs-text hs-text--strong" style="flex:1">PM price constraints</p><span class="hs-tag">Read-only</span></div>
       ${constraints(p)}</div>
       ${over ? `<div class="hs-alert hs-alert--warning" data-hs="Alert variant=warning · offer above PM's max"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">Your offer is above PM's max offer</p><p class="hs-alert__body">The offer price (${eur(v.offer)}${q > 1 ? ' per unit' : ''}) is ${eur(v.offer - p.maxOffer)} above PM's max offer (${eur(p.maxOffer)}). Lower the offer or check with PM before creating the proposal.</p></div></div>` : ''}
-      <div class="hs-button-row" data-hs="Button (proposal, to confirm)"><button class="hs-button hs-button--transparent hs-button--sm" data-action="ask-again" data-id="${v.id}">Ask for a new price</button><span class="nice">Proposal</span></div>`;
+      <div class="hs-button-row" data-hs="Button"><button class="hs-button hs-button--transparent hs-button--sm" data-action="ask-again" data-id="${v.id}">Ask for a new price</button></div>`;
   }
   request += prevBlock;
-  return `<div class="hs-card" data-hs="App card · Pricing">
-    <div class="hs-card__header"><h3 class="hs-card__title">Pricing</h3>${priceStatus(v)}</div>
-    ${supplier}<hr class="divider">${request}</div>`;
+  return `<section data-hs="Pricing">
+    <div class="proposal-head"><h3 class="hs-card__title">Pricing</h3>${priceStatus(v)}</div>
+    ${supplier}<hr class="divider">${request}</section>`;
 }
 
-
-// Aviso de la variante B: cada unidad sería su propio line item (propuesta de diseño, hay que decidir A o B)
-const variantBNote = () => S.bundle === 'B' && vehicles.some(v => qty(v) > 1) ? `<div class="hs-alert hs-alert--warning" data-hs="Alert variant=warning · variant B note (prototype only)"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">Variant B · one price request and one proposal per unit</p><p class="hs-alert__body">In this variant each unit is its own line item, so each one needs its own price request and its own proposal: the DAF (5 units) would need 5 of each. The prototype shows it as a single card to keep it simple. Variant A avoids this: one price request and one proposal for the whole bundle.</p></div></div>` : '';
 function vehicleDetail(v) {
   return `<div class="hs-button-row"><a class="hs-link" data-action="back">‹ All vehicles</a></div>
-    <div class="proposal-head"><h2 class="hs-card__title" style="font:400 20px/26px var(--hs-font-body)">${esc(v.name)}</h2>
-      ${bq(v) > 1 ? `<span class="hs-tag hs-tag--info">Bundle × ${bq(v)}</span>` : ''}${priceStatus(v)}</div>
-    ${qty(v) > 1 ? variantBNote() : ''}
-    ${needsReview(v) ? `<div class="hs-alert hs-alert--warning" data-hs="Alert variant=warning"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">${v.source === 'WhatsApp' ? 'Created from WhatsApp' : 'Details missing'}</p><p class="hs-alert__body">${v.source === 'WhatsApp' ? 'Check the details the supplier sent and fill in' : 'Fill in'} the ${listText(missingLabels(v))} before asking for a price.</p><div class="hs-button-row" style="margin-top:12px"><button class="hs-button hs-button--secondary hs-button--sm" data-action="edit-vehicle" data-id="${v.id}">Review details</button></div></div></div>` : ''}
-    <div class="detail-grid">
-      <div class="stack">${photosCard(v)}</div>
-      <div class="stack">${pricingCard(v)}${detailsCard(v)}</div>
-    </div>`;
+    <div class="proposal-head"><h2 class="hs-card__title" data-hs="Heading">${esc(v.name)}</h2>
+      ${qty(v) > 1 ? `<span class="hs-tag hs-tag--info">Bundle × ${qty(v)}</span>` : ''}${priceStatus(v)}</div>
+    ${needsReview(v) ? `<div class="hs-alert hs-alert--warning" data-hs="Alert variant=warning"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">${v.source === 'WhatsApp' ? 'Created from WhatsApp' : 'Details missing'}</p><p class="hs-alert__body">${v.source === 'WhatsApp' ? 'Check the details the supplier sent and fill in' : 'Fill in'} the ${listText(missingLabels(v))} before asking for a price.</p></div></div><div class="hs-button-row"><button class="hs-button hs-button--secondary hs-button--sm" data-action="edit-vehicle" data-id="${v.id}">Review details</button></div>` : ''}
+    <div class="hs-card" data-hs="App card · Photos + Pricing (Flex wrap: two columns that stack when the column is narrow)">
+      <div class="card-cols">${photosSection(v)}${pricingSection(v)}</div>
+    </div>
+    ${detailsCard(v)}`;
 }
 
 // ================================================================ Pestaña Proposal
 function proposalCard(v) {
   const p = latest(v);
   const ready = v.price.status === 'received';
-  const title = `<div class="proposal-head"><h3 class="hs-card__title">${esc(v.name)}${bq(v) > 1 ? ` <span class="muted">· bundle × ${bq(v)}</span>` : ''}</h3>${p ? proposalTag(v) : ''}</div>`;
+  const title = `<div class="proposal-head"><h3 class="hs-card__title">${esc(v.name)}${qty(v) > 1 ? ` <span class="muted">· bundle × ${qty(v)}</span>` : ''}</h3>${p ? proposalTag(v) : ''}</div>`;
   if (!ready) return `<div class="hs-card" data-hs="App card · Proposal">${title}
     <div class="hs-button-row"><span data-hs="Button (disabled)"><button class="hs-button hs-button--primary" disabled>Create proposal</button></span></div>
     <p class="hs-text hs-text--micro hs-text--subtle">Available once PM has sent the price constraints. Current status: ${v.price.status === 'requested' ? 'waiting for PM' : 'price not requested yet'}.</p></div>`;
   if (!p) return `<div class="hs-card" data-hs="App card · Proposal">${title}
     <p class="hs-text hs-text--subtle">PM's price constraints are in. You can create the proposal for the supplier.</p>
     <div class="hs-button-row"><span data-hs="Button"><button class="hs-button hs-button--primary" data-action="create-proposal" data-id="${v.id}">Create proposal</button></span></div></div>`;
-  const url = `proposal.basworld.com/en/details/EXAMPLE${v.id}${p.v}`;
-  const d = propData(v, p), q = bq(v);
+  const url = proposalUrl(v);
+  const d = propData(v, p), q = qty(v), draft = p.status === 'Draft';
   const offers = SOLS.filter(([k]) => d.inc[k]).map(([k, name]) => {
     const amt = +d[SOL_AMOUNT[k]];
     return `<li><span>${name}: <b>${eur(amt)}</b>${q > 1 ? ` × ${q} = ${eur(amt * q)}` : ''}</span>${d.rec === k ? '<span class="hs-tag hs-tag--success" data-hs="Tag variant=success">Recommended</span>' : ''}</li>`;
   }).join('');
+  // Una sola propuesta y un solo enlace (C30): el proveedor ve siempre la última versión guardada
+  const status = draft
+    ? `<p class="hs-text hs-text--micro hs-text--subtle">Draft: review it through the link, then send it to the supplier. Once it's sent, by email or on WhatsApp, click “Mark as sent”.</p>`
+    : `<p class="hs-text hs-text--micro hs-text--subtle">Sent on ${esc(p.sentAt)}. The link always shows the latest saved version.${p.editedAt ? ' Edited after it was sent: let the supplier know with “Send again by email”.' : ''}</p>`;
+  // La card no sabe si el email se envió de verdad (U11): se le recuerda al comprador que lo marque
+  const emailed = draft && S.emailed[v.id] ? `<div class="hs-alert hs-alert--info" data-hs="Alert variant=info · the card isn't told when the email goes out"><span class="hs-alert__icon">i</span><div><p class="hs-alert__title">Did you send the email?</p><p class="hs-alert__body">If the email went out, click “Mark as sent” so the proposal shows as Sent.</p></div></div>` : '';
   return `<div class="hs-card" data-hs="App card · Proposal">${title}
     <dl class="hs-dl" data-hs="DescriptionList">
-      <div><dt>Latest version</dt><dd>v${p.v} · ${esc(p.date)}</dd></div>
+      <div><dt>Created</dt><dd>${esc(p.createdAt)}</dd></div>
+      ${p.editedAt ? `<div><dt>Last edited</dt><dd>${esc(p.editedAt)}</dd></div>` : ''}
       <div><dt>Link</dt><dd><a class="hs-link" data-action="open-proposal">${url} ↗</a></dd></div>
-      <div><dt>Included offers</dt><dd><ul class="offer-list" data-hs="Text + Tag · summary of the latest version (proposal, to confirm)">${offers}</ul></dd></div>
+      <div><dt>Included offers</dt><dd><ul class="offer-list" data-hs="Text + Tag · summary of the proposal (proposal, to confirm)">${offers}</ul></dd></div>
     </dl>
-    ${p.status === 'Draft' ? `<p class="hs-text hs-text--micro hs-text--subtle">Draft: review it through the link, then send it to the supplier. If you send it yourself (for example on WhatsApp), click “Mark as sent”.</p>` : `<p class="hs-text hs-text--micro hs-text--subtle">Sent on ${esc(p.sentAt || p.date)}. Editing it creates a new Draft version and you'll need to send it again.</p>`}
+    ${status}${emailed}
     <div class="hs-button-row" data-hs="ButtonRow · Copy link shows a Tooltip">
-      <button class="hs-button ${p.status === 'Draft' ? 'hs-button--primary' : 'hs-button--secondary'} hs-button--sm" data-action="send-email" data-id="${v.id}">${p.status === 'Draft' ? 'Send by email' : 'Send again by email'}</button>
+      <button class="hs-button ${draft ? 'hs-button--primary' : 'hs-button--secondary'} hs-button--sm" data-action="send-email" data-id="${v.id}" data-hs="CrmActionButton actionType=SEND_EMAIL · subject and body prefilled">${draft ? 'Send by email' : 'Send again by email'}</button>
       <button class="hs-button hs-button--secondary hs-button--sm" data-action="copy-link" data-id="${v.id}">Copy link</button>
-      ${p.status === 'Draft' ? `<button class="hs-button hs-button--secondary hs-button--sm" data-action="mark-sent" data-id="${v.id}">Mark as sent</button>` : ''}
+      ${draft ? `<button class="hs-button hs-button--secondary hs-button--sm" data-action="mark-sent" data-id="${v.id}">Mark as sent</button>` : ''}
       <button class="hs-button hs-button--transparent hs-button--sm" data-action="edit-proposal" data-id="${v.id}">Edit proposal</button>
     </div>
-    <details class="hs-accordion" data-hs="Accordion · version history">
-      <summary>Version history (${v.proposals.length})</summary>
-      <div class="hs-accordion__body"><ul class="version-list">${[...v.proposals].reverse().map(x => `<li><b>v${x.v}</b><span>${esc(x.date)} · ${esc(x.by)}</span>${x.status === 'Sent' ? '<span class="hs-tag hs-tag--success">Sent</span>' : '<span class="hs-tag">Draft</span>'}<a class="hs-link" data-action="open-proposal" aria-label="Open version ${x.v}">Open v${x.v} ↗</a></li>`).join('')}</ul></div>
-    </details>
   </div>`;
 }
+const proposalUrl = v => `proposal.basworld.com/en/details/EXAMPLE${v.id}`;
 function proposalTab() {
-  const head = `<p class="hs-text hs-text--subtle">One proposal per vehicle or bundle. Statuses: Draft → Sent.</p>`;
-  if (S.propState === 'loading') return `${head}<div class="hs-card" data-hs="App card · Proposal">${'' }<div data-hs="LoadingSpinner"><span class="hs-spinner">Loading proposals…</span></div></div>`;
-  if (S.propState === 'error') return `${head}<div class="hs-card" data-hs="App card · Proposal"><div class="hs-alert hs-alert--error" data-hs="Alert variant=error"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">Proposals couldn't be loaded</p><p class="hs-alert__body">Something went wrong while loading the proposals. Try again.</p><div class="hs-button-row" style="margin-top:12px"><button class="hs-button hs-button--secondary hs-button--sm" data-action="reload-proposals">Try again</button></div></div></div></div>`;
+  const head = `<p class="hs-text hs-text--subtle">One proposal per vehicle or bundle, with one link. Statuses: Draft → Sent.</p>`;
+  if (S.propState === 'loading') return `${head}<div class="hs-card" data-hs="App card · Proposal"><div data-hs="LoadingSpinner"><span class="hs-spinner">Loading proposals…</span></div></div>`;
+  if (S.propState === 'error') return `${head}<div class="hs-card" data-hs="App card · Proposal"><div class="hs-empty" data-hs="ErrorState type=error · own illustration (look in the new theme unknown)"><span class="hs-empty__art hs-empty__art--error"></span><p class="hs-empty__title">Proposals couldn't be loaded</p><p class="hs-empty__body">Something went wrong while loading the proposals. Try again.</p><button class="hs-button hs-button--secondary hs-button--sm" data-action="reload-proposals">Try again</button></div></div>`;
   if (S.listState === 'empty' || !vehicles.length) return `${head}<div class="hs-card" data-hs="App card · Proposal"><div class="hs-empty" data-hs="EmptyState"><span class="hs-empty__art"></span><p class="hs-empty__title">No vehicles to make a proposal for</p><p class="hs-empty__body">Add a vehicle, ask PM for a price and then create the proposal here.</p><button class="hs-button hs-button--primary hs-button--sm" data-action="go-vehicles">Go to Vehicle information</button></div></div>`;
-  return head + variantBNote() + vehicles.map(proposalCard).join('');
+  return head + vehicles.map(proposalCard).join('');
 }
 
 // ================================================================ Render principal
@@ -546,7 +549,7 @@ let uid = 0;
 const A11Y_NOTES = [
   ['[role=tablist]', 'Tabs: arrow keys move between tabs; the selected tab labels the panel. Native tabs in HubSpot.'],
   ['.hs-table-wrap', 'Table: header cells as headers; first-column links reachable with Tab and opened with Enter.'],
-  ['.slider-stage', 'Photo has alt text (“Photo 3 of 10”). Arrows have names. Counter is announced (aria-live).'],
+  ['.slider-bar', 'Arrows have names (“Previous photo”, “Next photo”). Counter is announced (aria-live). The photo has alt text (“Photo 3 of 10”).'],
   ['.hs-thumbs', 'Thumbnails reachable with Tab; the current one is marked (aria-current).'],
   ['.hs-panel', 'Panel: focus moves inside on open, Esc closes, focus returns to the button that opened it. Background inert.'],
   ['.hs-modal', 'Modal: focus moves inside on open, Esc closes, focus returns to the opener. One modal at a time.'],
@@ -613,12 +616,12 @@ function toggleGroup(name, opts, sel) { return `<div class="hs-toggle-group" dat
 // Estado del formulario: se copia del vehículo al abrir el panel y solo se guarda al pulsar "Save"
 const ALL_KEYS = [...new Set(Object.values(TYPES).flatMap(t => t.fields.map(x => x.k)))];
 function formFrom(v) {
-  const d = { plate: '', type: 'Tractor head', hpUnit: 'HP', asking: '', proposed: '', offer: '', units: [{ mileage: '', vin: '' }] };
+  const d = { type: 'Tractor head', hpUnit: 'HP', asking: '', proposed: '', offer: '', units: [{ mileage: '', plate: '', vin: '' }] };
   ALL_KEYS.forEach(k => { d[k] = ''; });
   if (!v) return d;
   const f = { ...d };
   Object.keys(d).forEach(k => { if (k !== 'units' && v[k] != null) f[k] = String(v[k]); });
-  f.units = v.units.map(u => ({ mileage: u.mileage == null ? '' : String(u.mileage), vin: u.vin ?? '' }));
+  f.units = v.units.map(u => ({ mileage: u.mileage == null ? '' : String(u.mileage), plate: u.plate ?? '', vin: u.vin ?? '' }));
   return f;
 }
 const isErr = (o, k) => o.tried && o.missing.includes(k);
@@ -662,19 +665,21 @@ function vehiclePanel(o) {
   const v = o.id ? find(o.id) : null, f = o.form;
   const q = f.units.length;
   const d = typeDef(f.type), m = d.metric;
-  const perUnitTable = q > 1;
+  const perUnit = q > 1;
   const canLookup = ['Tractor head', 'Truck', 'Light commercial vehicle'].includes(f.type) && q === 1;
 
-  const units = perUnitTable ? `
-    <div data-hs="Table + NumberInput + Input · per-unit ${m ? m.label.toLowerCase() + ' and ' : ''}VIN (variant A)">
-      <p class="hs-field__label">${m ? `${m.label} and VIN` : 'VIN'} per unit</p>
-      <div class="hs-table-wrap"><table class="hs-table units-table"><thead><tr><th>#</th>${m ? `<th>${m.label} (${m.unit})${m.req ? req : ''}</th>` : ''}<th>VIN</th></tr></thead><tbody>
-      ${f.units.map((u, i) => `<tr><td>${i + 1}</td>
-        ${m ? `<td><input class="hs-input ${isErr(o, `u${i}`) ? 'is-error' : ''}" data-u="${i}" data-uk="mileage" value="${esc(u.mileage)}" ${NUM} aria-label="${m.label} unit ${i + 1}">${errMsg(o, `u${i}`)}</td>` : ''}
-        <td><input class="hs-input" data-u="${i}" data-uk="vin" value="${esc(u.vin)}" aria-label="VIN unit ${i + 1}"></td></tr>`).join('')}
-      </tbody></table></div></div>` : '';
+  // Por unidad (U6): Table no admite campos dentro de las celdas, así que es una lista de filas sin líneas de tabla
+  const units = perUnit ? `
+    <div data-hs="Flex rows · NumberInput + Input × 2 per unit (Table doesn't take inputs in its cells)">
+      <p class="hs-field__label">${m ? `${m.label}, license plate and VIN` : 'License plate and VIN'} per unit</p>
+      <div class="unit-rows">
+      ${f.units.map((u, i) => `<div class="unit-row"><span class="unit-n">Unit ${i + 1}</span>
+        ${m ? `<div class="hs-field"><label class="hs-field__label">${m.label} (${m.unit})${m.req ? req : ''}</label><input class="hs-input ${isErr(o, `u${i}`) ? 'is-error' : ''}" data-u="${i}" data-uk="mileage" value="${esc(u.mileage)}" ${NUM} aria-label="${m.label}, unit ${i + 1}">${errMsg(o, `u${i}`)}</div>` : ''}
+        <div class="hs-field"><label class="hs-field__label">License plate</label><input class="hs-input" data-u="${i}" data-uk="plate" value="${esc(u.plate)}" aria-label="License plate, unit ${i + 1}"></div>
+        <div class="hs-field"><label class="hs-field__label">VIN</label><input class="hs-input" data-u="${i}" data-uk="vin" value="${esc(u.vin)}" aria-label="VIN, unit ${i + 1}"></div></div>`).join('')}
+      </div></div>` : '';
 
-  const metricField = !perUnitTable && m ? `<div data-hs="NumberInput">${fField(`${m.label} (${m.unit})${m.req ? req : ''}`, `<input class="hs-input ${isErr(o, 'u0') ? 'is-error' : ''}" data-u="0" data-uk="mileage" value="${esc(f.units[0].mileage)}" ${NUM}>`, o, 'u0')}</div>` : '';
+  const metricField = !perUnit && m ? `<div data-hs="NumberInput">${fField(`${m.label} (${m.unit})${m.req ? req : ''}`, `<input class="hs-input ${isErr(o, 'u0') ? 'is-error' : ''}" data-u="0" data-uk="mileage" value="${esc(f.units[0].mileage)}" ${NUM}>`, o, 'u0')}</div>` : '';
   const optional = d.fields.filter(fd => !fd.req).map(fd => fieldControl(o, fd)).join('');
   const specific = `
     <div class="hs-form-grid" data-hs="Required fields (Vehicle info) · ${esc(f.type)}">
@@ -684,14 +689,17 @@ function vehiclePanel(o) {
     <details class="hs-accordion" data-hs="Accordion · optional fields (Optional info)" ${o.optOpen ? 'open' : ''}>
       <summary>Optional information</summary>
       <div class="hs-accordion__body"><div class="hs-form-grid">
-        ${!perUnitTable ? `<div data-hs="Input">${fField('VIN (chassis number)', `<input class="hs-input" data-u="0" data-uk="vin" value="${esc(f.units[0].vin)}">`, o)}</div>` : ''}
+        ${!perUnit && !canLookup ? `<div data-hs="Input · stored on the vehicle (C24)">${fField('License plate', `<input class="hs-input" data-u="0" data-uk="plate" value="${esc(f.units[0].plate)}">`, o)}</div>` : ''}
+        ${!perUnit ? `<div data-hs="Input">${fField('VIN (chassis number)', `<input class="hs-input" data-u="0" data-uk="vin" value="${esc(f.units[0].vin)}">`, o)}</div>` : ''}
         ${optional}
       </div></div>
     </details>`;
 
   const lookupMsg = {
     loading: '',
-    found: `<div class="hs-alert hs-alert--success" data-hs="Alert variant=success" style="margin-top:8px"><span class="hs-alert__icon">✓</span><div><p class="hs-alert__title">Found in the Dutch registry</p><p class="hs-alert__body">We filled in the type, brand, model, power, euronorm and first registration. Check them and add the rest.</p></div></div>`,
+    // Si el registro no coincide con lo que ya hay, no se sobrescribe: se listan las diferencias (propuesta, P8)
+    found: `<div class="hs-alert hs-alert--success" data-hs="Alert variant=success" style="margin-top:8px"><span class="hs-alert__icon">✓</span><div><p class="hs-alert__title">Found in the Dutch registry</p><p class="hs-alert__body">${o.filled?.length ? `We filled in the ${listText(o.filled)}. Check them and add the rest.` : 'All the details from the registry were already filled in.'}</p></div></div>
+      ${o.diffs?.length ? `<div class="hs-alert hs-alert--warning" data-hs="Alert variant=warning · registry differs (proposal, P8)" style="margin-top:8px"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">The registry says something different <span class="nice">Proposal</span></p><p class="hs-alert__body">We kept what was already filled in: ${o.diffs.map(x => `${x.label} is ${esc(x.reg)} in the registry (you have ${esc(x.mine)})`).join('; ')}.</p></div></div><div class="hs-button-row"><button class="hs-button hs-button--secondary hs-button--sm" data-action="use-registry">Use the registry details</button></div>` : ''}`,
     notfound: `<div class="hs-alert hs-alert--warning" data-hs="Alert variant=warning" style="margin-top:8px"><span class="hs-alert__icon">!</span><div><p class="hs-alert__body">We couldn't find this plate in the Dutch registry. Fill in the details manually.</p></div></div>`,
     empty: `<p class="hs-field__error">Enter a license plate to look it up.</p>`,
   }[o.lookup] || '';
@@ -704,17 +712,17 @@ function vehiclePanel(o) {
       <div class="hs-panel__header"><h2 class="hs-panel__title" id="pv-title">${v ? 'Edit vehicle' : 'Add vehicle'}</h2><button class="hs-close" data-action="close" aria-label="Close">×</button></div>
       <div class="hs-panel__body">
         ${errorAlert}${reviewAlert}
-        ${canLookup ? `<div class="quick-fill" data-hs="Tile · Input + LoadingButton · license plate lookup (nice-to-have)">
-          <p class="hs-field__label">Fill in from license plate <span class="hs-text--subtle" style="font-weight:300">(optional)</span> <span class="nice">Nice-to-have</span></p>
-          <div style="display:flex;gap:8px"><input class="hs-input" data-f="plate" value="${esc(f.plate)}" placeholder="e.g. 12-BLX-7" style="flex:1" aria-label="License plate">
+        ${canLookup ? `<div class="quick-fill" data-hs="Tile · Input (stored, C24) + LoadingButton · lookup is nice-to-have: without it, a plain Input">
+          <p class="hs-field__label">License plate <span class="hs-text--subtle" style="font-weight:300">(optional)</span></p>
+          <div style="display:flex;gap:8px"><input class="hs-input" data-u="0" data-uk="plate" value="${esc(f.units[0].plate)}" placeholder="e.g. 12-BLX-7" style="flex:1" aria-label="License plate">
             <button class="hs-button hs-button--secondary ${o.lookup === 'loading' ? 'is-loading' : ''}" data-action="lookup">${o.lookup === 'loading' ? 'Looking up…' : 'Look up'}</button></div>
-          <p class="hs-field__help">Dutch plates only. Saves typing: fills in the details from the Dutch vehicle registry (RDW).</p>
+          <p class="hs-field__help">Saved with the vehicle. <span class="nice">Nice-to-have</span> “Look up” fills in the empty details from the Dutch vehicle registry (RDW). Dutch plates only.</p>
           <p class="proto-hint">Prototype: any plate in Dutch format (e.g. 12-BLX-7) is found; anything else isn't.</p>
           ${lookupMsg}
         </div>` : ''}
         <div class="hs-form-grid">
           <div data-hs="Select · drives which fields appear">${fField('Vehicle type' + req, fSelect(o, 'type', ['Tractor head', 'Truck', 'Semi trailer', 'Construction equipment', 'Light commercial vehicle', 'Agriculture'], 'Select…'), o)}</div>
-          ${S.bundle === 'A' ? `<div data-hs="NumberInput · Quantity (variant A)">${fField('Quantity', `<input class="hs-input" type="number" min="1" max="20" value="${q}" data-role="qty">`, o, '', `<span class="hs-field__help">For identical vehicles: only ${m ? m.label.toLowerCase() + ' and ' : ''}VIN change per unit. For a different vehicle, add it separately.</span>`)}</div>` : ''}
+          <div data-hs="StepperInput · Quantity (C32: option A)">${fField('Quantity', `<div class="hs-stepper"><button type="button" class="hs-button hs-button--secondary hs-button--sm" data-action="qty-step" data-step="-1" aria-label="One less" ${q <= 1 ? 'disabled' : ''}>−</button><input class="hs-input" type="number" min="1" max="20" value="${q}" data-role="qty"><button type="button" class="hs-button hs-button--secondary hs-button--sm" data-action="qty-step" data-step="1" aria-label="One more" ${q >= 20 ? 'disabled' : ''}>+</button></div>`, o, '', `<span class="hs-field__help">For identical vehicles: only ${m ? m.label.toLowerCase() + ', ' : ''}license plate and VIN change per unit. For a different vehicle, add it separately.</span>`)}</div>
         </div>
         ${specific}
         ${units}
@@ -729,7 +737,7 @@ function vehiclePanel(o) {
           ${q > 1 ? `<p class="hs-field__help" style="margin-top:8px">Same price for every unit. If one unit has a different price, add it as a separate vehicle.</p>` : ''}
           <p class="hs-text hs-text--micro" id="price-total" style="margin-top:4px">${totalText(f)}</p>
         </div>
-        ${!v ? `<div data-hs="Photos · file property (native upload)"><p class="hs-field__label">Photos</p><button class="hs-button hs-button--secondary hs-button--sm" data-action="add-photos">Add photos</button><p class="hs-field__help">Up to 10. The first one is the main photo unless you choose another.</p></div>` : ''}
+        ${!v ? `<div data-hs="Text · photos are uploaded on the vehicle page (file property)"><p class="hs-field__label">Photos</p><p class="hs-field__help">Once the vehicle is added, upload up to 10 photos from its page, in “Photo files”.</p></div>` : ''}
       </div>
       <div class="hs-panel__footer"><button class="hs-button hs-button--primary" data-action="save-vehicle">${v ? 'Save changes' : 'Add vehicle'}</button><button class="hs-button hs-button--transparent" data-action="close">Cancel</button></div>
     </div></div>`;
@@ -764,7 +772,7 @@ function propErrText(e) {
 const bundleHint = (f, k, q) => q > 1 && !blank(f[k]) ? `${q} × ${eur(+f[k])} = ${eur(q * f[k])} in total` : '';
 
 function proposalModal(o) {
-  const v = find(o.id), f = o.form, q = bq(v), last = latest(v);
+  const v = find(o.id), f = o.form, q = qty(v), last = latest(v);
   const editing = !!last, sent = editing && last.status === 'Sent';
   const perr = k => o.tried && o.errors.includes(k);
   const money = (label, k, required = false) => `<div class="hs-field" data-hs="CurrencyInput${q > 1 ? ' · per unit' : ''}" data-field="${k}"><label class="hs-field__label">${label}${required ? req : ''}</label>
@@ -796,32 +804,29 @@ function proposalModal(o) {
   const explain = `<div class="hs-field" data-hs="TextArea"><label class="hs-field__label">Price explanation</label><textarea class="hs-textarea" data-p="explanation">${esc(f.explanation)}</textarea></div>`;
   const lang = `<div class="hs-field" data-hs="Select"><label class="hs-field__label">Proposal language</label><select class="hs-select" data-p="lang">${['English', 'Dutch', 'German'].map(x => `<option ${x === f.lang ? 'selected' : ''}>${x}</option>`).join('')}</select></div>`;
   const stack = c => `<div style="display:flex;flex-direction:column;gap:16px">${c}</div>`;
-  const body = S.proposalModal === 'full'
-    ? `<div class="modal-cols">${stack(costs + explain + lang)}${solutions}</div>`
-    : `${solutions}${stack(lang + explain)}
-       <details class="hs-accordion" data-hs="Accordion"><summary>More options: sales prices, days of sale and costs</summary><div class="hs-accordion__body">${stack(costs)}</div></details>`;
+  const body = `<div class="modal-cols">${stack(costs + explain + lang)}${solutions}</div>`;
 
   const errs = o.tried && o.errors.length ? propErrText(o.errors) : null;
   const alerts = [
-    o.apiError ? `<div class="hs-alert hs-alert--error" data-hs="Alert variant=error"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">Couldn't ${editing ? 'save the new version' : 'create the proposal'}</p><p class="hs-alert__body">The proposal service didn't respond. Nothing was saved. Try again in a moment.</p><div class="hs-button-row" style="margin-top:12px"><button class="hs-button hs-button--secondary hs-button--sm" data-action="save-proposal" data-id="${v.id}">Retry</button></div></div></div>` : '',
+    o.apiError ? `<div class="hs-alert hs-alert--error" data-hs="Alert variant=error"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">Couldn't ${editing ? 'save the changes' : 'create the proposal'}</p><p class="hs-alert__body">The proposal service didn't respond. Nothing was saved. Try again in a moment.</p></div></div><div class="hs-button-row"><button class="hs-button hs-button--secondary hs-button--sm" data-action="save-proposal" data-id="${v.id}">Retry</button></div>` : '',
     errs ? `<div class="hs-alert hs-alert--error" id="pm-errors" data-hs="Alert variant=error"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">${errs[0]}</p><p class="hs-alert__body">${errs[1]}</p></div></div>` : '',
-    sent ? `<div class="hs-alert hs-alert--warning" data-hs="Alert variant=warning · editing a sent proposal"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">This proposal was already sent</p><p class="hs-alert__body">Saving creates version ${last.v + 1} as a Draft, and you'll need to send it again. The sent version stays in the history.</p></div></div>` : '' ].join('');
-  const cta = editing ? 'Save new version' : 'Create proposal';
+    sent ? `<div class="hs-alert hs-alert--warning" data-hs="Alert variant=warning · editing a sent proposal (stays Sent: proposal, C35)"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">The supplier already has this proposal</p><p class="hs-alert__body">They'll see your changes on the same link as soon as you save. The proposal stays Sent. Let them know with “Send again by email”.</p></div></div>` : '' ].join('');
+  const cta = editing ? 'Save changes' : 'Create proposal';
   return `<div class="hs-overlay" data-overlay>
-    <div class="hs-modal ${S.proposalModal === 'full' ? 'hs-modal--lg' : ''}" role="dialog" aria-modal="true" aria-labelledby="pm-title" data-hs="Modal (${S.proposalModal === 'full' ? 'large' : 'medium'}) · ${S.proposalModal === 'full' ? 'full version' : 'simplified version'}">
+    <div class="hs-modal hs-modal--lg" role="dialog" aria-modal="true" aria-labelledby="pm-title" data-hs="Modal (large) · two columns, as in Bidmonitor">
       <div class="hs-modal__header"><h2 class="hs-modal__title" id="pm-title">${editing ? 'Edit proposal' : 'Create proposal'} · ${esc(v.name)}</h2><button class="hs-close" data-action="close" aria-label="Close" ${o.saving ? 'disabled' : ''}>×</button></div>
       <div class="hs-modal__body">
         ${alerts}
-        <p class="hs-text hs-text--subtle">${editing ? `Opened with the data of version ${last.v}. Saving creates version ${last.v + 1}; the previous one stays in the history.` : `Prefilled with PM's price constraints.`}${q > 1 ? ` Prices are per unit (bundle of ${q}).` : ''}</p>
+        <p class="hs-text hs-text--subtle">${editing ? `Opened with the current data. Saving updates the proposal; the link stays the same.` : `Prefilled with PM's price constraints.`}${q > 1 ? ` Prices are per unit (bundle of ${q}).` : ''}</p>
         ${body}
       </div>
-      <div class="hs-modal__footer"><span data-hs="LoadingButton"><button class="hs-button hs-button--primary ${o.saving ? 'is-loading' : ''}" data-action="save-proposal" data-id="${v.id}" ${o.saving ? 'disabled' : ''}>${o.saving ? (editing ? 'Saving new version…' : 'Creating proposal…') : cta}</button></span><button class="hs-button hs-button--secondary" data-action="close" ${o.saving ? 'disabled' : ''}>Cancel</button></div>
+      <div class="hs-modal__footer"><span data-hs="LoadingButton"><button class="hs-button hs-button--primary ${o.saving ? 'is-loading' : ''}" data-action="save-proposal" data-id="${v.id}" ${o.saving ? 'disabled' : ''}>${o.saving ? (editing ? 'Saving changes…' : 'Creating proposal…') : cta}</button></span><button class="hs-button hs-button--secondary" data-action="close" ${o.saving ? 'disabled' : ''}>Cancel</button></div>
     </div></div>`;
 }
 
 function confirmModal(o) {
   return `<div class="hs-overlay" data-overlay>
-    <div class="hs-modal hs-modal--sm" role="dialog" aria-modal="true" aria-labelledby="cm-title" data-hs="Modal (small) · confirmation">
+    <div class="hs-modal hs-modal--sm ${o.danger ? 'hs-modal--danger' : ''}" role="dialog" aria-modal="true" aria-labelledby="cm-title" data-hs="Modal (small${o.danger ? ', variant=danger · look in the new theme unknown' : ''}) · confirmation">
       <div class="hs-modal__header"><h2 class="hs-modal__title" id="cm-title">${o.title}</h2><button class="hs-close" data-action="close" aria-label="Close">×</button></div>
       <div class="hs-modal__body"><p class="hs-text">${o.body}</p></div>
       <div class="hs-modal__footer"><button class="hs-button ${o.danger ? 'hs-button--destructive' : 'hs-button--primary'}" data-action="${o.confirm}" data-id="${o.id}">${o.cta}</button><button class="hs-button hs-button--secondary" data-action="close">${o.cancelLabel || 'Cancel'}</button></div>
@@ -829,29 +834,35 @@ function confirmModal(o) {
 }
 
 function emailModal(o) {
-  const v = find(o.id), p = latest(v), again = p.status === 'Sent';
+  const v = find(o.id);
   return `<div class="hs-overlay" data-overlay>
-    <div class="hs-modal" role="dialog" aria-modal="true" aria-labelledby="em-title" data-hs="HubSpot email composer (native)">
-      <div class="hs-modal__header"><h2 class="hs-modal__title" id="em-title">Email</h2><button class="hs-close" data-action="close" aria-label="Close" ${o.sending ? 'disabled' : ''}>×</button></div>
+    <div class="hs-modal" role="dialog" aria-modal="true" aria-labelledby="em-title" data-hs="HubSpot email composer (native, opened by CrmActionButton SEND_EMAIL)">
+      <div class="hs-modal__header"><h2 class="hs-modal__title" id="em-title">Email</h2><button class="hs-close" data-action="close" aria-label="Close">×</button></div>
       <div class="hs-modal__body">
-        ${o.error ? `<div class="hs-alert hs-alert--error" data-hs="Alert variant=error"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">Couldn't send the email</p><p class="hs-alert__body">The email wasn't sent and the proposal status hasn't changed. Try again in a moment.</p><div class="hs-button-row" style="margin-top:12px"><button class="hs-button hs-button--secondary hs-button--sm" data-action="do-send" data-id="${v.id}">Retry</button></div></div></div>` : ''}
         ${field('To', '<input class="hs-input" value="Pieter Jansen <fleet@example-supplier.nl>">')}
         ${field('Subject', `<input class="hs-input" value="Your proposal for the ${esc(v.name)}">`)}
-        ${field('', `<textarea class="hs-textarea" style="min-height:140px">Hi Pieter,\n\nHere is our proposal for the ${v.name}:\nproposal.basworld.com/en/details/EXAMPLE${v.id}${p.v}\n\nKind regards,\nAnna de Vries</textarea>`)}
-        <p class="hs-text hs-text--micro hs-text--subtle">HubSpot's own email composer, opened with the link already in. The email is logged on the Purchase.</p>
+        ${field('', `<textarea class="hs-textarea" style="min-height:140px">Hi Pieter,\n\nHere is our proposal for the ${v.name}:\n${proposalUrl(v)}\n\nKind regards,\nAnna de Vries</textarea>`)}
+        <p class="hs-text hs-text--micro hs-text--subtle">HubSpot's own email composer, opened with the subject and the link already in. The email is logged on the Purchase.</p>
       </div>
-      <div class="hs-modal__footer"><span data-hs="LoadingButton"><button class="hs-button hs-button--primary ${o.sending ? 'is-loading' : ''}" data-action="do-send" data-id="${v.id}" ${o.sending ? 'disabled' : ''}>${o.sending ? 'Sending…' : 'Send'}</button></span><button class="hs-button hs-button--secondary" data-action="close" ${o.sending ? 'disabled' : ''}>Cancel</button></div>
+      <div class="hs-modal__footer"><button class="hs-button hs-button--primary" data-action="do-send" data-id="${v.id}">Send</button><button class="hs-button hs-button--secondary" data-action="close">Cancel</button></div>
     </div></div>`;
 }
 
+// "View full size" (U4): modal grande (no hay pantalla completa), con sus propias flechas
 function zoomModal(o) {
-  const v = find(o.id), idx = S.photoIdx[v.id] ?? v.main;
+  const v = find(o.id), idx = S.photoIdx[v.id] ?? v.main, n = v.photos.length;
   return `<div class="hs-overlay" data-overlay>
-    <div class="hs-modal hs-modal--lg" role="dialog" aria-modal="true" aria-labelledby="zm-title" data-hs="Modal (large) · Image">
-      <div class="hs-modal__header"><h2 class="hs-modal__title" id="zm-title">${esc(v.name)} · photo ${idx + 1} of ${v.photos.length}</h2><button class="hs-close" data-action="close" aria-label="Close">×</button></div>
-      <div class="hs-modal__body"><img class="hs-image" style="cursor:default" src="${v.photos[idx]}" alt="Photo ${idx + 1}"></div>
+    <div class="hs-modal hs-modal--lg" role="dialog" aria-modal="true" aria-labelledby="zm-title" data-hs="Modal (large, fixed size) · Image + Button × 2 + Text">
+      <div class="hs-modal__header"><h2 class="hs-modal__title" id="zm-title">${esc(v.name)} · photo ${idx + 1} of ${n}</h2><button class="hs-close" data-action="close" aria-label="Close">×</button></div>
+      <div class="hs-modal__body"><img class="hs-image" style="cursor:default" src="${v.photos[idx]}" alt="Photo ${idx + 1} of ${esc(v.name)}">
+        <div class="slider-bar" style="justify-content:center">
+          <button class="hs-button hs-button--secondary hs-button--sm" data-action="photo-prev" data-id="${v.id}" aria-label="Previous photo">‹</button>
+          <span class="hs-text" aria-live="polite">${idx + 1} / ${n}</span>
+          <button class="hs-button hs-button--secondary hs-button--sm" data-action="photo-next" data-id="${v.id}" aria-label="Next photo">›</button>
+        </div></div>
     </div></div>`;
 }
+
 
 function renderOverlay() {
   const root = $('#overlay-root'); const o = S.overlay;
@@ -877,67 +888,69 @@ const closeOverlay = () => {
   if (k?.action) document.querySelector(`[data-action="${k.action}"]${k.id ? `[data-id="${k.id}"]` : ''}`)?.focus();
 };
 
-// ================================================================ Llegada del precio y notificaciones (campana nativa)
-function priceArrives(quiet = false) {
+/// ================================================================ Llegada del precio y notificaciones (campana nativa)
+// El precio llega a HubSpot por la integración, pero la card abierta no se refresca sola (U10): se ve al abrir el
+// vehículo, al cambiar de pestaña, al abrir la notificación o con "Refresh". La campana es una notificación de un
+// workflow de HubSpot, no de la app (U9).
+function priceArrives(quiet = false, live = false) {
   const v = find(2);
   if (!v) return;
-  if (v.price.status === 'received') { if (!quiet) toast('The DAF already has a price. Use Reset demo to start again.'); return; }
+  if (v.price.status === 'received' || S.incoming[2]) { if (!quiet) toast('The DAF already has a price. Use Reset demo to start again.'); return; }
   // Max offer por debajo de la oferta del comprador (€19,000) para ver el aviso
-  v.price = { status: 'received', receivedAt: '29/09/2026 15:20', maxOffer: 18500, estMin: 22000, estMax: 24500, minAuction: 18000, prefinance: 10000, unseen: true };
+  S.incoming[2] = { status: 'received', receivedAt: '29/09/2026 15:20', maxOffer: 18500, estMin: 22000, estMax: 24500, minAuction: 18000, prefinance: 10000, unseen: true };
   S.notifications.unshift({ id: v.id, text: `PM sent the price for ${v.name}`, time: 'Just now', read: false });
-  toast(`🔔 PM sent the price for ${v.name}`);
+  if (live) loadIncoming(2);
+  if (!quiet) toast(`🔔 PM sent the price for ${v.name}`);
 }
+// Lo que ya está en HubSpot pasa a la card cuando esta vuelve a leer los datos
+function loadIncoming(id) {
+  const v = find(id), p = S.incoming[id];
+  if (!v || !p) return false;
+  v.price = { ...p, prev: v.price.prev }; delete S.incoming[id];
+  return true;
+}
+const loadAllIncoming = () => Object.keys(S.incoming).forEach(id => loadIncoming(+id));
 function renderBell() {
   const unread = S.notifications.filter(n => !n.read).length;
   $('#bell').innerHTML = `<button class="bell" data-action="bell" aria-label="Notifications${unread ? ` (${unread} unread)` : ''}" aria-expanded="${S.bellOpen}">🔔${unread ? `<span class="bell__badge">${unread}</span>` : ''}</button>
-    ${S.bellOpen ? `<div class="bell__menu" data-hs="Notifications (native HubSpot)"><p class="bell__title">Notifications</p>
-      ${S.notifications.length ? S.notifications.map((n, i) => `<button class="bell__item" data-action="open-notification" data-i="${i}"><b>${esc(n.text)}</b><span>${esc(n.time)} · Purchase app</span></button>`).join('') : '<p class="bell__empty">No notifications yet.</p>'}</div>` : ''}`;
+    ${S.bellOpen ? `<div class="bell__menu" data-hs="Notifications (native HubSpot) · sent by a HubSpot workflow, not by the app card"><p class="bell__title">Notifications</p>
+      ${S.notifications.length ? S.notifications.map((n, i) => `<button class="bell__item" data-action="open-notification" data-i="${i}"><b>${esc(n.text)}</b><span>${esc(n.time)} · Workflow</span></button>`).join('') : '<p class="bell__empty">No notifications yet.</p>'}</div>` : ''}`;
 }
 
 // Abre el modal "Create proposal" sobre un vehículo con precio y sin propuesta (si no hay, deja listo el DAF)
 function createTarget() {
-  return vehicles.find(x => x.price.status === 'received' && !x.proposals.length) || (priceArrives(true), find(2));
+  return vehicles.find(x => x.price.status === 'received' && !x.proposal) || (priceArrives(true, true), find(2));
 }
 function openCreate() { const t = createTarget(); openOverlay({ kind: 'proposal', id: t.id, form: cloneProp(propData(t, latest(t))), errors: [] }); }
 function openProposal(v) { openOverlay({ kind: 'proposal', id: v.id, form: cloneProp(propData(v, latest(v))), errors: [] }); }
 
-// ================================================================ Controles que cambian una variante: llevan a la pantalla donde se ve
+// ================================================================ Controles que cambian un estado: llevan a la pantalla donde se ve
 function controlChange(key, val) {
   S[key] = val; S.overlay = null; S.failNext = false;
   const hints = {
     listState: { filled: 'Vehicles table with data.', empty: 'Empty state: no vehicles added yet.', loading: 'Loading state, while HubSpot fetches the line items.', error: 'The vehicles couldn’t be loaded. Try “Try again”.' },
-    bundle: { A: 'Variant A · quantity: one line item per bundle. Open the DAF to see mileage and VIN per unit, or add a vehicle with Quantity 3.', B: 'Variant B · duplicate: one row per unit. Click “Duplicate” on any row.' },
-    proposalModal: { full: 'Full proposal modal, as in Bidmonitor. BAS World chooses one of the two versions.', simple: 'Simplified proposal modal. BAS World chooses one of the two versions.' },
     propState: { filled: 'Proposal tab with data.', loading: 'Loading state, while HubSpot fetches the proposals.', error: 'The proposals couldn’t be loaded. Try “Try again”.' },
   };
   S.hint = hints[key]?.[val] || '';
-  if (key === 'proposalModal') { S.tab = 'proposal'; S.view = 'list'; S.propState = 'filled'; render(); openCreate(); return; }
   if (key === 'propState') { S.tab = 'proposal'; S.view = 'list'; render(); return; }
   S.propState = 'filled';
-  if (key !== 'listState') S.listState = 'filled';
   S.tab = 'vehicles'; S.view = 'list';
   render();
 }
 
 // ================================================================ Escenarios guiados (solo prototipo)
-function goVehicle(id) { S.tab = 'vehicles'; S.view = 'detail'; S.vehicleId = id; const v = find(id); if (v?.price) delete v.price.unseen; }
-// Lo que proponemos nosotras y Basworld tiene que confirmar (preguntas C22–C27 y C21)
+function goVehicle(id) { S.tab = 'vehicles'; S.view = 'detail'; S.vehicleId = id; loadIncoming(id); const v = find(id); if (v?.price) delete v.price.unseen; }
+// Lo que proponemos nosotras y Basworld tiene que confirmar (preguntas C, P) e ideas nuestras (I)
 const PROPOSALS = [
-  ['sc-pr-c22', 'C22', 'Ask for price is disabled until the vehicle’s details are complete'],
-  ['sc-pr-c23', 'C23', 'Asking price is required; optional fields are folded'],
-  ['sc-pr-c24', 'C24', 'License plate lookup as an optional shortcut'],
-  ['sc-pr-c25', 'C25', 'Change the urgency or cancel a price request'],
-  ['sc-pr-c27', 'C27', 'Ask for a new price'],
+  ['sc-pr-c23', 'C23', 'Asking price is required'],
   ['sc-pr-c28', 'C28', 'Proposal rules: at least one solution, the recommended one must be included'],
   ['sc-pr-c29', 'C29', 'Should the Purchase stage change once all proposals are Sent?'],
-  ['sc-pr-c30', 'C30', 'Each proposal version has its own link'],
-  ['sc-pr-c31', 'C31', 'Bundles: working hours and VIN per unit; no “Don’t know” on required numbers; capacity unit'],
-  ['sc-pr-c32', 'C32', 'Your choice: identical vehicles A (quantity) or B (duplicate)'],
-  ['sc-pr-c33', 'C33', 'Your choice: proposal modal Full or Simplified'],
+  ['sc-pr-c34', 'C34', 'License plate per unit in a bundle, in every vehicle type'],
+  ['sc-pr-c35', 'C35', 'Editing a sent proposal keeps it Sent, on the same link'],
+  ['sc-pr-p8', 'P8', 'License plate lookup fills in only empty fields and lists the differences'],
   ['sc-pr-offer', 'I1', 'Warning when the offer is above PM’s max offer'],
   ['sc-pr-new', 'I2', 'Notification and “New price” tag when PM answers'],
-  ['sc-pr-dup', 'I3', 'Duplicate without opening the form (variant B)'],
-  ['sc-pr-mark', 'I4', '“Mark as sent” always available in Draft; send again from Sent'],
+  ['sc-pr-mark', 'I4', '“Mark as sent” for email and WhatsApp; send again from Sent'],
   ['sc-pr-sum', 'I5', 'Summary of the included offers on the proposal card'],
   ['sc-pr-clear', 'I6', 'Click a selected option again, or press Enter or Space on it, to unselect it (optional pills)'],
 ];
@@ -948,65 +961,52 @@ function scenario(a) {
   // El DAF vuelve a "esperando a PM" para poder repetir la llegada del precio desde cualquier estado
   const armDaf = () => {
     const d = find(2); if (!d) return;
-    d.price = { status: 'requested', urgency: 'Urgent today', requestedAt: '29/09/2026 08:45' }; d.proposals = [];
-    S.notifications = S.notifications.filter(n => n.id !== 2); S.errors[2] = false; S.requesting[2] = false;
+    d.price = { status: 'requested', urgency: 'Urgent today', requestedAt: '29/09/2026 08:45' }; d.proposal = null;
+    delete S.incoming[2]; S.notifications = S.notifications.filter(n => n.id !== 2); S.errors[2] = false; S.requesting[2] = false; S.emailed[2] = false;
   };
   const hints = {
     'sc-add': 'Fill in the form. Try 12-BLX-7 as license plate, or click “Add vehicle” with empty fields to see the errors.',
     'sc-review': 'Click “Review details”, fill in what’s missing and save. “Ask for price” becomes available. (Already done? Use Reset demo.)',
-    'sc-ask': 'Choose an urgency and click “Ask for price”. Then try changing the urgency or cancelling the request.',
-    'sc-arrive': 'A notification arrives: look at the bell (top right) and the “New price” tag. Open the DAF to see PM’s constraints and the offer warning.',
+    'sc-ask': 'Choose an urgency (the text below says when PM answers) and click “Ask for price”. The urgency can’t be changed afterwards.',
+    'sc-arrive': 'PM’s price has reached HubSpot: see the bell (top right). The open card doesn’t update by itself: click “Refresh” in the waiting message, or open the notification.',
     'sc-error': 'Click “Ask for price”: Bidmonitor doesn’t answer. Then click “Retry”.',
     'sc-again': 'Click “Ask for a new price”. The previous constraints stay visible, folded, until the new ones arrive.',
     'sc-create': 'Change anything and click “Create proposal”. Then look at the card: it shows the included offers and the Draft status.',
-    'sc-send': 'Try “Send by email” (opens HubSpot’s composer), “Copy link” and “Mark as sent”. All three end in Sent.',
-    'sc-edit-sent': 'The Volvo proposal is Sent. Click “Edit proposal”: the modal warns that saving creates a new Draft version. Check the Version history.',
+    'sc-send': 'Try “Send by email” (HubSpot’s composer): the card can’t tell whether the email went out, so it reminds you to click “Mark as sent”. “Copy link” works the same way.',
+    'sc-edit-sent': 'The Volvo proposal is Sent. Click “Edit proposal”: the supplier will see the changes on the same link, and the proposal stays Sent.',
     'sc-prop-error': 'Click “Create proposal”: the proposal service doesn’t answer. Then click “Retry”.',
-    'sc-pr-c31': 'C31 · Agriculture, quantity 3: each unit has its own working hours and VIN (like mileage in trucks). Open “Optional information” to see Capacity in other types.',
-    'sc-pr-clear': 'I6 · Add a vehicle, open “Optional information” and see T1 = Yes. Click “Yes” again (or press Enter or Space on it) to unselect it and leave the field empty.',
-    'sc-pr-c32': 'C32 · Use “Identical vehicles” below to switch between A and B. In B, each unit is its own line item: open the Proposal tab to see the note.',
-    'sc-pr-c33': 'C33 · Use “Proposal modal” below to switch between Full and Simplified. Which one do you prefer?',
+    'sc-pr-c23': 'C23 · Required fields are marked with *. We assumed the asking price is required too. Click “Add vehicle” with empty fields to see the validation.',
     'sc-pr-c28': 'C28 · Untick all three solutions and click “Create proposal”, or untick the recommended one. Auction needs its amounts once it’s ticked.',
     'sc-pr-c29': 'C29 · Send a proposal and look at the Stage in the record header: it stays “Pricing”. In Bidmonitor the bid moved to “Under offer”. Should the Purchase stage move by itself, once all the proposals are Sent?',
-    'sc-pr-c30': 'C30 · Open the Version history of the Volvo: every version has its own link. Should the supplier keep the same link instead?',
-    'sc-pr-mark': 'I4 · In Draft, “Mark as sent” is always there (for links sent on WhatsApp). In Sent you can still use “Send again by email”.',
-    'sc-pr-sum': 'I5 · The card lists the included offers, their amounts and the recommended one, so you don’t need to open the link.',
-  };
-  Object.assign(hints, {
-    'sc-pr-c22': 'C22 · The Mercedes came from WhatsApp with details missing: Ask for price stays disabled until they’re filled in. (Already completed? Use Reset demo.)',
-    'sc-pr-c23': 'C23 · Required fields are marked with *; optional ones are folded in “Optional information”. Click “Add vehicle” to see the validation.',
-    'sc-pr-c24': 'C24 · The license plate box is optional: it only fills in the details. Try 12-BLX-7.',
-    'sc-pr-c25': 'C25 · While waiting for PM, change the urgency or cancel the request.',
-    'sc-pr-c27': 'C27 · Click “Ask for a new price” under PM’s constraints.',
+    'sc-pr-c34': 'C34 · The DAF is a bundle of 5: each unit has its own mileage, license plate and VIN.',
+    'sc-pr-c35': 'C35 · The Volvo proposal is Sent. Edit it: with one link the supplier sees the changes at once, so we suggest it stays Sent and you let them know by email.',
+    'sc-pr-p8': 'P8 · The supplier said Mercedes. Click “Look up”: the registry fills in only the empty fields and shows what’s different, without overwriting it.',
     'sc-pr-offer': 'I1 · The offer price is above PM’s max offer: see the red tag next to it and the warning below.',
-    'sc-pr-new': 'I2 · Look at the bell (top right) and the “New price” tag in the table.',
-    'sc-pr-dup': 'I3 · Variant B: “Duplicate” copies the row at once, marked Needs review until mileage and VIN are filled in.',
-  });
+    'sc-pr-new': 'I2 · The bell shows HubSpot’s notification. The “New price” tag appears in the table once the record loads the price: open the notification, or switch tabs and come back.',
+    'sc-pr-mark': 'I4 · In Draft, “Mark as sent” is always there: after sending by email or on WhatsApp. In Sent you can still use “Send again by email”.',
+    'sc-pr-sum': 'I5 · The card lists the included offers, their amounts and the recommended one, so you don’t need to open the link.',
+    'sc-pr-clear': 'I6 · Add a vehicle, open “Optional information” and see T1 = Yes. Click “Yes” again (or press Enter or Space on it) to unselect it and leave the field empty.',
+  };
   S.hint = hints[a] || '';
-  if (a === 'sc-pr-c22') goVehicle(4);
-  if (a === 'sc-pr-c23' || a === 'sc-pr-c24') { S.tab = 'vehicles'; S.view = 'list'; render(); openOverlay({ kind: 'vehicle', form: formFrom(null), missing: [] }); return; }
-  if (a === 'sc-pr-c25') { if (schmitz) { schmitz.price = { status: 'requested', urgency: 'Urgent today', requestedAt: '29/09/2026 14:02' }; S.errors[3] = false; } goVehicle(3); }
-  if (a === 'sc-pr-c27') goVehicle(1);
-  if (a === 'sc-pr-offer') { armDaf(); priceArrives(true); goVehicle(2); }
-  if (a === 'sc-pr-new') { armDaf(); S.tab = 'vehicles'; S.view = 'list'; priceArrives(); }
-  if (a === 'sc-pr-dup') { S.bundle = 'B'; S.tab = 'vehicles'; S.view = 'list'; }
-  if (a === 'sc-add') { S.tab = 'vehicles'; S.view = 'list'; render(); openOverlay({ kind: 'vehicle', form: formFrom(null), missing: [] }); return; }
+  const propTab = () => { S.tab = 'proposal'; S.view = 'list'; S.propState = 'filled'; };
+  const volvoAs = st => { const p = latest(find(1)); if (p) { p.status = st; delete p.editedAt; S.emailed[1] = false; if (st === 'Sent') p.sentAt = p.sentAt || '29/09/2026 09:42'; else delete p.sentAt; } };
+  const addPanel = (form = formFrom(null), extra = {}) => { S.tab = 'vehicles'; S.view = 'list'; render(); openOverlay({ kind: 'vehicle', form, missing: [], ...extra }); };
+  if (a === 'sc-add' || a === 'sc-pr-c23') return addPanel();
+  if (a === 'sc-pr-p8') { const form = formFrom(null); form.brand = 'Mercedes'; form.model = 'Actros'; form.units[0].plate = '12-BLX-7'; return addPanel(form); }
+  if (a === 'sc-pr-clear') { const form = formFrom(null); form.t1 = 'Yes'; return addPanel(form, { optOpen: true, scrollTop: 500 }); }
+  if (a === 'sc-pr-c34') { const d = find(2); if (d) { goVehicle(2); render(); openOverlay({ kind: 'vehicle', id: 2, form: formFrom(d), missing: [], scrollTop: 900 }); return; } }
   if (a === 'sc-review') goVehicle(4);
   if (a === 'sc-ask') { resetSchmitz(); goVehicle(3); }
-  if (a === 'sc-arrive') { armDaf(); S.tab = 'vehicles'; S.view = 'list'; priceArrives(); }
+  if (a === 'sc-arrive') { armDaf(); goVehicle(2); priceArrives(); }
   if (a === 'sc-error') { resetSchmitz(); S.failNext = true; goVehicle(3); }
   if (a === 'sc-again') goVehicle(1);
-  const propTab = () => { S.tab = 'proposal'; S.view = 'list'; S.propState = 'filled'; };
-  const volvoAs = st => { const p = latest(find(1)); if (p) { p.status = st; if (st === 'Sent') p.sentAt = p.sentAt || '29/09/2026 14:40'; else delete p.sentAt; } };
-  if (a === 'sc-pr-clear') { S.tab = 'vehicles'; S.view = 'list'; render(); const form = formFrom(null); form.t1 = 'Yes'; openOverlay({ kind: 'vehicle', form, missing: [], optOpen: true, scrollTop: 500 }); return; }
-  if (a === 'sc-pr-c32') { S.tab = 'vehicles'; S.view = 'list'; }
-  if (a === 'sc-pr-c33') { S.tab = 'proposal'; S.view = 'list'; render(); openCreate(); return; }
-  if (a === 'sc-pr-c31') { S.bundle = 'A'; S.tab = 'vehicles'; S.view = 'list'; render(); const form = formFrom(null); form.type = 'Agriculture'; form.units = Array.from({ length: 3 }, () => ({ mileage: '', vin: '' })); openOverlay({ kind: 'vehicle', form, missing: [] }); return; }
+  if (a === 'sc-pr-offer') { armDaf(); priceArrives(true, true); goVehicle(2); }
+  if (a === 'sc-pr-new') { armDaf(); S.tab = 'vehicles'; S.view = 'list'; priceArrives(); }
   if (a === 'sc-create' || a === 'sc-pr-c28') { propTab(); render(); openCreate(); return; }
   if (a === 'sc-prop-error') { propTab(); S.failNext = true; render(); openCreate(); return; }
-  if (a === 'sc-send') { propTab(); volvoAs('Draft'); }
-  if (a === 'sc-edit-sent') { propTab(); volvoAs('Sent'); }
-  if (a === 'sc-pr-c29' || a === 'sc-pr-c30' || a === 'sc-pr-mark') { propTab(); if (a !== 'sc-pr-c29') volvoAs(a === 'sc-pr-mark' ? 'Draft' : 'Sent'); }
+  if (a === 'sc-send' || a === 'sc-pr-mark') { propTab(); volvoAs('Draft'); }
+  if (a === 'sc-edit-sent' || a === 'sc-pr-c29') { propTab(); volvoAs('Sent'); }
+  if (a === 'sc-pr-c35') { propTab(); volvoAs('Sent'); render(); const v = find(1); if (v) openProposal(v); return; }
   if (a === 'sc-pr-sum') propTab();
 }
 
@@ -1022,19 +1022,17 @@ function renderControls() {
       <div class="pc-group"><p class="pc-sub">Vehicles</p><div class="pc-seg">${sc('sc-add', 'Add a vehicle')}${sc('sc-review', 'Complete a WhatsApp vehicle')}</div></div>
       <div class="pc-group"><p class="pc-sub">Price</p><div class="pc-seg">${sc('sc-ask', 'Ask for a price')}${sc('sc-arrive', 'PM price arrives')}${sc('sc-error', 'Bidmonitor error')}${sc('sc-again', 'Ask for a new price')}</div></div>
       <div class="pc-group"><p class="pc-sub">Proposal</p><div class="pc-seg">${sc('sc-create', 'Create a proposal')}${sc('sc-prop-error', 'Proposal error')}${sc('sc-send', 'Send a proposal')}${sc('sc-edit-sent', 'Edit a sent proposal')}</div></div></div>
-    <details class="pc-props-wrap" ${S.propsOpen ? 'open' : ''}><summary>Our proposals · to confirm (${PROPOSALS.length}) <span aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></summary><p class="pc-note">Numbers match our questions to BAS World. I1–I6 = our own ideas, not asked.</p>
+    <details class="pc-props-wrap" ${S.propsOpen ? 'open' : ''}><summary>Our proposals · to confirm (${PROPOSALS.length}) <span aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></summary><p class="pc-note">C and P = our questions to BAS World, still open. I = our own ideas, not asked.</p>
       <ul class="pc-props">${PROPOSALS.map(([a, id, t]) => `<li><button data-pc-action="${a}"><b>${id}</b> ${t}</button></li>`).join('')}</ul></details>
     <div><label class="pc-l">Vehicles table</label>${seg('listState', [['filled', 'With data'], ['empty', 'Empty'], ['loading', 'Loading'], ['error', 'Error']])}</div>
     <div><label class="pc-l">Proposal tab</label>${seg('propState', [['filled', 'With data'], ['loading', 'Loading'], ['error', 'Error']])}</div>
-    <div><label class="pc-l">Identical vehicles · choose A or B</label>${seg('bundle', [['A', 'A · Quantity'], ['B', 'B · Duplicate']])}</div>
-    <div><label class="pc-l">Proposal modal · choose one</label>${seg('proposalModal', [['full', 'Full'], ['simple', 'Simplified']])}</div>
 `;
 }
 
 // ================================================================ Eventos
 document.addEventListener('click', e => {
   const tab = e.target.closest('[data-tab]');
-  if (tab) { S.tab = tab.dataset.tab; S.view = 'list'; render(); return; }
+  if (tab) { S.tab = tab.dataset.tab; S.view = 'list'; loadAllIncoming(); render(); return; }   // al cambiar de pestaña, las cards vuelven a leer los datos
 
   const pc = e.target.closest('[data-pc]');
   if (pc) { controlChange(pc.dataset.pc, pc.dataset.val); return; }
@@ -1057,8 +1055,17 @@ document.addEventListener('click', e => {
     case 'open-vehicle': goVehicle(id); render(); break;
     case 'bell': S.bellOpen = !S.bellOpen; S.notifications.forEach(n => n.read = true); render(); break;
     case 'open-notification': { const n = S.notifications[+el.dataset.i]; S.bellOpen = false; if (n) goVehicle(n.id); render(); break; }
-    case 'cancel-request': openOverlay({ kind: 'confirm', id, title: 'Cancel the price request?', body: `PM will no longer see ${esc(v.name)} in their list. You can ask for a price again at any time.`, cta: 'Cancel request', confirm: 'do-cancel', cancelLabel: 'Keep request', danger: true }); break;
-    case 'do-cancel': v.price = { status: 'none', prev: v.price.prev }; closeOverlay(); toast('Price request cancelled'); break;
+    case 'refresh-price': {
+      S.refreshing[id] = true; render();
+      setTimeout(() => { S.refreshing[id] = false; const got = loadIncoming(id); if (got) delete v.price.unseen; toast(got ? 'PM’s price is in' : 'No price from PM yet'); render(); }, 800);
+      break;
+    }
+    case 'use-registry': {
+      const o = S.overlay;
+      // Si cambia la marca, la cabina deja de valer (cascada marca → modelo → cabina)
+      if (o.diffs.some(x => x.k === 'brand')) o.form.cabin = '';
+      o.diffs.forEach(x => { o.form[x.k] = x.reg; }); o.diffs = []; render(); break;
+    }
     case 'ask-again': { const old = { ...v.price }; delete old.unseen; v.price = { status: 'none', prev: old }; render(); break; }
     case 'back': S.view = 'list'; render(); break;
     case 'toggle-sidebar': {
@@ -1069,15 +1076,23 @@ document.addEventListener('click', e => {
     case 'add-vehicle': openOverlay({ kind: 'vehicle', form: formFrom(null), missing: [] }); break;
     case 'edit-vehicle': openOverlay({ kind: 'vehicle', id, form: formFrom(v), missing: [] }); break;
     case 'lookup': {
-      const o = S.overlay, plate = o.form.plate.trim().toUpperCase();
+      const o = S.overlay, plate = o.form.units[0].plate.trim().toUpperCase();
       if (!plate) { o.lookup = 'empty'; render(); break; }
       o.lookup = 'loading'; render();
       setTimeout(() => {
         if (S.overlay !== o) return;
         // Simulación del RDW: cualquier matrícula con formato neerlandés (6 caracteres en 3 grupos) se encuentra
         if (/^[A-Z0-9]{1,3}-[A-Z0-9]{1,3}-[A-Z0-9]{1,3}$/.test(plate) && plate.replace(/-/g, '').length === 6) {
-          Object.assign(o.form, { type: 'Tractor head', brand: 'DAF', model: 'XF', hp: '480', euro: 'Euro 6', firstReg: '14/03/2021', config: '4X2' });
+          // Solo rellena lo vacío; lo que no coincide se lista para que el comprador decida (propuesta, P8)
+          const reg = { brand: 'DAF', model: 'XF', hp: '480', euro: 'Euro 6', firstReg: '14/03/2021', config: '4X2' };
+          const lbl = k => fieldLabel(typeDef(o.form.type).fields.find(x => x.k === k) || { label: k });
+          o.filled = []; o.diffs = []; o.registry = reg;
+          Object.entries(reg).forEach(([k, val]) => {
+            if (blank(o.form[k])) { o.form[k] = val; o.filled.push(lbl(k)); }
+            else if (o.form[k] !== val) o.diffs.push({ k, label: shortLabel(typeDef(o.form.type).fields.find(x => x.k === k)), reg: val, mine: o.form[k] });
+          });
           o.lookup = 'found';
+
           if (o.tried) o.missing = missingFields(o.form);
         } else o.lookup = 'notfound';
         render();
@@ -1090,7 +1105,7 @@ document.addEventListener('click', e => {
       if (o.missing.length) { o.tried = true; o.scrollTop = 0; render(); break; }
       const num = x => blank(x) ? null : +x;
       const data = { type: f.type, asking: num(f.asking), proposed: num(f.proposed), offer: num(f.offer),
-        units: f.units.map(u => ({ mileage: num(u.mileage), vin: u.vin.trim() })) };
+        units: f.units.map(u => ({ mileage: num(u.mileage), plate: u.plate.trim().toUpperCase(), vin: u.vin.trim() })) };
       typeDef(f.type).fields.forEach(fd => { data[fd.k] = f[fd.k]; });
       data.hpUnit = f.hpUnit;
       // El nombre se recalcula solo si cambian tipo, marca, modelo, carrocería o potencia
@@ -1102,20 +1117,12 @@ document.addEventListener('click', e => {
         Object.assign(target, data, renamed ? { name: autoName } : {});
         toast(needsReview(target) ? 'Changes saved' : 'Changes saved. You can now ask for a price.');
       } else {
-        vehicles.push({ id: nextId++, name: autoName, source: 'Manual', photos: [], main: 0, price: { status: 'none' }, proposals: [], ...data });
+        vehicles.push({ id: nextId++, name: autoName, source: 'Manual', photos: [], main: 0, price: { status: 'none' }, proposal: null, ...data });
+
         S.listState = 'filled'; S.view = 'list';
         toast('Vehicle added as a line item');
       }
       render(); break;
-    }
-    case 'duplicate': {
-      // Variante B: copia todo menos kilometraje y VIN. La copia queda en "Needs review" hasta completarlos.
-      const copy = JSON.parse(JSON.stringify(v));
-      Object.assign(copy, { id: nextId++, units: [{ mileage: null, vin: '' }], price: { status: 'none' }, proposals: [] });
-      vehicles.splice(vehicles.indexOf(v) + 1, 0, copy);
-      S.flash = copy.id; render(); S.flash = null;
-      toast('Copy added below. Enter its mileage and VIN.');
-      break;
     }
     case 'delete-vehicle': openOverlay({ kind: 'confirm', id, title: 'Delete this vehicle?', body: `${esc(v.name)} will be removed from this Purchase, including its photos and pricing. This can't be undone.`, cta: 'Delete vehicle', confirm: 'do-delete', danger: true }); break;
     case 'do-delete': { const i = vehicles.findIndex(x => x.id === id); vehicles.splice(i, 1); S.overlay = null; S.view = 'list'; toast('Vehicle deleted'); render(); break; }
@@ -1150,27 +1157,27 @@ document.addEventListener('click', e => {
         o.saving = false;
         if (S.failNext) { S.failNext = false; o.apiError = true; o.scrollTop = 0; render(); return; }
         const p = latest(v);
-        v.proposals.push({ v: p ? p.v + 1 : 1, status: 'Draft', date: '29/09/2026 14:30', by: 'Anna de Vries', data: cloneProp(o.form) });
-        closeOverlay(); toast(p ? `Version ${p.v + 1} saved as Draft` : 'Proposal created as Draft'); render();
+        if (p) { p.data = cloneProp(o.form); if (p.status === 'Sent') p.editedAt = '29/09/2026 15:10'; }
+        else v.proposal = { status: 'Draft', createdAt: '29/09/2026 14:30', by: 'Anna de Vries', data: cloneProp(o.form) };
+        closeOverlay(); toast(!p ? 'Proposal created as Draft' : p.status === 'Sent' ? 'Changes saved. The supplier sees them on the same link.' : 'Changes saved'); render();
       }, 1300);
       break;
     }
     case 'copy-link': tip(el, 'Link copied'); toast('Link copied to clipboard'); break;
     case 'open-proposal': toast('Opens the public proposal page in a new browser tab (proposal.basworld.com)'); break;
-    case 'mark-sent': { const p = latest(v); p.status = 'Sent'; p.sentAt = '29/09/2026 14:40'; toast('Proposal marked as sent'); render(); break; }
+    case 'mark-sent': { const p = latest(v); p.status = 'Sent'; p.sentAt = '29/09/2026 14:40'; delete p.editedAt; S.emailed[id] = false; toast('Proposal marked as sent'); render(); break; }
     case 'send-email': openOverlay({ kind: 'email', id }); break;
     case 'do-send': {
-      const o = S.overlay; if (o.sending) break;
-      o.error = false; o.sending = true; render();
-      setTimeout(() => {
-        if (S.overlay !== o) return;
-        o.sending = false;
-        if (S.failNext) { S.failNext = false; o.error = true; render(); return; }
-        const p = latest(v), again = p.status === 'Sent';
-        p.status = 'Sent'; p.sentAt = '29/09/2026 14:40';
-        closeOverlay(); toast(again ? 'Email sent again.' : 'Email sent. The proposal is now Sent.'); render();
-      }, 1100);
+      // El redactor es de HubSpot y no le dice a la card si el email salió (U11): la propuesta no cambia sola
+      const p = latest(v);
+      if (p.status === 'Draft') S.emailed[id] = true;
+      closeOverlay(); toast('Email sent'); render();
       break;
+    }
+    case 'qty-step': {   // StepperInput: los botones − / + cambian la cantidad
+      const inp = el.parentElement.querySelector('[data-role="qty"]');
+      inp.value = Math.max(1, Math.min(20, (+inp.value || 1) + +el.dataset.step));
+      inp.dispatchEvent(new Event('change', { bubbles: true })); break;
     }
     case 'close': closeOverlay(); break;
   }
@@ -1186,7 +1193,7 @@ document.addEventListener('change', e => {
     if (t.dataset.role === 'qty') {
       const q = Math.max(1, Math.min(20, +t.value || 1));
       if (q !== o.form.units.length) {
-        o.form.units = Array.from({ length: q }, (_, i) => o.form.units[i] ?? { mileage: '', vin: '' });
+        o.form.units = Array.from({ length: q }, (_, i) => o.form.units[i] ?? { mileage: '', plate: '', vin: '' });
         if (o.tried) o.missing = missingFields(o.form);
         later();
       }
@@ -1252,11 +1259,13 @@ function syncField(t) {
   }
   const tot = document.getElementById('price-total'); if (tot) tot.innerHTML = totalText(f);
 }
+// Al elegir la urgencia, el texto de ayuda dice cuándo responde PM (C26)
 document.addEventListener('change', e => {
-  if (e.target.dataset.role !== 'change-urgency') return;
-  const v = find(+e.target.dataset.id); v.price.urgency = e.target.value;
-  toast(`Urgency changed to “${v.price.urgency}”. PM’s list is updated.`); render();
+  if (e.target.dataset.role !== 'urgency') return;
+  S.urg[+e.target.dataset.id] = e.target.value; render();
+  document.getElementById(e.target.id)?.focus();
 });
+
 document.addEventListener('click', e => {
   if (S.bellOpen && e.target.isConnected && !e.target.closest('#bell')) { S.bellOpen = false; renderBell(); }
 });
