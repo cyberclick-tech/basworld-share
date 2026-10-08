@@ -4,7 +4,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Basworld Purchase Prototype</title>
+<title>Basworld Supply Opportunity Prototype</title>
 <link rel="stylesheet" href="hubspot-tokens.css">
 <link rel="stylesheet" href="hubspot-components.css">
 <style>
@@ -39,6 +39,10 @@
   .quick i { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #8a8a8a; display: grid; place-items: center; font-style: normal; font-size: 13px; }
   .row-actions { display: flex; gap: 4px; justify-content: flex-end; }
   .vehicle-name { display: flex; flex-direction: column; gap: 2px; }
+  /* Miniatura de la foto principal en la celda del nombre (Image width=56 dentro de TableCell, con Flex) */
+  .vehicle-cell { display: flex; gap: 12px; align-items: flex-start; }
+  .vehicle-thumb { flex: 0 0 56px; width: 56px; height: 42px; object-fit: cover; border-radius: 6px; }
+  .vehicle-thumb--none { display: grid; place-items: center; background: #f0f0f0; color: #666; font: 300 10px/12px var(--hs-font-body); text-align: center; }
   .vehicle-name small { font: 300 12px/16px var(--hs-font-body); color: #666; }
   .detail-grid { display: grid; grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr); gap: 16px; align-items: start; }
   .stack { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
@@ -66,7 +70,6 @@
   .solution.is-off .solution__fields { display: none; }
   .solution__head { display: flex; align-items: center; gap: 12px; }
   .solution__head .hs-check { flex: 1; font-weight: 500; }
-  .modal-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
   .proposal-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .proposal-head .hs-card__title { flex: 1; min-width: 200px; }
   .hs-tip { position: fixed; z-index: 90; transform: translate(-50%, -100%); padding: 6px 10px; border-radius: 8px; background: #2d2d2d; color: #fff; font: 500 12px/16px var(--hs-font-body); white-space: nowrap; pointer-events: none; animation: hs-fade-in 120ms ease-out; }
@@ -158,7 +161,7 @@
       <!-- ============================================ Columna izquierda (nativa) -->
       <div class="hs-record__col hs-record__left">
         <div class="hs-card record-head" data-hs="Record header (native)">
-          <span class="back">‹ Purchases</span>
+          <span class="back">‹ Supply opportunities</span>
           <h1 class="hs-record-title">Noordhaven Logistics – fleet renewal</h1>
           <dl class="record-props">
             <dt>Stage:</dt><dd><span class="hs-stage hs-stage--magenta">Pricing</span></dd>
@@ -168,8 +171,8 @@
           </dl>
           <div class="quick"><span><i>✎</i>Note</span><span><i>✉</i>Email</span><span><i>☏</i>Call</span><span><i>☑</i>Task</span><span><i>⋯</i>More</span></div>
         </div>
-        <div class="hs-card" data-hs="About this Purchase (native)">
-          <div class="hs-card__header"><h2 class="hs-card__title">About this Purchase</h2></div>
+        <div class="hs-card" data-hs="About this Supply Opportunity (native)">
+          <div class="hs-card__header"><h2 class="hs-card__title">About this supply opportunity</h2></div>
           <dl class="hs-dl hs-dl--stacked">
             <div><dt>Lead generator</dt><dd>Tom Bakker</dd></div>
             <div><dt>Create date</dt><dd>24/09/2026</dd></div>
@@ -237,16 +240,19 @@ const eur = n => n == null || n === '' ? '—' : new Intl.NumberFormat('en-IE', 
 const vehicles = [
   { id: 1, name: 'Volvo FH 460 4x2', type: 'Tractor head', source: 'Manual', brand: 'Volvo', model: 'FH', hp: '460', config: '4X2', cabin: 'Globetrotter', firstReg: '12/03/2020', euro: 'Euro 6', gearbox: 'Automatic gearbox', retarder: 'Retarder',
     units: [{ mileage: 412000, plate: '73-BKX-4', vin: 'YV2RT40A5LB123456' }], asking: 48500, proposed: 52000, offer: 46000,
+    address: 'Industrieweg 14, Waalwijk', postcode: '5145 PD', country: 'Netherlands',
     photos: photos(6, 200), main: 0,
     price: { status: 'received', urgency: 'Urgent today', requestedAt: '28/09/2026 10:12', receivedAt: '28/09/2026 16:40',
              maxOffer: 47000, estMin: 52000, estMax: 56000, minAuction: 44000, prefinance: 25000 },
     proposal: { status: 'Sent', createdAt: '29/09/2026 09:30', sentAt: '29/09/2026 09:42', by: 'Anna de Vries' } },
-  { id: 2, name: 'DAF XF 480 FT', type: 'Tractor head', source: 'Incoming call', brand: 'DAF', model: 'XF', hp: '480', config: '4X2', cabin: 'Super Space Cab', firstReg: '08/06/2021', euro: 'Euro 6', gearbox: 'Automatic gearbox', retarder: 'Intarder',
-    units: [{ mileage: 380000, plate: '41-BPL-6', vin: 'XLRTEH4300G100001' }, { mileage: 395500, plate: '41-BPL-7', vin: 'XLRTEH4300G100002' }, { mileage: 402100, plate: '41-BPL-8', vin: 'XLRTEH4300G100003' }, { mileage: 377800, plate: '', vin: 'XLRTEH4300G100004' }, { mileage: 410250, plate: '', vin: 'XLRTEH4300G100005' }],
+  { id: 2, name: 'DAF XF 480 FT', type: 'Tractor head', source: 'Incoming call', brand: 'DAF', model: 'XF', hp: '480', config: '4X2', cabin: 'Super Space Cab', euro: 'Euro 6', gearbox: 'Automatic gearbox', retarder: 'Intarder',
+    units: [{ mileage: 380000, plate: '41-BPL-6', vin: 'XLRTEH4300G100001', date: '08/06/2021' }, { mileage: 395500, plate: '41-BPL-7', vin: 'XLRTEH4300G100002', date: '08/06/2021' }, { mileage: 402100, plate: '41-BPL-8', vin: 'XLRTEH4300G100003', date: '15/02/2021' }, { mileage: 377800, plate: '', vin: 'XLRTEH4300G100004', date: '22/09/2021' }, { mileage: 410250, plate: '', vin: 'XLRTEH4300G100005', date: '15/02/2021' }],
     asking: 20000, proposed: 23500, offer: 19000, photos: photos(10, 12), main: 2,
+    address: 'Havenkade 3, Venlo', postcode: '5928 RP', country: 'Netherlands',
     price: { status: 'requested', urgency: 'Urgent today', requestedAt: '29/09/2026 08:45' }, proposal: null },
   { id: 3, name: 'Schmitz Cargobull SKO 24', type: 'Semi trailer', source: 'Manual', brand: 'Schmitz Cargobull', superstructure: 'Closed', axleCount: '3 axles', firstReg: '15/01/2019',
     units: [{ mileage: null, plate: 'OK-48-TR', vin: 'WSM00000003123456' }], asking: 15000, proposed: null, offer: null,
+    address: 'Transportweg 8, Oss', postcode: '5349 AB', country: 'Netherlands',
     photos: [], main: 0, price: { status: 'none' }, proposal: null },
   // Llega de WhatsApp con datos incompletos: le faltan cabina, retarder, euronorma, matriculación, configuración y kilometraje (Needs review)
   { id: 4, name: 'Mercedes-Benz Actros 1845', type: 'Tractor head', source: 'WhatsApp', brand: 'Mercedes', model: 'Actros', hp: '450',
@@ -285,16 +291,21 @@ const PILLS_MAX = 6;   // hasta 6 opciones: ToggleGroup (pills); más: Select
 const blank = x => x == null || x === '';
 const typeDef = t => TYPES[t] || TYPES['Tractor head'];
 const fieldLabel = fd => fd.label.replace(/ \(.*\)$/, '').toLowerCase();
+// Fecha del tipo (primera matriculación o fecha de producción): en un lote va por unidad (C37)
+const yearField = t => typeDef(t).fields.find(fd => fd.k === 'firstReg' || fd.k === 'productionDate');
+const perUnitYear = (f, fd) => f.units.length > 1 && fd && fd === yearField(f.type);
 function missingFields(f) {
-  const d = typeDef(f.type), m = [];
-  d.fields.forEach(fd => { if (fd.req && blank(f[fd.k])) m.push(fd.k); });
+  const d = typeDef(f.type), m = [], yf = yearField(f.type);
+  d.fields.forEach(fd => { if (fd.req && !perUnitYear(f, fd) && blank(f[fd.k])) m.push(fd.k); });
+  if (yf?.req && f.units.length > 1) f.units.forEach((u, i) => { if (blank(u.date)) m.push(`y${i}`); });
   if (d.metric?.req) f.units.forEach((u, i) => { if (blank(u.mileage)) m.push(`u${i}`); });
   if (blank(f.asking)) m.push('asking');
   return m;
 }
 function missingLabels(f) {
   const d = typeDef(f.type), m = missingFields(f);
-  const out = m.filter(k => !/^u\d/.test(k)).map(k => k === 'asking' ? 'asking price' : fieldLabel(d.fields.find(x => x.k === k)));
+  const out = m.filter(k => !/^[uy]\d/.test(k)).map(k => k === 'asking' ? 'asking price' : fieldLabel(d.fields.find(x => x.k === k)));
+  if (m.some(k => /^y\d/.test(k))) out.push(`${fieldLabel(yearField(f.type))} of each unit`);
   if (m.some(k => /^u\d/.test(k))) out.push(qty(f) > 1 ? `${d.metric.label.toLowerCase()} of each unit` : d.metric.label.toLowerCase());
   return out;
 }
@@ -306,6 +317,8 @@ function optionsFor(fd, f) {
   return fd.opts || [];
 }
 const needsReview = v => missingFields(v).length > 0;
+const COUNTRIES = ['Netherlands', 'Belgium', 'Germany', 'France', 'Luxembourg', 'Poland', 'Spain', 'Italy', 'Denmark', 'Other'];
+const locText = v => [v.address, v.postcode, v.country].filter(x => !blank(x)).join(', ');
 const listText = a => a.length < 2 ? a.join('') : `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}`;
 
 // ================================================================ Utilidades de UI
@@ -348,10 +361,10 @@ function vehiclesList() {
 
   const rows = vehicles.map(v => {
     const q = qty(v), label = esc(v.name);
-    const sub = [v.type, needsReview(v) ? null : v.source === 'WhatsApp' ? 'WhatsApp' : null].filter(Boolean).join(' · ');
+    const sub = v.type;
     return `<tr>
-      <td><div class="vehicle-name"><a class="hs-link" data-action="open-vehicle" data-id="${v.id}" data-hs="Link (href required + onClick) · only the name opens the vehicle (rows aren't clickable)">${label}</a><small>${esc(sub)}</small>
-        ${needsReview(v) || q > 1 || v.price.unseen ? `<span class="badges">${v.price.unseen ? '<span class="hs-tag hs-tag--success" data-hs="Tag variant=success">New price</span>' : ''}${needsReview(v) ? '<span class="hs-tag hs-tag--warning">Needs review</span>' : ''}${q > 1 ? `<span class="hs-tag hs-tag--info">Bundle × ${q}</span>` : ''}</span>` : ''}</div></td>
+      <td><div class="vehicle-cell">${v.photos.length ? `<img class="vehicle-thumb" src="${v.photos[v.main] || v.photos[0]}" alt="" data-hs="Image width=56 · main photo">` : '<span class="vehicle-thumb vehicle-thumb--none" data-hs="No photo yet">No photo</span>'}<div class="vehicle-name"><a class="hs-link" data-action="open-vehicle" data-id="${v.id}" data-hs="Link (href required + onClick) · only the name opens the vehicle (rows aren't clickable)">${label}</a><small>${esc(sub)}</small>
+        ${needsReview(v) || q > 1 || v.price.unseen ? `<span class="badges">${v.price.unseen ? '<span class="hs-tag hs-tag--success" data-hs="Tag variant=success">New price</span>' : ''}${needsReview(v) ? '<span class="hs-tag hs-tag--warning">Needs review</span>' : ''}${q > 1 ? `<span class="hs-tag hs-tag--info">Bundle × ${q}</span>` : ''}</span>` : ''}</div></div></td>
       <td class="num">${q}</td>
       <td class="num">${eur(v.asking)}${q > 1 ? `<br><small class="muted">${eur(v.asking * q)} total</small>` : ''}</td>
       <td><div class="status-stack">${priceStatus(v)}${latest(v) ? proposalTag(v) : ''}</div></td>
@@ -404,25 +417,26 @@ function photosSection(v) {
 const shortLabel = fd => fd.label.replace(/ \(.*\)$/, '');
 function detailsCard(v) {
   const d = typeDef(v.type), m = d.metric;
+  const yfu = qty(v) > 1 ? yearField(v.type) : null;   // en un lote, la fecha va por unidad (C37)
   const fmt = n => n ? (+n).toLocaleString('en-IE') : '—';
   const unitsBlock = qty(v) > 1 ? `
     <hr class="divider">
     <div data-hs="Table · units of the bundle (read-only text)">
       <p class="hs-text hs-text--strong" style="margin-bottom:8px">Units in this bundle (${qty(v)})</p>
-      <p class="hs-text hs-text--micro hs-text--subtle" style="margin-bottom:8px">All units share the same specifications. Only ${m ? `${m.label.toLowerCase()}, ` : ''}license plate and VIN are entered per unit.</p>
-      <div class="hs-table-wrap"><table class="hs-table"><thead><tr><th>#</th>${m ? `<th class="num">${m.label} (${m.unit})</th>` : ''}<th>License plate</th><th>VIN</th></tr></thead>
-      <tbody>${v.units.map((u, i) => `<tr><td>${i + 1}</td>${m ? `<td class="num">${fmt(u.mileage)}</td>` : ''}<td>${esc(u.plate) || '—'}</td><td>${esc(u.vin) || '—'}</td></tr>`).join('')}</tbody></table></div>
+      <p class="hs-text hs-text--micro hs-text--subtle" style="margin-bottom:8px">All units share the same specifications. Only ${[yfu ? fieldLabel(yfu) : '', m ? m.label.toLowerCase() : '', 'license plate'].filter(Boolean).join(', ')} and VIN are entered per unit.</p>
+      <div class="hs-table-wrap"><table class="hs-table"><thead><tr><th>#</th>${yfu ? `<th>${esc(shortLabel(yfu))}</th>` : ''}${m ? `<th class="num">${m.label} (${m.unit})</th>` : ''}<th>License plate</th><th>VIN</th></tr></thead>
+      <tbody>${v.units.map((u, i) => `<tr><td>${i + 1}</td>${yfu ? `<td>${esc(u.date) || '—'}</td>` : ''}${m ? `<td class="num">${fmt(u.mileage)}</td>` : ''}<td>${esc(u.plate) || '—'}</td><td>${esc(u.vin) || '—'}</td></tr>`).join('')}</tbody></table></div>
     </div>` : '';
   const val = fd => fd.k === 'hp' ? (blank(v.hp) ? '—' : `${v.hp} ${v.hpUnit || 'HP'}`) : blank(v[fd.k]) ? '—' : fd.unit ? `${v[fd.k]} ${fd.unit}` : v[fd.k];
-  const rows = d.fields.filter(fd => fd.req || !blank(v[fd.k])).map(fd => `<div><dt>${esc(shortLabel(fd))}</dt><dd>${esc(val(fd))}</dd></div>`).join('');
+  const rows = d.fields.filter(fd => fd !== yfu && (fd.req || !blank(v[fd.k]))).map(fd => `<div><dt>${esc(shortLabel(fd))}</dt><dd>${esc(val(fd))}</dd></div>`).join('');
   return `<div class="hs-card" data-hs="App card · Vehicle details">
     <div class="hs-card__header"><h3 class="hs-card__title">Details</h3>
       <span data-hs="Button size=sm"><button class="hs-button hs-button--secondary hs-button--sm" data-action="edit-vehicle" data-id="${v.id}">Edit</button></span></div>
     <dl class="hs-dl" data-hs="DescriptionList · fields depend on the vehicle type">
       <div><dt>Vehicle type</dt><dd>${esc(v.type)}</dd></div>
       ${rows}
+      <div><dt>Location</dt><dd>${esc(locText(v)) || '—'}</dd></div>
       ${qty(v) === 1 ? `${m ? `<div><dt>${m.label} (${m.unit})</dt><dd>${fmt(v.units[0].mileage)}</dd></div>` : ''}<div><dt>License plate</dt><dd>${esc(v.units[0].plate) || '—'}</dd></div><div><dt>VIN</dt><dd>${esc(v.units[0].vin) || '—'}</dd></div>` : ''}
-      <div><dt>Source</dt><dd>${esc(v.source)}</dd></div>
     </dl>
     ${unitsBlock}
     <div class="hs-button-row"><button class="hs-button hs-button--transparent hs-button--sm" data-action="delete-vehicle" data-id="${v.id}">Delete vehicle</button></div>
@@ -553,7 +567,7 @@ const A11Y_NOTES = [
   ['.hs-thumbs', 'Thumbnails reachable with Tab; the current one is marked (aria-current).'],
   ['.hs-panel', 'Panel: focus moves inside on open, Esc closes, focus returns to the button that opened it. Background inert.'],
   ['.hs-modal', 'Modal: focus moves inside on open, Esc closes, focus returns to the opener. One modal at a time.'],
-  ['.hs-toggle-group', 'Needs a group name. Optional single choice: Enter/Space unselects it (native ToggleGroup may not: Select with empty option as alternative).'],
+  ['.hs-toggle-group', 'Needs a group name. Optional choices: a “Clear” link next to the group empties it (D15).'],
   ['.hs-field__error', 'Error linked to its field (aria-describedby) and the field marked invalid (aria-invalid).'],
   ['.hs-alert--error', 'Error: announced at once (role=alert).'],
   ['.hs-alert--success, .hs-alert--info, .hs-alert--warning', 'Notice: announced politely (role=status).'],
@@ -616,12 +630,12 @@ function toggleGroup(name, opts, sel) { return `<div class="hs-toggle-group" dat
 // Estado del formulario: se copia del vehículo al abrir el panel y solo se guarda al pulsar "Save"
 const ALL_KEYS = [...new Set(Object.values(TYPES).flatMap(t => t.fields.map(x => x.k)))];
 function formFrom(v) {
-  const d = { type: 'Tractor head', hpUnit: 'HP', asking: '', proposed: '', offer: '', units: [{ mileage: '', plate: '', vin: '' }] };
+  const d = { type: 'Tractor head', hpUnit: 'HP', asking: '', proposed: '', offer: '', address: '', postcode: '', country: '', units: [{ mileage: '', plate: '', vin: '', date: '' }] };
   ALL_KEYS.forEach(k => { d[k] = ''; });
   if (!v) return d;
   const f = { ...d };
   Object.keys(d).forEach(k => { if (k !== 'units' && v[k] != null) f[k] = String(v[k]); });
-  f.units = v.units.map(u => ({ mileage: u.mileage == null ? '' : String(u.mileage), plate: u.plate ?? '', vin: u.vin ?? '' }));
+  f.units = v.units.map(u => ({ mileage: u.mileage == null ? '' : String(u.mileage), plate: u.plate ?? '', vin: u.vin ?? '', date: u.date ?? '' }));
   return f;
 }
 const isErr = (o, k) => o.tried && o.missing.includes(k);
@@ -657,7 +671,9 @@ function fieldControl(o, fd) {
   if (dependent && !f.brand) return `<div data-hs="Select (options depend on Brand)">${fField(label, fSelect(o, k, [], 'Select a brand first', 'disabled'), o, k)}</div>`;
   const opts = [...(base || []), ...(fd.dk ? ["Don't know"] : [])];
   // Modelo y cabina dependen de la marca: siempre Select, para que el control no cambie según la marca
-  if (!dependent && opts.length <= PILLS_MAX) return `<div ${wide} data-hs="ToggleGroup (up to ${PILLS_MAX} options; more → Select)">${fField(label, fToggle(o, k, opts).replace(' data-hs="ToggleGroup"', ''), o, k)}</div>`;
+  // Opcionales: un enlace "Clear" junto al grupo, solo si hay algo marcado, vacía ese campo (D15)
+  const clear = !fd.req && !blank(f[k]) ? `<a class="hs-link" data-action="clear-field" data-k="${k}" data-hs="Link · Clear (only when an option is selected)">Clear</a>` : '';
+  if (!dependent && opts.length <= PILLS_MAX) return `<div ${wide} data-hs="ToggleGroup (up to ${PILLS_MAX} options; more → Select)">${fField(label, `<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">${fToggle(o, k, opts).replace(' data-hs="ToggleGroup"', '')}${clear}</div>`, o, k)}</div>`;
   return `<div data-hs="Select${dependent ? ` (options depend on Brand; ${opts.length} options)` : ` (more than ${PILLS_MAX} options)`}">${fField(label, fSelect(o, k, opts), o, k)}</div>`;
 }
 
@@ -669,11 +685,13 @@ function vehiclePanel(o) {
   const canLookup = ['Tractor head', 'Truck', 'Light commercial vehicle'].includes(f.type) && q === 1;
 
   // Por unidad (U6): Table no admite campos dentro de las celdas, así que es una lista de filas sin líneas de tabla
+  const yf = perUnit ? yearField(f.type) : null;
   const units = perUnit ? `
-    <div data-hs="Flex rows · NumberInput + Input × 2 per unit (Table doesn't take inputs in its cells)">
-      <p class="hs-field__label">${m ? `${m.label}, license plate and VIN` : 'License plate and VIN'} per unit</p>
+    <div data-hs="Flex rows · DateInput + NumberInput + Input × 2 per unit (Table doesn't take inputs in its cells)">
+      <p class="hs-field__label">${[yf?.label, m?.label, 'license plate', 'VIN'].filter(Boolean).join(', ').replace(/^./, c => c.toUpperCase())} per unit</p>
       <div class="unit-rows">
       ${f.units.map((u, i) => `<div class="unit-row"><span class="unit-n">Unit ${i + 1}</span>
+        ${yf ? `<div class="hs-field"><label class="hs-field__label">${esc(shortLabel(yf))}${yf.req ? req : ''}</label><input type="date" class="hs-input ${isErr(o, `y${i}`) ? 'is-error' : ''}" data-u="${i}" data-uk="date" data-date value="${toISO(u.date)}" max="2026-12-31" aria-label="${esc(shortLabel(yf))}, unit ${i + 1}">${errMsg(o, `y${i}`)}</div>` : ''}
         ${m ? `<div class="hs-field"><label class="hs-field__label">${m.label} (${m.unit})${m.req ? req : ''}</label><input class="hs-input ${isErr(o, `u${i}`) ? 'is-error' : ''}" data-u="${i}" data-uk="mileage" value="${esc(u.mileage)}" ${NUM} aria-label="${m.label}, unit ${i + 1}">${errMsg(o, `u${i}`)}</div>` : ''}
         <div class="hs-field"><label class="hs-field__label">License plate</label><input class="hs-input" data-u="${i}" data-uk="plate" value="${esc(u.plate)}" aria-label="License plate, unit ${i + 1}"></div>
         <div class="hs-field"><label class="hs-field__label">VIN</label><input class="hs-input" data-u="${i}" data-uk="vin" value="${esc(u.vin)}" aria-label="VIN, unit ${i + 1}"></div></div>`).join('')}
@@ -683,7 +701,7 @@ function vehiclePanel(o) {
   const optional = d.fields.filter(fd => !fd.req).map(fd => fieldControl(o, fd)).join('');
   const specific = `
     <div class="hs-form-grid" data-hs="Required fields (Vehicle info) · ${esc(f.type)}">
-      ${d.fields.filter(fd => fd.req).map(fd => fieldControl(o, fd)).join('')}
+      ${d.fields.filter(fd => fd.req && !perUnitYear(f, fd)).map(fd => fieldControl(o, fd)).join('')}
       ${metricField}
     </div>
     <details class="hs-accordion" data-hs="Accordion · optional fields (Optional info)" ${o.optOpen ? 'open' : ''}>
@@ -722,10 +740,19 @@ function vehiclePanel(o) {
         </div>` : ''}
         <div class="hs-form-grid">
           <div data-hs="Select · drives which fields appear">${fField('Vehicle type' + req, fSelect(o, 'type', ['Tractor head', 'Truck', 'Semi trailer', 'Construction equipment', 'Light commercial vehicle', 'Agriculture'], 'Select…'), o)}</div>
-          <div data-hs="StepperInput · Quantity (C32: option A)">${fField('Quantity', `<div class="hs-stepper"><button type="button" class="hs-button hs-button--secondary hs-button--sm" data-action="qty-step" data-step="-1" aria-label="One less" ${q <= 1 ? 'disabled' : ''}>−</button><input class="hs-input" type="number" min="1" max="20" value="${q}" data-role="qty"><button type="button" class="hs-button hs-button--secondary hs-button--sm" data-action="qty-step" data-step="1" aria-label="One more" ${q >= 20 ? 'disabled' : ''}>+</button></div>`, o, '', `<span class="hs-field__help">For identical vehicles: only ${m ? m.label.toLowerCase() + ', ' : ''}license plate and VIN change per unit. For a different vehicle, add it separately.</span>`)}</div>
+          <div data-hs="StepperInput · Quantity (C32: option A)">${fField('Quantity', `<div class="hs-stepper"><button type="button" class="hs-button hs-button--secondary hs-button--sm" data-action="qty-step" data-step="-1" aria-label="One less" ${q <= 1 ? 'disabled' : ''}>−</button><input class="hs-input" type="number" min="1" max="20" value="${q}" data-role="qty"><button type="button" class="hs-button hs-button--secondary hs-button--sm" data-action="qty-step" data-step="1" aria-label="One more" ${q >= 20 ? 'disabled' : ''}>+</button></div>`, o, '', `<span class="hs-field__help">For identical vehicles: only ${[yearField(f.type) ? fieldLabel(yearField(f.type)) : '', m ? m.label.toLowerCase() : '', 'license plate'].filter(Boolean).join(', ')} and VIN change per unit. For a different vehicle, add it separately.</span>`)}</div>
         </div>
         ${specific}
         ${units}
+        <div data-hs="Input × 2 + Select · vehicle location (C43)">
+          <p class="hs-field__label" style="margin:0 0 8px">Location</p>
+          <div class="hs-form-grid">
+            <div style="grid-column:1/-1">${fField('Address', fInput(o, 'address', 'placeholder="Street and number, town"'), o)}</div>
+            ${fField('Postal code', fInput(o, 'postcode'), o)}
+            ${fField('Country', fSelect(o, 'country', COUNTRIES), o)}
+          </div>
+          <p class="hs-field__help" style="margin-top:8px">Where the vehicle is now. For a bundle, where all its units are.</p>
+        </div>
         <hr class="divider">
         <div data-hs="CurrencyInput × 3 · numbers only">
           <p class="hs-field__label" style="margin:0 0 8px">Supplier prices${q > 1 ? ' (per unit)' : ''}</p>
@@ -804,7 +831,10 @@ function proposalModal(o) {
   const explain = `<div class="hs-field" data-hs="TextArea"><label class="hs-field__label">Price explanation</label><textarea class="hs-textarea" data-p="explanation">${esc(f.explanation)}</textarea></div>`;
   const lang = `<div class="hs-field" data-hs="Select"><label class="hs-field__label">Proposal language</label><select class="hs-select" data-p="lang">${['English', 'Dutch', 'German'].map(x => `<option ${x === f.lang ? 'selected' : ''}>${x}</option>`).join('')}</select></div>`;
   const stack = c => `<div style="display:flex;flex-direction:column;gap:16px">${c}</div>`;
-  const body = `<div class="modal-cols">${stack(costs + explain + lang)}${solutions}</div>`;
+  // Versión simplificada (elegida en la reunión del 07/10): soluciones, idioma y explicación a la vista;
+  // precios de venta, días y costes plegados en "More options"
+  const body = `${solutions}${stack(lang + explain)}
+    <details class="hs-accordion" data-hs="Accordion · sales prices, days of sale and costs"><summary>More options: sales prices, days of sale and costs</summary><div class="hs-accordion__body">${stack(costs)}</div></details>`;
 
   const errs = o.tried && o.errors.length ? propErrText(o.errors) : null;
   const alerts = [
@@ -813,7 +843,8 @@ function proposalModal(o) {
     sent ? `<div class="hs-alert hs-alert--warning" data-hs="Alert variant=warning · editing a sent proposal (stays Sent: proposal, C35)"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">The supplier already has this proposal</p><p class="hs-alert__body">They'll see your changes on the same link as soon as you save. The proposal stays Sent. Let them know with “Send again by email”.</p></div></div>` : '' ].join('');
   const cta = editing ? 'Save changes' : 'Create proposal';
   return `<div class="hs-overlay" data-overlay>
-    <div class="hs-modal hs-modal--lg" role="dialog" aria-modal="true" aria-labelledby="pm-title" data-hs="Modal (large) · two columns, as in Bidmonitor">
+    <div class="hs-modal" role="dialog" aria-modal="true" aria-labelledby="pm-title" data-hs="Modal (medium) · simplified version">
+
       <div class="hs-modal__header"><h2 class="hs-modal__title" id="pm-title">${editing ? 'Edit proposal' : 'Create proposal'} · ${esc(v.name)}</h2><button class="hs-close" data-action="close" aria-label="Close" ${o.saving ? 'disabled' : ''}>×</button></div>
       <div class="hs-modal__body">
         ${alerts}
@@ -842,7 +873,7 @@ function emailModal(o) {
         ${field('To', '<input class="hs-input" value="Pieter Jansen <fleet@example-supplier.nl>">')}
         ${field('Subject', `<input class="hs-input" value="Your proposal for the ${esc(v.name)}">`)}
         ${field('', `<textarea class="hs-textarea" style="min-height:140px">Hi Pieter,\n\nHere is our proposal for the ${v.name}:\n${proposalUrl(v)}\n\nKind regards,\nAnna de Vries</textarea>`)}
-        <p class="hs-text hs-text--micro hs-text--subtle">HubSpot's own email composer, opened with the subject and the link already in. The email is logged on the Purchase.</p>
+        <p class="hs-text hs-text--micro hs-text--subtle">HubSpot's own email composer, opened with the subject and the link already in. The email is logged on the opportunity.</p>
       </div>
       <div class="hs-modal__footer"><button class="hs-button hs-button--primary" data-action="do-send" data-id="${v.id}">Send</button><button class="hs-button hs-button--secondary" data-action="close">Cancel</button></div>
     </div></div>`;
@@ -952,7 +983,7 @@ const PROPOSALS = [
   ['sc-pr-new', 'I2', 'Notification and “New price” tag when PM answers'],
   ['sc-pr-mark', 'I4', '“Mark as sent” for email and WhatsApp; send again from Sent'],
   ['sc-pr-sum', 'I5', 'Summary of the included offers on the proposal card'],
-  ['sc-pr-clear', 'I6', 'Click a selected option again, or press Enter or Space on it, to unselect it (optional pills)'],
+  ['sc-pr-clear', 'I6', '“Clear” next to an optional choice leaves it empty'],
 ];
 function scenario(a) {
   const schmitz = find(3);
@@ -977,15 +1008,15 @@ function scenario(a) {
     'sc-prop-error': 'Click “Create proposal”: the proposal service doesn’t answer. Then click “Retry”.',
     'sc-pr-c23': 'C23 · Required fields are marked with *. We assumed the asking price is required too. Click “Add vehicle” with empty fields to see the validation.',
     'sc-pr-c28': 'C28 · Untick all three solutions and click “Create proposal”, or untick the recommended one. Auction needs its amounts once it’s ticked.',
-    'sc-pr-c29': 'C29 · Send a proposal and look at the Stage in the record header: it stays “Pricing”. In Bidmonitor the bid moved to “Under offer”. Should the Purchase stage move by itself, once all the proposals are Sent?',
-    'sc-pr-c34': 'C34 · The DAF is a bundle of 5: each unit has its own mileage, license plate and VIN.',
+    'sc-pr-c29': 'C29 · Send a proposal and look at the Stage in the record header: it stays “Pricing”. In Bidmonitor the bid moved to “Under offer”. Should the opportunity stage move by itself, once all the proposals are Sent?',
+    'sc-pr-c34': 'C34 · The DAF is a bundle of 5: each unit has its own first registration, mileage, license plate and VIN.',
     'sc-pr-c35': 'C35 · The Volvo proposal is Sent. Edit it: with one link the supplier sees the changes at once, so we suggest it stays Sent and you let them know by email.',
     'sc-pr-p8': 'P8 · The supplier said Mercedes. Click “Look up”: the registry fills in only the empty fields and shows what’s different, without overwriting it.',
     'sc-pr-offer': 'I1 · The offer price is above PM’s max offer: see the red tag next to it and the warning below.',
     'sc-pr-new': 'I2 · The bell shows HubSpot’s notification. The “New price” tag appears in the table once the record loads the price: open the notification, or switch tabs and come back.',
     'sc-pr-mark': 'I4 · In Draft, “Mark as sent” is always there: after sending by email or on WhatsApp. In Sent you can still use “Send again by email”.',
     'sc-pr-sum': 'I5 · The card lists the included offers, their amounts and the recommended one, so you don’t need to open the link.',
-    'sc-pr-clear': 'I6 · Add a vehicle, open “Optional information” and see T1 = Yes. Click “Yes” again (or press Enter or Space on it) to unselect it and leave the field empty.',
+    'sc-pr-clear': 'I6 · Add a vehicle, open “Optional information” and see T1 = Yes. Click “Clear” next to it to leave the field empty.',
   };
   S.hint = hints[a] || '';
   const propTab = () => { S.tab = 'proposal'; S.view = 'list'; S.propState = 'filled'; };
@@ -1105,9 +1136,10 @@ document.addEventListener('click', e => {
       if (o.missing.length) { o.tried = true; o.scrollTop = 0; render(); break; }
       const num = x => blank(x) ? null : +x;
       const data = { type: f.type, asking: num(f.asking), proposed: num(f.proposed), offer: num(f.offer),
-        units: f.units.map(u => ({ mileage: num(u.mileage), plate: u.plate.trim().toUpperCase(), vin: u.vin.trim() })) };
-      typeDef(f.type).fields.forEach(fd => { data[fd.k] = f[fd.k]; });
+        units: f.units.map(u => ({ mileage: num(u.mileage), plate: u.plate.trim().toUpperCase(), vin: u.vin.trim(), date: f.units.length > 1 ? u.date : '' })) };
+      typeDef(f.type).fields.forEach(fd => { data[fd.k] = perUnitYear(f, fd) ? '' : f[fd.k]; });
       data.hpUnit = f.hpUnit;
+      Object.assign(data, { address: f.address.trim(), postcode: f.postcode.trim().toUpperCase(), country: f.country });
       // El nombre se recalcula solo si cambian tipo, marca, modelo, carrocería o potencia
       const hasModel = typeDef(f.type).fields.some(fd => fd.k === 'model');
       const autoName = [f.brand, hasModel ? f.model : f.superstructure, f.hp].filter(Boolean).join(' ') || f.type;
@@ -1124,7 +1156,7 @@ document.addEventListener('click', e => {
       }
       render(); break;
     }
-    case 'delete-vehicle': openOverlay({ kind: 'confirm', id, title: 'Delete this vehicle?', body: `${esc(v.name)} will be removed from this Purchase, including its photos and pricing. This can't be undone.`, cta: 'Delete vehicle', confirm: 'do-delete', danger: true }); break;
+    case 'delete-vehicle': openOverlay({ kind: 'confirm', id, title: 'Delete this vehicle?', body: `${esc(v.name)} will be removed from this opportunity, including its photos and pricing. This can't be undone.`, cta: 'Delete vehicle', confirm: 'do-delete', danger: true }); break;
     case 'do-delete': { const i = vehicles.findIndex(x => x.id === id); vehicles.splice(i, 1); S.overlay = null; S.view = 'list'; toast('Vehicle deleted'); render(); break; }
     case 'photo-prev': case 'photo-next': case 'photo-go': {
       const cur = S.photoIdx[id] ?? v.main, n = v.photos.length;
@@ -1179,6 +1211,7 @@ document.addEventListener('click', e => {
       inp.value = Math.max(1, Math.min(20, (+inp.value || 1) + +el.dataset.step));
       inp.dispatchEvent(new Event('change', { bubbles: true })); break;
     }
+    case 'clear-field': { const o = S.overlay; o.form[el.dataset.k] = ''; render(); document.querySelector(`[data-f="${el.dataset.k}"]`)?.focus(); break; }
     case 'close': closeOverlay(); break;
   }
 });
@@ -1193,7 +1226,10 @@ document.addEventListener('change', e => {
     if (t.dataset.role === 'qty') {
       const q = Math.max(1, Math.min(20, +t.value || 1));
       if (q !== o.form.units.length) {
-        o.form.units = Array.from({ length: q }, (_, i) => o.form.units[i] ?? { mileage: '', plate: '', vin: '' });
+        const yk = yearField(o.form.type)?.k, common = yk ? (o.form[yk] || o.form.units[0]?.date || '') : '';
+        o.form.units = Array.from({ length: q }, (_, i) => o.form.units[i] ?? { mileage: '', plate: '', vin: '', date: common });
+        if (q > 1 && yk) o.form.units.forEach(u => { if (blank(u.date)) u.date = common; });
+        if (q === 1 && yk && blank(o.form[yk])) o.form[yk] = o.form.units[0].date || '';
         if (o.tried) o.missing = missingFields(o.form);
         later();
       }
@@ -1249,7 +1285,7 @@ function syncField(t) {
   let key;
   if (t.dataset.f) { if (t.type === 'radio' && !t.checked) return; f[t.dataset.f] = t.hasAttribute('data-date') ? fromISO(t.value) : t.value; key = t.dataset.f; }
   else if (t.dataset.fm) { const k = t.dataset.fm, set = new Set(f[k] ? f[k].split(', ') : []); if (t.checked) set.add(t.value); else set.delete(t.value); f[k] = [...set].join(', '); key = k; }
-  else if (t.dataset.u != null) { f.units[+t.dataset.u][t.dataset.uk] = t.value; key = t.dataset.uk === 'mileage' ? `u${t.dataset.u}` : null; }
+  else if (t.dataset.u != null) { f.units[+t.dataset.u][t.dataset.uk] = t.hasAttribute('data-date') ? fromISO(t.value) : t.value; key = t.dataset.uk === 'mileage' ? `u${t.dataset.u}` : t.dataset.uk === 'date' ? `y${t.dataset.u}` : null; }
   else return;
   // Al corregir un campo marcado en rojo, se quita la marca sin esperar a guardar
   if (o.tried && key && o.missing.includes(key) && !blank(t.value)) {
@@ -1269,32 +1305,13 @@ document.addEventListener('change', e => {
 document.addEventListener('click', e => {
   if (S.bellOpen && e.target.isConnected && !e.target.closest('#bell')) { S.bellOpen = false; renderBell(); }
 });
-// Pills opcionales: volver a pulsar la opción marcada la desmarca (un radio no lo hace solo)
-let pillWas = null;
-document.addEventListener('pointerdown', e => { const i = e.target.closest?.('.hs-toggle-group label')?.querySelector('input[type=radio][data-f]'); pillWas = i ? { i, was: i.checked } : null; }, true);
-let justCleared = null;   // { i, until }: un clic que llegue justo después de desmarcar con el teclado se ignora
-document.addEventListener('click', e => {
-  const i = e.target.closest?.('input[type=radio][data-f]');
-  if (i && justCleared && justCleared.i === i && Date.now() < justCleared.until) { e.preventDefault(); e.stopPropagation(); i.checked = false; return; }
-  if (!i || !pillWas || pillWas.i !== i || !pillWas.was || S.overlay?.kind !== 'vehicle') return;
-  pillWas = null;
-  const fd = typeDef(S.overlay.form.type).fields.find(x => x.k === i.dataset.f);
-  if (fd && !fd.req) { i.checked = false; S.overlay.form[fd.k] = ''; }
-}, true);
 document.addEventListener('toggle', e => { if (e.target.classList?.contains('pc-props-wrap')) S.propsOpen = e.target.open; }, true);
-// Lo mismo con el teclado: con el foco en la opción marcada, Enter la desmarca (el foco se queda ahí)
-let skipKeyup = false;
-document.addEventListener('keypress', e => { if (justCleared && e.target === justCleared.i && Date.now() < justCleared.until) e.preventDefault(); }, true);
+// Pills: Enter también marca la opción (además de Espacio)
 document.addEventListener('keydown', e => {
-  if ((e.key !== 'Enter' && e.key !== ' ') || S.overlay?.kind !== 'vehicle') return;
+  if (e.key !== 'Enter' || S.overlay?.kind !== 'vehicle') return;
   const i = e.target.closest?.('input[type=radio][data-f]');
-  if (i && !i.checked && e.key === 'Enter') { e.preventDefault(); i.click(); return; }   // Enter también marca
-  if (!i || !i.checked) return;
-  const fd = typeDef(S.overlay.form.type).fields.find(x => x.k === i.dataset.f);
-  if (fd && !fd.req) { e.preventDefault(); i.checked = false; S.overlay.form[fd.k] = ''; pillWas = null; skipKeyup = true; justCleared = { i, until: Date.now() + 400 }; }
+  if (i && !i.checked) { e.preventDefault(); i.click(); }
 });
-// Con Espacio, el navegador marca la opción al soltar la tecla: se evita para que no se vuelva a marcar
-document.addEventListener('keyup', e => { if (skipKeyup && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); skipKeyup = false; } }, true);
 // El desplegable de opcionales recuerda si estaba abierto cuando el formulario se redibuja
 document.addEventListener('toggle', e => { if (S.overlay?.kind === 'vehicle' && e.target.dataset?.hs?.startsWith('Accordion · optional')) S.overlay.optOpen = e.target.open; }, true);
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && S.overlay) closeOverlay(); });
