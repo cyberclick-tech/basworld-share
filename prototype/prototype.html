@@ -30,6 +30,32 @@
   .tab-body { background: #fff; border: 1px solid #ccc; border-top: 0; border-radius: 0 0 16px 16px; padding: 16px; display: flex; flex-direction: column; gap: 16px; min-height: 480px; }
   .tab-body > .hs-card { box-shadow: none; }
   .record-head { display: flex; flex-direction: column; gap: 12px; }
+  .record-head .back { cursor: pointer; }
+  /* Vista previa nativa (C36): más ancha que un panel normal, como en HubSpot */
+  .hs-panel--preview { width: min(480px, 100%); }
+  /* La vista previa no tapa el tablero: se sigue viendo y se puede usar detrás */
+  .hs-overlay--preview { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; pointer-events: none; }
+  .hs-overlay--preview .hs-panel { pointer-events: auto; }
+  .pv-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; border-bottom: 1px solid #ebebeb; font: 500 14px/20px var(--hs-font-body); }
+  .pv-head { display: flex; flex-direction: column; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid #ebebeb; }
+  .pv-title { display: flex; gap: 12px; align-items: flex-start; }
+  .pv-title h3 { margin: 0; font: 600 22px/28px var(--hs-font-body); }
+  .pv-avatar { flex: 0 0 44px; height: 44px; border-radius: 50%; background: #f0f0f0; display: grid; place-items: center; }
+  .pv-props { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 8px; font: 300 14px/20px var(--hs-font-body); align-items: center; }
+  .pv-props div { display: contents; } .pv-props dt { color: #666; } .pv-props dd { margin: 0; }
+  .pv-card { border-bottom: 1px solid #ebebeb; padding-bottom: 12px; }
+  .pv-card > summary { font: 600 16px/24px var(--hs-font-body); cursor: pointer; padding: 4px 0; }
+  .pv-card__body { padding-top: 12px; }
+  /* Tablero nativo (solo para situar la vista previa) */
+  .board { display: flex; flex-direction: column; gap: 16px; }
+  .board[hidden] { display: none; }
+  .board__head { display: flex; align-items: baseline; gap: 12px; }
+  .board__cols { display: flex; gap: 12px; overflow-x: auto; align-items: flex-start; padding-bottom: 8px; }
+  .board__col { flex: 0 0 260px; background: #ebebeb; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .board__colhead { display: flex; gap: 6px; align-items: center; font: 600 13px/18px var(--hs-font-body); }
+  .board-card { background: #fff; border: 1px solid #dcdcdc; border-radius: 10px; padding: 12px; text-align: left; font: 300 13px/18px var(--hs-font-body); color: #333; cursor: pointer; display: flex; flex-direction: column; gap: 2px; width: 100%; }
+  .board-card .hs-link { font-size: 14px; margin-bottom: 4px; }
+  .board-card.is-active { border-color: #7fb2e5; background: #eef6ff; }
   .record-head .back { font: 500 14px/20px var(--hs-font-body); color: #333; display: flex; align-items: center; gap: 6px; }
   .record-props { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; font: 300 14px/20px var(--hs-font-body); }
   .record-props dt { color: #666; }
@@ -161,10 +187,10 @@
       <!-- ============================================ Columna izquierda (nativa) -->
       <div class="hs-record__col hs-record__left">
         <div class="hs-card record-head" data-hs="Record header (native)">
-          <span class="back">‹ Supply opportunities</span>
+          <a class="back" data-action="go-board" tabindex="0" role="link" title="Back to the board of supply opportunities">‹ Supply opportunities</a>
           <h1 class="hs-record-title">Noordhaven Logistics – fleet renewal</h1>
           <dl class="record-props">
-            <dt>Stage:</dt><dd><span class="hs-stage hs-stage--magenta">Pricing</span></dd>
+            <dt>Stage:</dt><dd><span class="hs-stage hs-stage--magenta" id="rec-stage">Pricing</span></dd>
             <dt>Supplier:</dt><dd>Noordhaven Logistics B.V.</dd>
             <dt>Purchaser:</dt><dd>Anna de Vries</dd>
             <dt>Source:</dt><dd>Incoming call</dd>
@@ -176,7 +202,7 @@
           <dl class="hs-dl hs-dl--stacked">
             <div><dt>Lead generator</dt><dd>Tom Bakker</dd></div>
             <div><dt>Create date</dt><dd>24/09/2026</dd></div>
-            <div><dt>Closing reason</dt><dd>—</dd></div>
+            <div><dt>Closed lost reason</dt><dd id="rec-reason">—</dd></div>
           </dl>
         </div>
       </div>
@@ -205,12 +231,13 @@
           <div class="hs-card__header"><h2 class="hs-card__title">Companies (1)</h2><a class="hs-link">+ Add</a></div>
           <p class="hs-text"><a class="hs-link">Noordhaven Logistics B.V.</a> <span class="hs-tag">Supplier</span></p>
         </div>
-        <div class="hs-card" data-hs="Attachments (native) · documents at Purchase level">
+        <div class="hs-card" data-hs="Attachments (native) · documents at opportunity level">
           <div class="hs-card__header"><h2 class="hs-card__title">Attachments (2)</h2><a class="hs-link">+ Add</a></div>
           <p class="hs-text">Registration_DAF_XF.pdf<br>Inspection_report.pdf</p>
         </div>
       </div>
     </div>
+    <div class="board" id="board" hidden></div>
   </main>
 </div>
 
@@ -239,24 +266,25 @@ const eur = n => n == null || n === '' ? '—' : new Intl.NumberFormat('en-IE', 
 
 const vehicles = [
   { id: 1, name: 'Volvo FH 460 4x2', type: 'Tractor head', source: 'Manual', brand: 'Volvo', model: 'FH', hp: '460', config: '4X2', cabin: 'Globetrotter', firstReg: '12/03/2020', euro: 'Euro 6', gearbox: 'Automatic gearbox', retarder: 'Retarder',
-    units: [{ mileage: 412000, plate: '73-BKX-4', vin: 'YV2RT40A5LB123456' }], asking: 48500, proposed: 52000, offer: 46000,
+    units: [{ mileage: 412000, plate: '73-BKX-4', vin: 'YV2RT40A5LB123456' }], routes: ['purchase', 'consignment', 'platform'], asking: 48500, maxPurchase: 47000, maxSelling: 56000, minSelling: 51000,
     address: 'Industrieweg 14, Waalwijk', postcode: '5145 PD', country: 'Netherlands',
     photos: photos(6, 200), main: 0,
     price: { status: 'received', urgency: 'Urgent today', requestedAt: '28/09/2026 10:12', receivedAt: '28/09/2026 16:40',
-             maxOffer: 47000, estMin: 52000, estMax: 56000, minAuction: 44000, prefinance: 25000 },
+             maxPurchase: 47000, minSelling: 52000, maxSelling: 56000, prefinance: 25000,
+             offered: { purchase: false, auction: true, consignment: true, platform: true } },
     proposal: { status: 'Sent', createdAt: '29/09/2026 09:30', sentAt: '29/09/2026 09:42', by: 'Anna de Vries' } },
   { id: 2, name: 'DAF XF 480 FT', type: 'Tractor head', source: 'Incoming call', brand: 'DAF', model: 'XF', hp: '480', config: '4X2', cabin: 'Super Space Cab', euro: 'Euro 6', gearbox: 'Automatic gearbox', retarder: 'Intarder',
     units: [{ mileage: 380000, plate: '41-BPL-6', vin: 'XLRTEH4300G100001', date: '08/06/2021' }, { mileage: 395500, plate: '41-BPL-7', vin: 'XLRTEH4300G100002', date: '08/06/2021' }, { mileage: 402100, plate: '41-BPL-8', vin: 'XLRTEH4300G100003', date: '15/02/2021' }, { mileage: 377800, plate: '', vin: 'XLRTEH4300G100004', date: '22/09/2021' }, { mileage: 410250, plate: '', vin: 'XLRTEH4300G100005', date: '15/02/2021' }],
-    asking: 20000, proposed: 23500, offer: 19000, photos: photos(10, 12), main: 2,
+    routes: ['purchase', 'auction', 'consignment'], asking: 20000, maxPurchase: 19000, maxSelling: 24000, minSelling: 21000, photos: photos(10, 12), main: 2,
     address: 'Havenkade 3, Venlo', postcode: '5928 RP', country: 'Netherlands',
     price: { status: 'requested', urgency: 'Urgent today', requestedAt: '29/09/2026 08:45' }, proposal: null },
   { id: 3, name: 'Schmitz Cargobull SKO 24', type: 'Semi trailer', source: 'Manual', brand: 'Schmitz Cargobull', superstructure: 'Closed', axleCount: '3 axles', firstReg: '15/01/2019',
-    units: [{ mileage: null, plate: 'OK-48-TR', vin: 'WSM00000003123456' }], asking: 15000, proposed: null, offer: null,
+    units: [{ mileage: null, plate: 'OK-48-TR', vin: 'WSM00000003123456' }], routes: ['purchase'], asking: 15000, maxPurchase: 14000, maxSelling: null, minSelling: null,
     address: 'Transportweg 8, Oss', postcode: '5349 AB', country: 'Netherlands',
     photos: [], main: 0, price: { status: 'none' }, proposal: null },
   // Llega de WhatsApp con datos incompletos: le faltan cabina, retarder, euronorma, matriculación, configuración y kilometraje (Needs review)
   { id: 4, name: 'Mercedes-Benz Actros 1845', type: 'Tractor head', source: 'WhatsApp', brand: 'Mercedes', model: 'Actros', hp: '450',
-    units: [{ mileage: null, plate: '', vin: '' }], asking: 36000, proposed: null, offer: null,
+    units: [{ mileage: null, plate: '', vin: '' }], routes: [], asking: 36000, maxPurchase: null, maxSelling: null, minSelling: null,
     photos: photos(3, 150), main: 0, price: { status: 'none' }, proposal: null },
 ];
 
@@ -268,8 +296,12 @@ const S = {
   failNext: false,            // simular error de Bidmonitor en la próxima petición
   photoIdx: {}, copied: {}, requesting: {}, errors: {}, urg: {}, emailed: {},
   incoming: {}, refreshing: {},   // precio que ya llegó a HubSpot pero la card abierta aún no muestra (U10)
+  pendingPhotos: {}, refreshingPhotos: {},   // fotos subidas que el slider aún no muestra (D12)
   notifications: [], bellOpen: false, hint: '',
   overlay: null,              // { kind, ...datos }
+  stage: 'Pricing', closingReason: '',   // etapa nativa de la oportunidad (pasa a Closed lost si el proveedor rechaza, C42)
+  summary: null,              // resumen de todas las propuestas (C45): null | loading | ready
+  page: 'record',             // record | board (tablero nativo, para situar la vista previa, C36)
 };
 const $ = s => document.querySelector(s);
 const find = id => vehicles.find(v => v.id === id);
@@ -281,7 +313,7 @@ let nextId = 200;
 // Campos por tipo de vehículo: vienen del Excel de Basworld (30/09/2026), hoja "Overzicht" y una hoja por tipo.
 // Obligatorio = sección "Vehicle info"; opcional = "Optional info" (plegada). Marcas, modelos y cabinas: hojas
 // "Merken & modellen" y "Cabines". Kilometraje / horas de uso: van por unidad (metric). VIN: siempre por unidad.
-// Los obligatorios del precio (asking) siguen siendo suposición nuestra (C23). Capacity en m³ (C31).
+// De los precios del proveedor, solo el Asking price es obligatorio (C40.3, 09/10). Capacity en m³ (C31).
 // Matrícula: se guarda (C24), opcional y por unidad, como el VIN (propuesta nuestra, C34).
 const TYPES = {"Tractor head":{"fields":[{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"model","label":"Model","req":true,"kind":"select"},{"k":"cabin","label":"Cabin","req":true,"kind":"select"},{"k":"retarder","label":"Retarder","req":true,"kind":"select","opts":["No","Retarder","Intarder"],"dk":true},{"k":"euro","label":"Euronorm","req":true,"kind":"select","opts":["Euro 1","Euro 2","Euro 3","Euro 4","Euro 5","Euro 6"],"dk":true},{"k":"hp","label":"Power","req":true,"kind":"hp"},{"k":"firstReg","label":"First registration","req":true,"kind":"date"},{"k":"config","label":"Configuration","req":true,"kind":"select","opts":["4X2","4X4","6X2","6X4","6X6","8X2","8X4","8X6","8X8","10X4","10X6","10X8","10X10","12X4","12X6","12X12","14X14","16X16"]},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"gearbox","label":"Gearbox","req":false,"kind":"select","opts":["Automatic gearbox","Manual"],"dk":true},{"k":"optMega","label":"Low-deck (mega)","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"bedAmount","label":"Beds","req":false,"kind":"select","opts":["No","1","2"],"dk":true},{"k":"tanks","label":"Tanks","req":false,"kind":"select","opts":["1","2"],"dk":true},{"k":"hyd","label":"Hydraulics","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true}],"metric":{"k":"mileage","label":"Mileage","unit":"km","req":true}},"Truck":{"fields":[{"k":"superstructure","label":"Superstructure","req":true,"kind":"select","opts":["Tipper","Closed","Curtainsides","Open","BDF hoist equipment","Containersystem","Chassis","Refrigerated","Dumper","Concrete mixer","Concrete pump","Garbage truck","Tank","pump/mixer","Silo","Car Truck transport","car/truck recovery","Cattle transport","Other"]},{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"model","label":"Model","req":true,"kind":"select"},{"k":"cabin","label":"Cabin","req":true,"kind":"select"},{"k":"euro","label":"Euronorm","req":true,"kind":"select","opts":["Euro 1","Euro 2","Euro 3","Euro 4","Euro 5","Euro 6"],"dk":true},{"k":"hp","label":"Power","req":true,"kind":"hp"},{"k":"config","label":"Configuration","req":true,"kind":"select","opts":["4X2","4X4","6X2","6X4","6X6","8X2","8X4","8X6","8X8","10X4","10X6","10X8","10X10","12X4","12X6","12X12","14X14","16X16"]},{"k":"firstReg","label":"First registration","req":true,"kind":"date"},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"axleCount","label":"Number of axles","req":false,"kind":"select","opts":["1 Axle","2 axles","3 axles","4 axles","5 axles","6 axles","7 axles","8 axles","9 axles","10 axles","11 axles","12 axles","Other"]},{"k":"axleReduction","label":"Hub reduction","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"gearbox","label":"Gearbox","req":false,"kind":"select","opts":["Automatic gearbox","Semi-automatic","Manual"],"dk":true},{"k":"optCrane","label":"Crane","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"craneBrand","label":"Crane brand and model","req":false,"kind":"text"},{"k":"bedAmount","label":"Beds","req":false,"kind":"select","opts":["No","1","2"],"dk":true},{"k":"structureBrand","label":"Superstructure brand","req":false,"kind":"select","opts":["Cifa","Putzmeister","Schwing","Liebherr","Sermac","Sany","Other"]},{"k":"capacityAmount","label":"Capacity","req":false,"kind":"number","unit":"m³"},{"k":"tailgate","label":"Tail lift","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"tipperSide","label":"Tipper side","req":false,"kind":"select","opts":["Rear axle","Left","Right"],"dk":true},{"k":"retarder","label":"Retarder","req":false,"kind":"select","opts":["No","Retarder","Intarder"],"dk":true}],"metric":{"k":"mileage","label":"Mileage","unit":"km","req":true}},"Semi trailer":{"fields":[{"k":"superstructure","label":"Superstructure","req":true,"kind":"select","opts":["Tipper","Closed","Curtainsides","Open","Container chassis","Containersystem","Refrigerated","Concrete mixer","Tank","Silo","Car Truck transport","Deeploader","Walking floor","Cattle transport","Other"]},{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"firstReg","label":"First registration","req":true,"kind":"date"},{"k":"axleCount","label":"Number of axles","req":true,"kind":"select","opts":["1 Axle","2 axles","3 axles","4 axles","5 axles","6 axles","7 axles","8 axles","9 axles","10 axles","11 axles","12 axles","Other"]},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"liftAxle","label":"Lift axle","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"steeringAxle","label":"Steering axle","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"optCrane","label":"Crane","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"capacityAmount","label":"Capacity","req":false,"kind":"number","unit":"m³"},{"k":"tailgate","label":"Tail lift","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"coil","label":"Coil","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"roof","label":"Roof","req":false,"kind":"multi","opts":["Lift roof","Slide roof","None"],"dk":true},{"k":"tipperSide","label":"Tipper side","req":false,"kind":"select","opts":["Rear axle","Left","Right"],"dk":true},{"k":"material","label":"Material","req":false,"kind":"select","opts":["Steel","Aluminum"],"dk":true},{"k":"floorThickness","label":"Floor thickness (cm)","req":false,"kind":"number","unit":"cm"},{"k":"optMega","label":"Low-deck (mega)","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"coolingEngineAvailable","label":"Cooling engine","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"coolingEngineOperator","label":"Cooling engine drive","req":false,"kind":"select","opts":["DIESEL","DIESEL/ELECTRONIC","ELECTRONIC"],"dk":true}],"metric":null},"Construction equipment":{"fields":[{"k":"superstructure","label":"Superstructure","req":true,"kind":"select","opts":["Loader","Backhoe","Track excavator","Wheel excavator","Mini excavator <10t","Material handler","Bulldozer","Grader","Roller","Single drum roller","Twin drum rollers","Combi(nation) rollers","Pneumatic Tired Roller","Forklift","Articulated dumper","Rigid dumper","Mobile crusher","Screening plant","All terrain crane","Construction crane","Other"]},{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"model","label":"Model","req":true,"kind":"text"},{"k":"productionDate","label":"Production date","req":true,"kind":"date"},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"weight","label":"Weight (tons)","req":false,"kind":"number","unit":"tons"},{"k":"config","label":"Configuration","req":false,"kind":"select","opts":["4X2","4X4","6X2","6X4","6X6","8X2","8X4","8X6","8X8","10X4","10X6","10X8","10X10","12X4","12X6","12X12","14X14","16X16","Single Roller","Double Roller","Pneumatic Roller"]},{"k":"machineryCeDocuments","label":"CE certified, with documents","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"machineryEpaSticker","label":"EPA sticker","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"machineryCabinAirco","label":"Cabin air conditioning","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true}],"metric":{"k":"mileage","label":"Working hours","unit":"h","req":true}},"Light commercial vehicle":{"fields":[{"k":"superstructure","label":"Superstructure","req":true,"kind":"select","opts":["Closed van","Closed box","Tipper","Open box","Refrigerated","Closed box refrigerated","Ambulance","Chassis cabin","Small van","Passenger transport","Car transporter van","Curtainsides","BE Tractorhead","Horse truck","Other"]},{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"model","label":"Model","req":true,"kind":"select"},{"k":"gearbox","label":"Gearbox","req":true,"kind":"select","opts":["Automatic gearbox","Semi-automatic","Manual"],"dk":true},{"k":"typeExtended","label":"Type","req":true,"kind":"text"},{"k":"firstReg","label":"First registration","req":true,"kind":"date"},{"k":"hp","label":"Power","req":true,"kind":"hp"},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"optAirco","label":"Air conditioning","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"cruiseControl","label":"Cruise control","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"navigation","label":"Navigation","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"towbar","label":"Towbar","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"cabin","label":"Cabin","req":false,"kind":"select"},{"k":"euro","label":"Euronorm","req":false,"kind":"select","opts":["Euro 1","Euro 2","Euro 3","Euro 4","Euro 5","Euro 6"],"dk":true},{"k":"coolingEngineAvailable","label":"Cooling engine","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"tipperSide","label":"Tipper side","req":false,"kind":"select","opts":["Rear axle","Left","Right"],"dk":true},{"k":"edition","label":"Edition (van size)","req":false,"kind":"select","opts":["L1H1","L1H2","L1H3","L2H1","L2H2","L2H3","L2LH2","L2LH3","L3H1","L3H2","L3H3","L4H1","L4H2","L4H3","L5H3"]}],"metric":{"k":"mileage","label":"Mileage","unit":"km","req":true}},"Agriculture":{"fields":[{"k":"superstructure","label":"Superstructure","req":true,"kind":"select","opts":["Tractor","Manure spreader","Combine harvester","Potato harvester","Forage harvester","Agriculture sprayer"]},{"k":"brand","label":"Brand","req":true,"kind":"select"},{"k":"model","label":"Model","req":true,"kind":"text"},{"k":"productionDate","label":"Production date","req":true,"kind":"date"},{"k":"t1","label":"T1","req":false,"kind":"yesno","opts":["No","Yes"]},{"k":"gearbox","label":"Gearbox","req":false,"kind":"select","opts":["mechanical","semi-powershift","full powershift","vario"],"dk":true},{"k":"machineryMaxSpeed","label":"Max speed (km/h)","req":false,"kind":"select","opts":["25","30","40","50","60"],"dk":true},{"k":"newSpringFrontAxle","label":"Spring front axle","req":false,"kind":"yesno","opts":["No","Yes"],"dk":true},{"k":"machineryTankCapacity","label":"Tank capacity (liter)","req":false,"kind":"number","unit":"liter"},{"k":"machineryPumpType","label":"Pump type","req":false,"kind":"multi","opts":["Centrifugal","Worm pump","Lobe pump"],"dk":true},{"k":"tumblingHours","label":"Tumbling hours","req":false,"kind":"number","unit":"h"},{"k":"machineryNumberOfRows","label":"Number of rows","req":false,"kind":"select","opts":["1","2","4","6","8"],"dk":true},{"k":"cutterHours","label":"Cutter hours","req":false,"kind":"number","unit":"h"},{"k":"newTrackWidth","label":"Track width","req":false,"kind":"select","opts":["21","24","27","30","32","36","40","42"],"dk":true}],"metric":{"k":"mileage","label":"Working hours","unit":"h","req":true}}};
 const BRANDS = {"Tractor head":["Volvo","DAF","MAN","Mercedes","Scania","Renault","IVECO","Other"],"Truck":["Volvo","Mercedes","DAF","MAN","IVECO","Renault","Scania","Other"],"Semi trailer":["Schmitz Cargobull","Kögel","Krone","Van Hool","Pacton","LAG","Knapen","Other"],"Construction equipment":["Caterpillar","Volvo","JCB","Doosan","Hitachi","Komatsu","Hyundai","Liebherr","CASE","Takeuchi","Kubota","Yanmar","Dynapac","Ammann","Bomag","Hamm","Terex","Toyota","Hyster","Linde","Still","Yale","Jungheinrich","Mitsubishi","Finlay","Atlas","Other"],"Light commercial vehicle":["Mercedes","IVECO","Renault","Volkswagen","Ford","MAN","Fiat","Other"],"Agriculture":["Agrifac","Amazone","AVR","Case","Caterpillar","Challenger","CHD","Claas","Delvano","Deutz-Fahr","Dewulf","Dubex","Evrard","Fendt","Fiat","Grimme","Hardi","JCB","John Deere","Joskin","Kaweco","Kirovets","Krone","Kubota","Kverneland","Massey Ferguson","Mc Cormick","New Holland","Peecon","Ploeger","Rabe","Ropa","Schuitemaker","Seko","Steyr","TATRA","Tecnoma","Terragator","Toro","Trioliet","Vervaet","Vredo","Zetor","Other"]};
@@ -299,7 +331,7 @@ function missingFields(f) {
   d.fields.forEach(fd => { if (fd.req && !perUnitYear(f, fd) && blank(f[fd.k])) m.push(fd.k); });
   if (yf?.req && f.units.length > 1) f.units.forEach((u, i) => { if (blank(u.date)) m.push(`y${i}`); });
   if (d.metric?.req) f.units.forEach((u, i) => { if (blank(u.mileage)) m.push(`u${i}`); });
-  if (blank(f.asking)) m.push('asking');
+  if (askingRequired(f) && blank(f.asking)) m.push('asking');
   return m;
 }
 function missingLabels(f) {
@@ -320,6 +352,18 @@ const needsReview = v => missingFields(v).length > 0;
 const COUNTRIES = ['Netherlands', 'Belgium', 'Germany', 'France', 'Luxembourg', 'Poland', 'Spain', 'Italy', 'Denmark', 'Other'];
 const locText = v => [v.address, v.postcode, v.country].filter(x => !blank(x)).join(', ');
 const listText = a => a.length < 2 ? a.join('') : `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}`;
+// Vías de venta (C39–C41). El proveedor dice cuáles le interesan al dar de alta el vehículo (C40) y, según eso, se piden
+// sus precios: Max purchase price con las de venta directa; Max y Minimum selling price con Sell Maximum y Sell Yourself.
+// PM dice sí o no a cada vía y el comprador solo puede ofrecer las que PM ofrece (C41).
+const ROUTES = [['purchase', 'Sell Direct (Purchase)'], ['auction', 'Sell Direct (Auction)'], ['consignment', 'Sell Maximum (Consignment)'], ['platform', 'Sell Yourself (platform)']];
+const routeName = k => ROUTES.find(r => r[0] === k)?.[1] || k;
+const DIRECT = ['purchase', 'auction'], SELLING = ['consignment', 'platform'];
+const asksMaxPurchase = rs => rs.some(r => DIRECT.includes(r));
+const asksSelling = rs => rs.some(r => SELLING.includes(r));
+// Asking price: siempre se pide. Obligatorio (C40.3) salvo si el proveedor solo quiere Sell Maximum o Sell Yourself:
+// entonces puede quedar vacío o en 0 (Robin, 09/10)
+const onlySelling = rs => rs.length > 0 && rs.every(r => SELLING.includes(r));
+const askingRequired = f => !onlySelling(f.routes || []);
 
 // ================================================================ Utilidades de UI
 let toastTimer;
@@ -382,11 +426,15 @@ function vehiclesList() {
 
 // Fotos (U1–U5): con componentes nativos no se puede poner nada encima de la imagen. La etiqueta "Main photo" va
 // junto al título, las flechas y el contador debajo, y las miniaturas en filas. Se suben con la propiedad de archivo.
+// El slider no ve las fotos recién subidas hasta "Refresh photos": la propiedad solo enseña los nombres de archivo (D12)
 function photoProperty(v) {
-  const n = v.photos.length;
-  return `<div data-hs="CrmPropertyList · file property “Photos” (up to 10 files · HubSpot's own uploader)">
+  const pend = S.pendingPhotos[v.id] || 0, n = v.photos.length + pend;
+  return `<div data-hs="CrmPropertyList · file property “Photos” (up to 10 files · HubSpot's own uploader; shows file names, not images)">
       <dl class="hs-dl hs-dl--stacked"><div><dt>Photo files</dt><dd>${n ? `${n} of 10 files · ` : ''}<a class="hs-link" data-action="add-photos" data-id="${v.id}">${n >= 10 ? 'Manage files' : n ? 'Upload or remove files' : 'Upload files'}</a></dd></div></dl>
-      ${n >= 10 ? '<p class="hs-text hs-text--micro hs-text--subtle">Maximum of 10 photos reached.</p>' : ''}</div>`;
+      ${n >= 10 ? '<p class="hs-text hs-text--micro hs-text--subtle">Maximum of 10 photos reached.</p>' : ''}</div>
+    <div data-hs="LoadingButton · re-reads the files so the slider shows new photos (D12)">
+      ${pend ? `<p class="hs-text hs-text--micro">${pend === 1 ? '1 new photo uploaded' : `${pend} new photos uploaded`}. Refresh to see ${pend === 1 ? 'it' : 'them'} in the slider.</p>` : '<p class="hs-text hs-text--micro hs-text--subtle">After uploading, refresh to see new photos in the slider.</p>'}
+      <div class="hs-button-row"><button class="hs-button hs-button--secondary hs-button--sm ${S.refreshingPhotos[v.id] ? 'is-loading' : ''}" data-action="refresh-photos" data-id="${v.id}">${S.refreshingPhotos[v.id] ? 'Refreshing…' : 'Refresh photos'}</button></div></div>`;
 }
 function photosSection(v) {
   const idx = Math.min(S.photoIdx[v.id] ?? v.main, Math.max(v.photos.length - 1, 0));
@@ -447,21 +495,27 @@ function detailsCard(v) {
 const URG = ['Not urgent', 'Urgent today', 'Urgent now'];
 const URG_WHEN = { 'Not urgent': 'within 24 hours', 'Urgent today': 'before the end of today', 'Urgent now': 'as soon as possible' };
 function pricingSection(v) {
-  const q = qty(v);
-  const overMax = v.price.status === 'received' && v.offer != null && v.price.maxOffer != null && v.offer > v.price.maxOffer;
-  const supplier = `<dl class="hs-dl" data-hs="DescriptionList · supplier prices (per unit)">
+  const q = qty(v), rs = v.routes || [];
+  const routeTags = rs.length ? rs.map(r => `<span class="hs-tag">${esc(routeName(r))}</span>`).join(' ') : '<span class="hs-text--subtle">Not set</span>';
+  const supplier = `<dl class="hs-dl" data-hs="DescriptionList · supplier routes and prices (per unit) · fields depend on the routes (C40)">
+      <div><dt>Routes of sale</dt><dd><span class="badges" data-hs="Tag × n · routes the supplier is interested in">${routeTags}</span></dd></div>
       <div><dt>Asking price</dt><dd>${eur(v.asking)}</dd></div>
-      <div><dt>Proposed sales price</dt><dd>${eur(v.proposed)}</dd></div>
-      <div><dt>Offer price</dt><dd>${eur(v.offer)}${overMax ? ` <span class="hs-tag hs-tag--error" data-hs="Tag variant=error">${eur(v.offer - v.price.maxOffer)} above PM's max</span>` : ''}</dd></div>
+      ${asksMaxPurchase(rs) ? `<div><dt>Max purchase price</dt><dd>${eur(v.maxPurchase)}</dd></div>` : ''}
+      ${asksSelling(rs) ? `<div><dt>Max selling price</dt><dd>${eur(v.maxSelling)}</dd></div><div><dt>Minimum selling price</dt><dd>${eur(v.minSelling)}</dd></div>` : ''}
     </dl>${q > 1 ? `<p class="hs-text hs-text--micro hs-text--subtle">Per unit. Bundle of ${q}: asking ${eur(v.asking * q)} in total.</p>` : ''}`;
 
+  // Límites de PM (C41): cuatro precios, siempre rellenos, y un sí/no por vía de venta
   const constraints = (p, prev = false) => `<dl class="hs-dl" style="margin-top:12px">
-        <div><dt>Max offer price</dt><dd>${eur(p.maxOffer)}</dd></div>
-        <div><dt>Estimated selling price</dt><dd>${eur(p.estMin)} – ${eur(p.estMax)}</dd></div>
-        <div><dt>Minimum auction price</dt><dd>${eur(p.minAuction)}</dd></div>
+        <div><dt>Max purchase price</dt><dd>${eur(p.maxPurchase)}</dd></div>
+        <div><dt>Minimum selling price</dt><dd>${eur(p.minSelling)}</dd></div>
+        <div><dt>Maximum selling price</dt><dd>${eur(p.maxSelling)}</dd></div>
         <div><dt>Prefinance amount</dt><dd>${eur(p.prefinance)}</dd></div>
       </dl>
-      <p class="hs-text hs-text--micro hs-text--subtle" style="margin-top:8px">Received ${esc(p.receivedAt)} from Bidmonitor. Per unit.${prev ? ' Replaced when the new price arrives.' : ''}</p>`;
+      ${p.offered ? `<div data-hs="Text + Tag × 4 · routes PM offers (yes/no per route, read-only)" style="margin-top:12px">
+        <p class="hs-text hs-text--strong" style="margin-bottom:6px">Routes PM offers</p>
+        <ul class="offer-list">${ROUTES.map(([k, name]) => `<li><span>${name}</span>${p.offered[k] ? '<span class="hs-tag hs-tag--success">Offered</span>' : '<span class="hs-tag">Not offered</span>'}</li>`).join('')}</ul>
+      </div>` : ''}
+      <p class="hs-text hs-text--micro hs-text--subtle" style="margin-top:8px">Received ${esc(p.receivedAt)} from Bidmonitor. Per unit.${prev ? ' Replaced when the new price arrives.' : ' You can only offer the routes PM offers.'}</p>`;
   // Precio anterior: se sigue viendo, plegado, mientras se espera el nuevo (C27)
   const prevBlock = v.price.prev ? `<details class="hs-accordion" data-hs="Accordion · previous PM constraints"><summary>Previous PM constraints (${esc(v.price.prev.receivedAt)})</summary><div class="hs-accordion__body">${constraints(v.price.prev, true)}</div></details>` : '';
 
@@ -477,18 +531,15 @@ function pricingSection(v) {
       <div data-hs="Button"><button class="hs-button hs-button--primary" data-action="ask-price" data-id="${v.id}" ${blocked ? 'disabled' : ''}>${v.price.prev ? 'Ask for a new price' : 'Ask for price'}</button></div>
     </div>
     <p class="hs-field__help">PM answers ${URG_WHEN[sel]}. You can't change the urgency once the request is sent.</p>
-    <p class="hs-text hs-text--micro hs-text--subtle">${blocked ? 'Complete the vehicle details before asking for a price.' : 'Sends the vehicle and supplier prices to PM in Bidmonitor. Urgent requests go to the top of their list.'}</p>`;
+    <p class="hs-text hs-text--micro hs-text--subtle">${blocked ? 'Complete the vehicle details before asking for a price.' : 'Sends the vehicle, the supplier’s routes and prices to PM in Bidmonitor. Urgent requests go to the top of their list.'}</p>`;
   } else if (v.price.status === 'requested') {
     // La card no se actualiza sola cuando llega el precio (U10): "Refresh" lo vuelve a leer
     request = `<div class="hs-alert hs-alert--info" data-hs="Alert variant=info · waiting for PM"><span class="hs-alert__icon">i</span><div><p class="hs-alert__title">Waiting for PM · ${esc(v.price.urgency)}</p><p class="hs-alert__body">Requested on ${esc(v.price.requestedAt)}. PM answers ${URG_WHEN[v.price.urgency] || 'within 24 hours'}. You'll get a HubSpot notification when the price arrives.</p>
       </div></div><div class="hs-button-row" data-hs="LoadingButton · re-reads the price (the card doesn't refresh by itself)"><button class="hs-button hs-button--secondary hs-button--sm ${S.refreshing[v.id] ? 'is-loading' : ''}" data-action="refresh-price" data-id="${v.id}">${S.refreshing[v.id] ? 'Refreshing…' : 'Refresh'}</button></div>`;
   } else {
-    const p = v.price;
-    const over = v.offer != null && p.maxOffer != null && v.offer > p.maxOffer;
     request = `<div data-hs="DescriptionList · PM price constraints (read-only)">
       <div class="hs-card__header" style="min-height:0"><p class="hs-text hs-text--strong" style="flex:1">PM price constraints</p><span class="hs-tag">Read-only</span></div>
-      ${constraints(p)}</div>
-      ${over ? `<div class="hs-alert hs-alert--warning" data-hs="Alert variant=warning · offer above PM's max"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">Your offer is above PM's max offer</p><p class="hs-alert__body">The offer price (${eur(v.offer)}${q > 1 ? ' per unit' : ''}) is ${eur(v.offer - p.maxOffer)} above PM's max offer (${eur(p.maxOffer)}). Lower the offer or check with PM before creating the proposal.</p></div></div>` : ''}
+      ${constraints(v.price)}</div>
       <div class="hs-button-row" data-hs="Button"><button class="hs-button hs-button--transparent hs-button--sm" data-action="ask-again" data-id="${v.id}">Ask for a new price</button></div>`;
   }
   request += prevBlock;
@@ -508,7 +559,20 @@ function vehicleDetail(v) {
     ${detailsCard(v)}`;
 }
 
-// ================================================================ Pestaña Proposal
+/// ================================================================ Pestaña Proposal
+// Respuesta del proveedor (C42): si acepta, el comprador apunta qué vía eligió; si rechaza, la oportunidad pasa a perdida
+function outcomeBlock(v, p) {
+  const o = p.outcome;
+  if (o) return `<div data-hs="Tag + Text · supplier's answer, recorded by the purchaser (C42)">
+      <dl class="hs-dl"><div><dt>Supplier's answer</dt><dd>${o.status === 'accepted'
+        ? `<span class="hs-tag hs-tag--success">Accepted</span> ${esc(routeName(o.route))}`
+        : '<span class="hs-tag hs-tag--error">Rejected</span>'}</dd></div></dl>
+      <div class="hs-button-row"><button class="hs-button hs-button--transparent hs-button--sm" data-action="clear-outcome" data-id="${v.id}">Change answer</button></div></div>`;
+  return `<div data-hs="Text + Button × 2 · record the supplier's answer (C42)">
+      <p class="hs-text hs-text--strong" style="margin-bottom:4px">Supplier's answer</p>
+      <p class="hs-text hs-text--micro hs-text--subtle">The answer doesn't come back to HubSpot by itself. Record it here when the supplier tells you.</p>
+      <div class="hs-button-row"><button class="hs-button hs-button--secondary hs-button--sm" data-action="outcome-accept" data-id="${v.id}">Supplier accepted</button><button class="hs-button hs-button--secondary hs-button--sm" data-action="outcome-reject" data-id="${v.id}">Supplier rejected</button></div></div>`;
+}
 function proposalCard(v) {
   const p = latest(v);
   const ready = v.price.status === 'received';
@@ -536,7 +600,7 @@ function proposalCard(v) {
       <div><dt>Created</dt><dd>${esc(p.createdAt)}</dd></div>
       ${p.editedAt ? `<div><dt>Last edited</dt><dd>${esc(p.editedAt)}</dd></div>` : ''}
       <div><dt>Link</dt><dd><a class="hs-link" data-action="open-proposal">${url} ↗</a></dd></div>
-      <div><dt>Included offers</dt><dd><ul class="offer-list" data-hs="Text + Tag · summary of the proposal (proposal, to confirm)">${offers}</ul></dd></div>
+      <div><dt>Included routes</dt><dd><ul class="offer-list" data-hs="Text + Tag · summary of the proposal (proposal, to confirm)">${offers}</ul></dd></div>
     </dl>
     ${status}${emailed}
     <div class="hs-button-row" data-hs="ButtonRow · Copy link shows a Tooltip">
@@ -545,15 +609,102 @@ function proposalCard(v) {
       ${draft ? `<button class="hs-button hs-button--secondary hs-button--sm" data-action="mark-sent" data-id="${v.id}">Mark as sent</button>` : ''}
       <button class="hs-button hs-button--transparent hs-button--sm" data-action="edit-proposal" data-id="${v.id}">Edit proposal</button>
     </div>
+    ${draft ? '' : `<hr class="divider">${outcomeBlock(v, p)}`}
   </div>`;
 }
 const proposalUrl = v => `proposal.basworld.com/en/details/EXAMPLE${v.id}`;
+const SUMMARY_URL = 'proposal.basworld.com/en/summary/EXAMPLE-OPP';
+// Resumen de la oportunidad (C45): junta todas las propuestas en un documento, una página por propuesta.
+// Lo que falta saber (C46): si tiene su propio enlace y estado, si entran todas y si lleva un total.
+function summaryCard() {
+  const list = vehicles.filter(v => v.proposal);
+  const items = list.map(v => `<li><span>${esc(v.name)}</span>${proposalTag(v)}</li>`).join('');
+  let action;
+  if (!list.length) action = `<div class="hs-button-row"><span data-hs="Button (disabled)"><button class="hs-button hs-button--secondary hs-button--sm" disabled>Create summary</button></span></div>
+      <p class="hs-text hs-text--micro hs-text--subtle">Available once there's at least one proposal.</p>`;
+  else if (S.summary === 'loading') action = `<div class="hs-button-row"><span data-hs="LoadingButton"><button class="hs-button hs-button--secondary hs-button--sm is-loading">Creating summary…</button></span></div>`;
+  else if (S.summary === 'ready') action = `<dl class="hs-dl"><div><dt>Link</dt><dd><a class="hs-link" data-action="open-proposal">${SUMMARY_URL} ↗</a></dd></div></dl>
+      <div class="hs-button-row"><button class="hs-button hs-button--secondary hs-button--sm" data-action="send-summary" data-hs="CrmActionButton actionType=SEND_EMAIL">Send by email</button><button class="hs-button hs-button--secondary hs-button--sm" data-action="copy-link">Copy link</button></div>`;
+  else action = `<div class="hs-button-row"><span data-hs="LoadingButton"><button class="hs-button hs-button--secondary hs-button--sm" data-action="make-summary">Create summary</button></span></div>`;
+  return `<div class="hs-card" data-hs="App card · Opportunity summary (C45) · own link and status, what goes in and total: to confirm (C46)">
+    <div class="proposal-head"><h3 class="hs-card__title">All proposals in one document</h3><span class="nice">Proposal</span></div>
+    <p class="hs-text hs-text--subtle">For the supplier: one document with every proposal on this opportunity, one page per proposal.</p>
+    ${list.length ? `<ul class="offer-list" data-hs="Text + Tag · proposals included">${items}</ul>` : ''}
+    ${action}
+  </div>`;
+}
 function proposalTab() {
   const head = `<p class="hs-text hs-text--subtle">One proposal per vehicle or bundle, with one link. Statuses: Draft → Sent.</p>`;
   if (S.propState === 'loading') return `${head}<div class="hs-card" data-hs="App card · Proposal"><div data-hs="LoadingSpinner"><span class="hs-spinner">Loading proposals…</span></div></div>`;
   if (S.propState === 'error') return `${head}<div class="hs-card" data-hs="App card · Proposal"><div class="hs-empty" data-hs="ErrorState type=error · own illustration (look in the new theme unknown)"><span class="hs-empty__art hs-empty__art--error"></span><p class="hs-empty__title">Proposals couldn't be loaded</p><p class="hs-empty__body">Something went wrong while loading the proposals. Try again.</p><button class="hs-button hs-button--secondary hs-button--sm" data-action="reload-proposals">Try again</button></div></div>`;
   if (S.listState === 'empty' || !vehicles.length) return `${head}<div class="hs-card" data-hs="App card · Proposal"><div class="hs-empty" data-hs="EmptyState"><span class="hs-empty__art"></span><p class="hs-empty__title">No vehicles to make a proposal for</p><p class="hs-empty__body">Add a vehicle, ask PM for a price and then create the proposal here.</p><button class="hs-button hs-button--primary hs-button--sm" data-action="go-vehicles">Go to Vehicle information</button></div></div>`;
-  return head + vehicles.map(proposalCard).join('');
+  // Si el proveedor ha rechazado todas las propuestas, se recuerda que la oportunidad se cierra a mano (propuesta nuestra, C42)
+  const withP = vehicles.filter(v => v.proposal);
+  const allRejected = withP.length && withP.every(v => v.proposal.outcome?.status === 'rejected');
+  const closeHint = allRejected ? `<div class="hs-alert hs-alert--info" data-hs="Alert variant=info · every proposal rejected (proposal, C42)"><span class="hs-alert__icon">i</span><div><p class="hs-alert__title">The supplier rejected every proposal <span class="nice">Proposal</span></p><p class="hs-alert__body">The opportunity stays open. If the deal is off, close it as lost from the stage at the top of the record.</p></div></div>` : '';
+  return head + closeHint + summaryCard() + vehicles.map(proposalCard).join('');
+}
+
+// Panel de vista previa de HubSpot (C36). Se abre al pulsar una tarjeta del tablero o el botón pequeño "Preview" del
+// listado; ni el listado ni el tablero admiten imágenes. La parte de arriba es nativa; debajo, HubSpot apila tarjetas y la
+// nuestra ("Vehicles") la pone un administrador la primera. El desarrollador confirma que se puede (09/10).
+function previewPanel() {
+  let card;
+  if (S.listState === 'loading') card = `<div data-hs="LoadingSpinner"><span class="hs-spinner">Loading vehicles…</span></div>`;
+  else if (S.listState === 'error') card = `<div class="hs-empty" data-hs="ErrorState"><span class="hs-empty__art hs-empty__art--error"></span><p class="hs-empty__title">Vehicles couldn't be loaded</p><button class="hs-button hs-button--secondary hs-button--sm" data-action="reload">Try again</button></div>`;
+  else if (S.listState === 'empty' || !vehicles.length) card = `<div class="hs-empty" data-hs="EmptyState"><p class="hs-empty__title">No vehicles yet</p><p class="hs-empty__body">Open the record to add vehicles.</p></div>`;
+  else card = `<div style="display:flex;flex-direction:column;gap:8px">${vehicles.map(v => `<div class="solution" style="padding:12px" data-hs="Tile · Image + Text + Tag">
+      <div class="vehicle-cell">${v.photos.length ? `<img class="vehicle-thumb" src="${v.photos[v.main] || v.photos[0]}" alt="Main photo of ${esc(v.name)}">` : '<span class="vehicle-thumb vehicle-thumb--none">No photo</span>'}
+        <div class="vehicle-name"><b class="hs-text">${esc(v.name)}</b><small>${esc(v.type)}</small>${qty(v) > 1 ? `<span class="badges"><span class="hs-tag hs-tag--info">Bundle × ${qty(v)}</span></span>` : ''}</div></div></div>`).join('')}</div>`;
+  const n = vehicles.reduce((s, v) => s + qty(v), 0);
+  return `<div class="hs-overlay hs-overlay--panel hs-overlay--preview" data-overlay>
+    <div class="hs-panel hs-panel--preview" role="dialog" aria-modal="false" aria-labelledby="pp-title" data-hs="HubSpot preview panel (native) · opens from a board card, or the small Preview button in the list">
+      <div class="hs-panel__header"><h2 class="hs-panel__title" id="pp-title">Preview</h2><button class="hs-close" data-action="close" aria-label="Close">×</button></div>
+      <div class="pv-bar"><a class="hs-link" data-action="view-record">View record</a><span>Actions ▾</span></div>
+      <div class="hs-panel__body">
+        <div class="pv-head" data-hs="Record summary (native)">
+          <div class="pv-title"><span class="pv-avatar" aria-hidden="true">⇄</span><h3>Noordhaven Logistics – fleet renewal</h3></div>
+          <dl class="pv-props">
+            <div><dt>Supplier:</dt><dd>Noordhaven Logistics B.V.</dd></div>
+            <div><dt>Purchaser:</dt><dd>Anna de Vries</dd></div>
+            <div><dt>Pipeline:</dt><dd><span class="hs-tag">Supply</span></dd></div>
+            <div><dt>Stage:</dt><dd><span class="hs-stage ${S.stage === 'Closed lost' ? 'hs-stage--red' : 'hs-stage--magenta'}">${esc(S.stage)}</span></dd></div>
+          </dl>
+          <div class="quick"><span><i>✎</i>Note</span><span><i>✉</i>Email</span><span><i>☏</i>Call</span><span><i>☑</i>Task</span><span><i>⋯</i>More</span></div>
+        </div>
+        <details class="pv-card" open data-hs="App card in the preview panel (crm.preview) · Tile × n · placed first by an admin in the preview settings · possible per the docs (developer, C36)">
+          <summary>Vehicles${S.listState === 'filled' && vehicles.length ? ` (${n})` : ''}</summary>
+          <div class="pv-card__body">${card}</div>
+        </details>
+        <details class="pv-card" data-hs="Activities card (native)"><summary>Activities</summary><div class="pv-card__body"><p class="hs-text hs-text--subtle">HubSpot's own card: notes, emails, calls and tasks.</p></div></details>
+        <details class="pv-card" data-hs="Associations card (native)"><summary>Contacts (1)</summary><div class="pv-card__body"><p class="hs-text"><a class="hs-link">Pieter Jansen</a></p></div></details>
+        <details class="pv-card" data-hs="Associations card (native)"><summary>Companies (1)</summary><div class="pv-card__body"><p class="hs-text"><a class="hs-link">Noordhaven Logistics B.V.</a></p></div></details>
+      </div>
+    </div></div>`;
+}
+
+// Tablero nativo de oportunidades (solo para situar la vista previa). Las tarjetas son nativas: no admiten imágenes.
+// Etapas de ejemplo: las del pipeline real están por definir (P1). Solo la de Noordhaven tiene datos en el prototipo.
+const BOARD = [
+  ['New lead', 'hs-stage--blue', [{ name: 'Van Dijk Transport – 2 tractor heads', amount: 64000, by: 'Tom Bakker', date: '06/10/2026' }]],
+  ['Pricing', 'hs-stage--magenta', [{ main: true }, { name: 'Hollands Bouwbedrijf – excavator', amount: 87000, by: 'Lars Visser', date: '02/10/2026' }]],
+  ['Price available', 'hs-stage--purple', [{ name: 'Brabant Agri – tractors bundle', amount: 132000, by: 'Anna de Vries', date: '28/09/2026' }]],
+  ['Proposal sent', 'hs-stage--green', [{ name: 'Zeeland Koeltransport – reefer trailer', amount: 41500, by: 'Lars Visser', date: '25/09/2026' }]],
+];
+function boardView() {
+  const total = vehicles.reduce((s, v) => s + (v.asking || 0) * qty(v), 0);
+  const card = c => {
+    const d = c.main ? { name: 'Noordhaven Logistics – fleet renewal', amount: total, by: 'Anna de Vries', date: '24/09/2026' } : c;
+    const active = c.main && S.overlay?.kind === 'preview';
+    return `<button class="board-card ${active ? 'is-active' : ''}" data-action="board-open" data-main="${c.main ? 1 : ''}">
+      <span class="hs-link">${esc(d.name)}</span>
+      <span>Amount: ${eur(d.amount)}</span><span>Purchaser: ${esc(d.by)}</span><span>Create date: ${esc(d.date)}</span></button>`;
+  };
+  return `<div class="board__head"><h1 class="hs-record-title" style="margin:0">Supply opportunities</h1><span class="hs-text hs-text--subtle">Board view</span></div>
+    <div class="board__cols" data-hs="Board (native) · cards show properties only, no images · example stages (P1)">
+      ${BOARD.map(([stage, cls, cards]) => `<div class="board__col"><div class="board__colhead"><span class="hs-stage ${cls}">${stage}</span> ${cards.length}</div>${cards.map(card).join('')}</div>`).join('')}
+    </div>
+    <p class="hs-text hs-text--micro hs-text--subtle">Click a card to open its preview. In the list view, the preview opens with the small “Preview” button next to the name.</p>`;
 }
 
 // ================================================================ Render principal
@@ -616,6 +767,11 @@ function render() {
   if (S.tab === 'vehicles') body.innerHTML = S.view === 'detail' ? vehicleDetail(find(S.vehicleId)) : vehiclesList();
   else if (S.tab === 'proposal') body.innerHTML = proposalTab();
   else body.innerHTML = `<div class="hs-empty"><p class="hs-empty__title">Native HubSpot tab</p><p class="hs-empty__body">Not part of this app. Open “Vehicle information” or “Proposal”.</p></div>`;
+  $('#rec-stage').textContent = S.stage; $('#rec-stage').className = `hs-stage ${S.stage === 'Closed lost' ? 'hs-stage--red' : 'hs-stage--magenta'}`;
+  $('#rec-reason').textContent = S.closingReason || '—';
+  $('.hs-record').style.display = S.page === 'board' ? 'none' : '';
+  $('#board').hidden = S.page !== 'board';
+  if (S.page === 'board') $('#board').innerHTML = boardView();
   renderOverlay();
   renderControls();
   renderBell();
@@ -630,11 +786,12 @@ function toggleGroup(name, opts, sel) { return `<div class="hs-toggle-group" dat
 // Estado del formulario: se copia del vehículo al abrir el panel y solo se guarda al pulsar "Save"
 const ALL_KEYS = [...new Set(Object.values(TYPES).flatMap(t => t.fields.map(x => x.k)))];
 function formFrom(v) {
-  const d = { type: 'Tractor head', hpUnit: 'HP', asking: '', proposed: '', offer: '', address: '', postcode: '', country: '', units: [{ mileage: '', plate: '', vin: '', date: '' }] };
+  const d = { type: 'Tractor head', hpUnit: 'HP', routes: [], asking: '', maxPurchase: '', maxSelling: '', minSelling: '', address: '', postcode: '', country: '', units: [{ mileage: '', plate: '', vin: '', date: '' }] };
   ALL_KEYS.forEach(k => { d[k] = ''; });
   if (!v) return d;
   const f = { ...d };
-  Object.keys(d).forEach(k => { if (k !== 'units' && v[k] != null) f[k] = String(v[k]); });
+  Object.keys(d).forEach(k => { if (k !== 'units' && k !== 'routes' && v[k] != null) f[k] = String(v[k]); });
+  f.routes = [...(v.routes || [])];
   f.units = v.units.map(u => ({ mileage: u.mileage == null ? '' : String(u.mileage), plate: u.plate ?? '', vin: u.vin ?? '', date: u.date ?? '' }));
   return f;
 }
@@ -754,14 +911,17 @@ function vehiclePanel(o) {
           <p class="hs-field__help" style="margin-top:8px">Where the vehicle is now. For a bundle, where all its units are.</p>
         </div>
         <hr class="divider">
-        <div data-hs="CurrencyInput × 3 · numbers only">
+        <div data-hs="ToggleGroup (checkboxes) · routes of sale the supplier is interested in (C40)">
+          ${fField('Routes of sale', `<div class="hs-toggle-group">${ROUTES.map(([k, name]) => `<label><input type="checkbox" data-route="${k}" ${f.routes.includes(k) ? 'checked' : ''}><span>${name}</span></label>`).join('')}</div>`, o, '', '<p class="hs-field__help">The routes the supplier is interested in. Their prices appear below. PM decides which ones can be offered.</p>')}
+        </div>
+        <div data-hs="CurrencyInput × n · fields depend on the routes (C40) · only Asking is required (C40.3)">
           <p class="hs-field__label" style="margin:0 0 8px">Supplier prices${q > 1 ? ' (per unit)' : ''}</p>
           <div class="price-row">
-            ${fField('Asking' + req, `<div class="hs-currency"><span>€</span>${fInput(o, 'asking', NUM)}</div>`, o, 'asking')}
-            ${fField('Proposed sales', `<div class="hs-currency"><span>€</span>${fInput(o, 'proposed', NUM)}</div>`, o)}
-            ${fField('Offer', `<div class="hs-currency"><span>€</span>${fInput(o, 'offer', NUM)}</div>`, o)}
+            ${fField('Asking price' + (askingRequired(f) ? req : ''), `<div class="hs-currency"><span>€</span>${fInput(o, 'asking', NUM)}</div>`, o, 'asking')}
+            ${asksMaxPurchase(f.routes) ? fField('Max purchase price', `<div class="hs-currency"><span>€</span>${fInput(o, 'maxPurchase', NUM)}</div>`, o) : ''}
+            ${asksSelling(f.routes) ? fField('Max selling price', `<div class="hs-currency"><span>€</span>${fInput(o, 'maxSelling', NUM)}</div>`, o) + fField('Minimum selling price', `<div class="hs-currency"><span>€</span>${fInput(o, 'minSelling', NUM)}</div>`, o) : ''}
           </div>
-          ${q > 1 ? `<p class="hs-field__help" style="margin-top:8px">Same price for every unit. If one unit has a different price, add it as a separate vehicle.</p>` : ''}
+          <p class="hs-field__help" style="margin-top:8px">${f.routes.length ? '' : 'Select a route of sale to enter its prices. '}${onlySelling(f.routes) ? 'Asking price is optional for Sell Maximum and Sell Yourself: leave it empty if the supplier has none. ' : ''}${q > 1 ? 'Same price for every unit. If one unit has a different price, add it as a separate vehicle.' : ''}</p>
           <p class="hs-text hs-text--micro" id="price-total" style="margin-top:4px">${totalText(f)}</p>
         </div>
         ${!v ? `<div data-hs="Text · photos are uploaded on the vehicle page (file property)"><p class="hs-field__label">Photos</p><p class="hs-field__help">Once the vehicle is added, upload up to 10 photos from its page, in “Photo files”.</p></div>` : ''}
@@ -770,71 +930,88 @@ function vehiclePanel(o) {
     </div></div>`;
 }
 
-// ---- Propuesta: formulario con estado propio (se copia de la última versión y solo se guarda al pulsar el botón)
+/// ---- Propuesta: formulario con estado propio (se copia de la última versión y solo se guarda al pulsar el botón)
 const S0 = x => x == null ? '' : String(x);
+// Solo se pueden incluir las vías que ofrece PM (C41). Por defecto: Purchase y Consignment, si PM las ofrece.
+const offeredBy = v => v.price.offered || { purchase: true, auction: true, consignment: true, platform: true };
 function defaultProp(v) {
-  const q = v.price;
-  return { inc: { purchase: true, commission: true, auction: false }, rec: 'commission', loc: 'From BAS World',
-    purchasePrice: S0(q.maxOffer), salesPrice: S0(q.estMax), prefinance: S0(q.prefinance), auctionMin: S0(q.minAuction), guaranteed: '', fee: '',
-    minSales: S0(q.estMin), maxSales: S0(q.estMax), days: '60', logistics: '', workshop: '500', strategy: '0',
+  const q = v.price, off = offeredBy(v);
+  const inc = Object.fromEntries(ROUTES.map(([k]) => [k, ['purchase', 'consignment'].includes(k) && !!off[k]]));
+  if (!Object.values(inc).some(Boolean)) { const first = ROUTES.find(([k]) => off[k]); if (first) inc[first[0]] = true; }
+  return { inc, rec: inc.consignment ? 'consignment' : ROUTES.map(r => r[0]).find(k => inc[k]) || null, loc: 'From BAS World',
+    // Importe de la subasta = Minimum selling price de PM, de momento (C41.1)
+    purchasePrice: S0(q.maxPurchase), auctionPrice: S0(q.minSelling), guaranteed: '', auctionFee: '',
+    salesPrice: S0(q.maxSelling), prefinance: S0(q.prefinance), platformAmount: '', platformFee: '',
+    minSales: S0(q.minSelling), maxSales: S0(q.maxSelling), days: '60', logistics: '', workshop: '500', strategy: '0',
     explanation: 'Price based on the latest market data.', lang: 'English' };
 }
 const propData = (v, p) => p?.data ?? defaultProp(v);
 const cloneProp = f => JSON.parse(JSON.stringify(f));
-const SOLS = [['purchase', 'Direct purchase'], ['commission', 'Commission sale'], ['auction', 'Auction']];
-const SOL_AMOUNT = { purchase: 'purchasePrice', commission: 'salesPrice', auction: 'auctionMin' };
+const SOLS = ROUTES;
+const SOL_AMOUNT = { purchase: 'purchasePrice', auction: 'auctionPrice', consignment: 'salesPrice', platform: 'platformAmount' };
 function propErrors(f) {
   const e = [];
   if (!SOLS.some(([k]) => f.inc[k])) e.push('none');
   if (f.inc.purchase && blank(f.purchasePrice)) e.push('purchasePrice');
-  if (f.inc.commission && blank(f.salesPrice)) e.push('salesPrice');
-  if (f.inc.auction) { if (blank(f.auctionMin)) e.push('auctionMin'); if (blank(f.guaranteed)) e.push('guaranteed'); }
+  if (f.inc.auction) { if (blank(f.auctionPrice)) e.push('auctionPrice'); if (blank(f.guaranteed)) e.push('guaranteed'); }
+  if (f.inc.consignment && blank(f.salesPrice)) e.push('salesPrice');
+  if (f.inc.platform && blank(f.platformAmount)) e.push('platformAmount');
   return e;
 }
 function propErrText(e) {
   const n = e.filter(k => k !== 'none').length;
-  if (!n) return ['Include at least one solution', 'A proposal needs at least one solution for the supplier to choose.'];
-  return ['Fill in the required fields', `${n === 1 ? '1 required field is' : `${n} required fields are`} empty${e.includes('none') ? ' and no solution is included' : ''}. They're marked in red below.`];
+  if (!n) return ['Include at least one route of sale', 'A proposal needs at least one route for the supplier to choose.'];
+  return ['Fill in the required fields', `${n === 1 ? '1 required field is' : `${n} required fields are`} empty${e.includes('none') ? ' and no route is included' : ''}. They're marked in red below.`];
 }
 const bundleHint = (f, k, q) => q > 1 && !blank(f[k]) ? `${q} × ${eur(+f[k])} = ${eur(q * f[k])} in total` : '';
+// Precio de compra por encima del máximo de PM: aviso dentro del modal, junto al importe (propuesta nuestra, P2)
+function overMaxHtml(v, f) {
+  const max = v.price.maxPurchase;
+  if (!f.inc.purchase || blank(f.purchasePrice) || max == null || +f.purchasePrice <= max) return '';
+  return `<div class="hs-alert hs-alert--warning" data-hs="Alert variant=warning · purchase price above PM's max (proposal, P2)"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">Above PM's max purchase price <span class="nice">Proposal</span></p><p class="hs-alert__body">${eur(+f.purchasePrice)} is ${eur(f.purchasePrice - max)} above PM's max purchase price (${eur(max)}${qty(v) > 1 ? ' per unit' : ''}). Lower it or check with PM before sending.</p></div></div>`;
+}
 
 function proposalModal(o) {
-  const v = find(o.id), f = o.form, q = qty(v), last = latest(v);
+  const v = find(o.id), f = o.form, q = qty(v), last = latest(v), off = offeredBy(v);
   const editing = !!last, sent = editing && last.status === 'Sent';
   const perr = k => o.tried && o.errors.includes(k);
   const money = (label, k, required = false) => `<div class="hs-field" data-hs="CurrencyInput${q > 1 ? ' · per unit' : ''}" data-field="${k}"><label class="hs-field__label">${label}${required ? req : ''}</label>
       <div class="hs-currency"><span>€</span><input class="hs-input ${perr(k) ? 'is-error' : ''}" data-p="${k}" data-num inputmode="numeric" value="${esc(f[k])}"></div>
       ${perr(k) ? `<p class="hs-field__error" data-err="${k}">This field is required.</p>` : ''}
-      ${['purchasePrice', 'salesPrice', 'auctionMin', 'guaranteed'].includes(k) && q > 1 ? `<p class="hs-field__help" data-tot="${k}">${bundleHint(f, k, q)}</p>` : ''}</div>`;
-  const plain = (label, k) => `<div class="hs-field" data-hs="CurrencyInput"><label class="hs-field__label">${label}</label><div class="hs-currency"><span>€</span><input class="hs-input" data-p="${k}" data-num inputmode="numeric" value="${esc(f[k])}"></div></div>`;
+      ${Object.values(SOL_AMOUNT).concat('guaranteed').includes(k) && q > 1 ? `<p class="hs-field__help" data-tot="${k}">${bundleHint(f, k, q)}</p>` : ''}</div>`;
+  const plain = (label, k, hs = 'CurrencyInput') => `<div class="hs-field" data-hs="${hs}"><label class="hs-field__label">${label}</label><div class="hs-currency"><span>€</span><input class="hs-input" data-p="${k}" data-num inputmode="numeric" value="${esc(f[k])}"></div></div>`;
   const solFields = {
-    purchase: money('Purchase price', 'purchasePrice', true),
-    commission: `<div class="hs-field" data-hs="ToggleGroup"><label class="hs-field__label">Location</label><div class="hs-toggle-group">${['From BAS World', "From seller's location"].map(x => `<label><input type="radio" name="loc" data-p="loc" value="${esc(x)}" ${x === f.loc ? 'checked' : ''}><span>${esc(x)}</span></label>`).join('')}</div></div>${money('Expected sales price', 'salesPrice', true)}${money('Prefinance amount', 'prefinance')}`,
-    auction: `${money('Minimum auction price', 'auctionMin', true)}${money('Guaranteed price', 'guaranteed', true)}${plain('Fee', 'fee')}` };
-  const sol = ([key, title]) => `
-    <div class="solution ${f.inc[key] ? '' : 'is-off'}" data-solution="${key}" data-hs="Tile · Checkbox · RadioButton">
-      <div class="solution__head"><label class="hs-check"><input type="checkbox" data-inc="${key}" ${f.inc[key] ? 'checked' : ''}> ${title}</label>
-        <label class="hs-radio"><input type="radio" name="recommended" data-p="rec" value="${key}" ${f.rec === key ? 'checked' : ''} ${f.inc[key] ? '' : 'disabled'}> Recommended</label></div>
-      <div class="solution__fields hs-form-grid">${solFields[key]}</div>
+    purchase: `${money('Purchase price', 'purchasePrice', true)}<div id="over-max" style="grid-column:1/-1">${overMaxHtml(v, f)}</div>`,
+    auction: `${money('Auction price', 'auctionPrice', true)}${money('Guaranteed price', 'guaranteed', true)}${plain('Fee', 'auctionFee')}<p class="hs-field__help" style="grid-column:1/-1">Auction price starts at PM's minimum selling price.</p>`,
+    consignment: `<div class="hs-field" data-hs="ToggleGroup"><label class="hs-field__label">Location</label><div class="hs-toggle-group">${['From BAS World', "From seller's location"].map(x => `<label><input type="radio" name="loc" data-p="loc" value="${esc(x)}" ${x === f.loc ? 'checked' : ''}><span>${esc(x)}</span></label>`).join('')}</div></div>${money('Expected sales price', 'salesPrice', true)}${money('Prefinance amount', 'prefinance')}`,
+    platform: `${money('Amount', 'platformAmount', true)}${plain('Fee', 'platformFee')}` };
+  const sol = ([key, title]) => {
+    const ok = !!off[key], on = ok && f.inc[key];
+    return `
+    <div class="solution ${on ? '' : 'is-off'}" data-solution="${key}" data-hs="Tile · Checkbox · RadioButton${ok ? '' : ' · disabled: PM isn’t offering this route (C41)'}">
+      <div class="solution__head"><label class="hs-check"><input type="checkbox" data-inc="${key}" ${on ? 'checked' : ''} ${ok ? '' : 'disabled'}> ${title}</label>
+        <label class="hs-radio" data-hs="RadioButton · recommended (C41: still open whether there's a recommended route and who sets it)"><input type="radio" name="recommended" data-p="rec" value="${key}" ${f.rec === key ? 'checked' : ''} ${on ? '' : 'disabled'}> Recommended</label></div>
+      ${ok ? `<div class="solution__fields hs-form-grid">${solFields[key]}</div>` : '<p class="hs-text hs-text--micro hs-text--subtle">PM isn’t offering this route, so it can’t be included.</p>'}
     </div>`;
+  };
   const solutions = `<div class="solutions">
-    <p class="hs-field__label" style="margin:0">Solutions offered to the supplier${req}</p>
-    ${perr('none') ? '<p class="hs-field__error" data-err="none">Include at least one solution.</p>' : ''}
+    <p class="hs-field__label" style="margin:0">Routes offered to the supplier${req}</p>
+    ${perr('none') ? '<p class="hs-field__error" data-err="none">Include at least one route.</p>' : ''}
     ${SOLS.map(sol).join('')}
-    <p class="hs-field__help">Ticked = included in the proposal. Unticked solutions don't appear. The recommended one has to be included.</p>
+    <p class="hs-field__help">Ticked = included in the proposal. You can only include the routes PM offers. The recommended one has to be included.</p>
   </div>`;
-  const costs = `<div class="hs-form-grid">${plain('Minimum sales price', 'minSales')}${plain('Maximum sales price', 'maxSales')}</div>
+  const costs = `<div class="hs-form-grid">${plain('Minimum selling price', 'minSales')}${plain('Maximum selling price', 'maxSales')}</div>
       <div class="hs-form-grid">
         <div class="hs-field" data-hs="NumberInput"><label class="hs-field__label">Expected days of sale</label><input class="hs-input" data-p="days" data-num inputmode="numeric" value="${esc(f.days)}"></div>
-        ${plain('Logistics costs', 'logistics')}${plain('Workshop costs', 'workshop')}${plain('Pricing strategy amount', 'strategy')}
+        ${plain('Logistics costs', 'logistics')}${plain('Workshop costs', 'workshop')}${plain('Pricing strategy amount', 'strategy', 'CurrencyInput · may be removed (C41.3, P13)')}
       </div>`;
   const explain = `<div class="hs-field" data-hs="TextArea"><label class="hs-field__label">Price explanation</label><textarea class="hs-textarea" data-p="explanation">${esc(f.explanation)}</textarea></div>`;
   const lang = `<div class="hs-field" data-hs="Select"><label class="hs-field__label">Proposal language</label><select class="hs-select" data-p="lang">${['English', 'Dutch', 'German'].map(x => `<option ${x === f.lang ? 'selected' : ''}>${x}</option>`).join('')}</select></div>`;
   const stack = c => `<div style="display:flex;flex-direction:column;gap:16px">${c}</div>`;
-  // Versión simplificada (elegida en la reunión del 07/10): soluciones, idioma y explicación a la vista;
+  // Versión simplificada (elegida en la reunión del 07/10): vías, idioma y explicación a la vista;
   // precios de venta, días y costes plegados en "More options"
   const body = `${solutions}${stack(lang + explain)}
-    <details class="hs-accordion" data-hs="Accordion · sales prices, days of sale and costs"><summary>More options: sales prices, days of sale and costs</summary><div class="hs-accordion__body">${stack(costs)}</div></details>`;
+    <details class="hs-accordion" data-hs="Accordion · selling prices, days of sale and costs"><summary>More options: selling prices, days of sale and costs</summary><div class="hs-accordion__body">${stack(costs)}</div></details>`;
 
   const errs = o.tried && o.errors.length ? propErrText(o.errors) : null;
   const alerts = [
@@ -864,18 +1041,35 @@ function confirmModal(o) {
     </div></div>`;
 }
 
+// Respuesta del proveedor (C42). Un rechazo no cierra la oportunidad: la cierra el comprador a mano (Robin, 09/10)
+function outcomeModal(o) {
+  const v = find(o.id), d = propData(v, latest(v)), accept = o.mode === 'accept';
+  const body = accept
+    ? `<div class="hs-field" data-hs="RadioButton × n · only the routes included in the proposal"><p class="hs-field__label">Route the supplier chose${req}</p>
+        <div style="display:flex;flex-direction:column;gap:8px">${SOLS.filter(([k]) => d.inc[k]).map(([k, name]) => `<label class="hs-radio"><input type="radio" name="o-route" data-o="route" value="${k}" ${o.route === k ? 'checked' : ''}> ${name}</label>`).join('')}</div></div>`
+    : `<p class="hs-text">The proposal is marked as rejected. The opportunity stays open: if the deal is off, close it as lost from the record.</p>`;
+  return `<div class="hs-overlay" data-overlay>
+    <div class="hs-modal hs-modal--sm" role="dialog" aria-modal="true" aria-labelledby="om-title" data-hs="Modal (small) · supplier's answer (C42)">
+      <div class="hs-modal__header"><h2 class="hs-modal__title" id="om-title">${accept ? 'Supplier accepted' : 'Supplier rejected'} · ${esc(v.name)}</h2><button class="hs-close" data-action="close" aria-label="Close">×</button></div>
+      <div class="hs-modal__body">${body}</div>
+      <div class="hs-modal__footer"><button class="hs-button hs-button--primary" data-action="save-outcome" data-id="${v.id}">${accept ? 'Save' : 'Mark as rejected'}</button><button class="hs-button hs-button--secondary" data-action="close">Cancel</button></div>
+    </div></div>`;
+}
+
 function emailModal(o) {
-  const v = find(o.id);
+  const v = o.summary ? null : find(o.id);
+  const subject = v ? `Your proposal for the ${esc(v.name)}` : 'Our proposals for your vehicles';
+  const text = v ? `Here is our proposal for the ${v.name}:\n${proposalUrl(v)}` : `Here are our proposals for your vehicles, all in one document:\n${SUMMARY_URL}`;
   return `<div class="hs-overlay" data-overlay>
     <div class="hs-modal" role="dialog" aria-modal="true" aria-labelledby="em-title" data-hs="HubSpot email composer (native, opened by CrmActionButton SEND_EMAIL)">
       <div class="hs-modal__header"><h2 class="hs-modal__title" id="em-title">Email</h2><button class="hs-close" data-action="close" aria-label="Close">×</button></div>
       <div class="hs-modal__body">
         ${field('To', '<input class="hs-input" value="Pieter Jansen <fleet@example-supplier.nl>">')}
-        ${field('Subject', `<input class="hs-input" value="Your proposal for the ${esc(v.name)}">`)}
-        ${field('', `<textarea class="hs-textarea" style="min-height:140px">Hi Pieter,\n\nHere is our proposal for the ${v.name}:\n${proposalUrl(v)}\n\nKind regards,\nAnna de Vries</textarea>`)}
+        ${field('Subject', `<input class="hs-input" value="${subject}">`)}
+        ${field('', `<textarea class="hs-textarea" style="min-height:140px">Hi Pieter,\n\n${esc(text)}\n\nKind regards,\nAnna de Vries</textarea>`)}
         <p class="hs-text hs-text--micro hs-text--subtle">HubSpot's own email composer, opened with the subject and the link already in. The email is logged on the opportunity.</p>
       </div>
-      <div class="hs-modal__footer"><button class="hs-button hs-button--primary" data-action="do-send" data-id="${v.id}">Send</button><button class="hs-button hs-button--secondary" data-action="close">Cancel</button></div>
+      <div class="hs-modal__footer"><button class="hs-button hs-button--primary" data-action="do-send" data-id="${v ? v.id : ''}">Send</button><button class="hs-button hs-button--secondary" data-action="close">Cancel</button></div>
     </div></div>`;
 }
 
@@ -897,12 +1091,12 @@ function zoomModal(o) {
 
 function renderOverlay() {
   const root = $('#overlay-root'); const o = S.overlay;
-  document.querySelector('.hs-shell').inert = !!o;   // el fondo no recibe foco mientras hay un modal o un panel
+  document.querySelector('.hs-shell').inert = !!o && o.kind !== 'preview';   // el fondo no recibe foco mientras hay un modal o un panel (la vista previa deja usar el tablero)
   if (!o) { root.innerHTML = ''; return; }
   const sel = '.hs-panel__body, .hs-modal__body';
   const scroll = root.dataset.kind === o.kind ? (root.querySelector(sel)?.scrollTop ?? 0) : 0;
   root.dataset.kind = o.kind;
-  root.innerHTML = { vehicle: vehiclePanel, proposal: proposalModal, confirm: confirmModal, email: emailModal, zoom: zoomModal }[o.kind](o);
+  root.innerHTML = { vehicle: vehiclePanel, proposal: proposalModal, confirm: confirmModal, email: emailModal, zoom: zoomModal, outcome: outcomeModal, preview: previewPanel }[o.kind](o);
   const body = root.querySelector(sel); if (body) body.scrollTop = o.scrollTop ?? scroll; delete o.scrollTop;
   if (o.entering) { root.firstElementChild?.classList.add('is-entering'); delete o.entering; }
 }
@@ -927,8 +1121,9 @@ function priceArrives(quiet = false, live = false) {
   const v = find(2);
   if (!v) return;
   if (v.price.status === 'received' || S.incoming[2]) { if (!quiet) toast('The DAF already has a price. Use Reset demo to start again.'); return; }
-  // Max offer por debajo de la oferta del comprador (€19,000) para ver el aviso
-  S.incoming[2] = { status: 'received', receivedAt: '29/09/2026 15:20', maxOffer: 18500, estMin: 22000, estMax: 24500, minAuction: 18000, prefinance: 10000, unseen: true };
+  // PM ofrece todas las vías menos Sell Yourself (el proveedor tampoco la quería)
+  S.incoming[2] = { status: 'received', receivedAt: '29/09/2026 15:20', maxPurchase: 18500, minSelling: 21500, maxSelling: 24500, prefinance: 10000,
+    offered: { purchase: true, auction: true, consignment: true, platform: false }, unseen: true };
   S.notifications.unshift({ id: v.id, text: `PM sent the price for ${v.name}`, time: 'Just now', read: false });
   if (live) loadIncoming(2);
   if (!quiet) toast(`🔔 PM sent the price for ${v.name}`);
@@ -957,7 +1152,7 @@ function openProposal(v) { openOverlay({ kind: 'proposal', id: v.id, form: clone
 
 // ================================================================ Controles que cambian un estado: llevan a la pantalla donde se ve
 function controlChange(key, val) {
-  S[key] = val; S.overlay = null; S.failNext = false;
+  S[key] = val; S.overlay = null; S.failNext = false; S.page = 'record';
   const hints = {
     listState: { filled: 'Vehicles table with data.', empty: 'Empty state: no vehicles added yet.', loading: 'Loading state, while HubSpot fetches the line items.', error: 'The vehicles couldn’t be loaded. Try “Try again”.' },
     propState: { filled: 'Proposal tab with data.', loading: 'Loading state, while HubSpot fetches the proposals.', error: 'The proposals couldn’t be loaded. Try “Try again”.' },
@@ -973,13 +1168,16 @@ function controlChange(key, val) {
 function goVehicle(id) { S.tab = 'vehicles'; S.view = 'detail'; S.vehicleId = id; loadIncoming(id); const v = find(id); if (v?.price) delete v.price.unseen; }
 // Lo que proponemos nosotras y Basworld tiene que confirmar (preguntas C, P) e ideas nuestras (I)
 const PROPOSALS = [
-  ['sc-pr-c23', 'C23', 'Asking price is required'],
-  ['sc-pr-c28', 'C28', 'Proposal rules: at least one solution, the recommended one must be included'],
+  ['sc-pr-c40', 'C40', 'Asking price optional when the supplier only wants Sell Maximum or Sell Yourself'],
+  ['sc-pr-c41', 'C41', 'Recommended route: does it still exist, and who sets it?'],
+  ['sc-pr-c28', 'C28', 'Proposal rules: at least one route, the recommended one must be included'],
+  ['sc-pr-c42', 'C42', 'Reminder to close the opportunity when every proposal is rejected'],
+  ['sc-pr-c46', 'C46', 'Summary of all proposals: own link and status? A total?'],
   ['sc-pr-c29', 'C29', 'Should the Purchase stage change once all proposals are Sent?'],
   ['sc-pr-c34', 'C34', 'License plate per unit in a bundle, in every vehicle type'],
   ['sc-pr-c35', 'C35', 'Editing a sent proposal keeps it Sent, on the same link'],
   ['sc-pr-p8', 'P8', 'License plate lookup fills in only empty fields and lists the differences'],
-  ['sc-pr-offer', 'I1', 'Warning when the offer is above PM’s max offer'],
+  ['sc-pr-offer', 'P2', 'Warning in the proposal when the purchase price is above PM’s max'],
   ['sc-pr-new', 'I2', 'Notification and “New price” tag when PM answers'],
   ['sc-pr-mark', 'I4', '“Mark as sent” for email and WhatsApp; send again from Sent'],
   ['sc-pr-sum', 'I5', 'Summary of the included offers on the proposal card'],
@@ -988,7 +1186,7 @@ const PROPOSALS = [
 function scenario(a) {
   const schmitz = find(3);
   const resetSchmitz = () => { if (schmitz) { schmitz.price = { status: 'none' }; S.errors[3] = false; } };
-  S.overlay = null; S.failNext = false; S.listState = 'filled'; S.propState = 'filled'; S.bellOpen = false;
+  S.overlay = null; S.failNext = false; S.listState = 'filled'; S.propState = 'filled'; S.bellOpen = false; S.page = 'record';
   // El DAF vuelve a "esperando a PM" para poder repetir la llegada del precio desde cualquier estado
   const armDaf = () => {
     const d = find(2); if (!d) return;
@@ -1006,13 +1204,19 @@ function scenario(a) {
     'sc-send': 'Try “Send by email” (HubSpot’s composer): the card can’t tell whether the email went out, so it reminds you to click “Mark as sent”. “Copy link” works the same way.',
     'sc-edit-sent': 'The Volvo proposal is Sent. Click “Edit proposal”: the supplier will see the changes on the same link, and the proposal stays Sent.',
     'sc-prop-error': 'Click “Create proposal”: the proposal service doesn’t answer. Then click “Retry”.',
-    'sc-pr-c23': 'C23 · Required fields are marked with *. We assumed the asking price is required too. Click “Add vehicle” with empty fields to see the validation.',
-    'sc-pr-c28': 'C28 · Untick all three solutions and click “Create proposal”, or untick the recommended one. Auction needs its amounts once it’s ticked.',
+    'sc-pr-c40': 'C40 · The supplier only wants Sell Maximum, so only the selling prices are asked. The asking price is still asked, but it’s optional: no asterisk. Tick a Sell Direct route and it becomes required again.',
+    'sc-pr-c41': 'C41 · PM doesn’t want to buy the Volvo directly, so Sell Direct (Purchase) can’t be included, but Sell Direct (Auction) can. We kept the “Recommended” choice: does it still exist, and who sets it, PM or the purchaser?',
+    'sc-pr-c28': 'C28 · Untick all the routes and click “Create proposal”, or untick the recommended one. Auction needs its amounts once it’s ticked.',
+    'sc-pr-c42': 'C42 · Click “Supplier rejected” on the Volvo. The opportunity stays open: you close it by hand. As it was the only proposal, a reminder appears at the top of the tab (our proposal).',
+    'sc-pr-c46': 'C46 · At the top of this tab: one document with every proposal. Does it have its own link and Draft/Sent status? Does it show a total?',
     'sc-pr-c29': 'C29 · Send a proposal and look at the Stage in the record header: it stays “Pricing”. In Bidmonitor the bid moved to “Under offer”. Should the opportunity stage move by itself, once all the proposals are Sent?',
     'sc-pr-c34': 'C34 · The DAF is a bundle of 5: each unit has its own first registration, mileage, license plate and VIN.',
     'sc-pr-c35': 'C35 · The Volvo proposal is Sent. Edit it: with one link the supplier sees the changes at once, so we suggest it stays Sent and you let them know by email.',
     'sc-pr-p8': 'P8 · The supplier said Mercedes. Click “Look up”: the registry fills in only the empty fields and shows what’s different, without overwriting it.',
-    'sc-pr-offer': 'I1 · The offer price is above PM’s max offer: see the red tag next to it and the warning below.',
+    'sc-pr-offer': 'P2 · The purchase price is above PM’s max purchase price: see the warning under it. Lower it to make the warning go away. Should it be blocked instead, or need PM’s approval?',
+    'sc-photos': 'Click “Upload or remove files” (HubSpot’s uploader). The new photos only show in the slider after “Refresh photos”.',
+    'sc-preview': 'This is the board of supply opportunities. Clicking a card opens HubSpot’s preview on the right. Board cards can’t show images, so our “Vehicles” card in the preview shows each vehicle’s main photo. “View record” opens the full record.',
+    'sc-outcome': 'The Volvo proposal is Sent. Click “Supplier accepted” and choose the route, or “Supplier rejected”.',
     'sc-pr-new': 'I2 · The bell shows HubSpot’s notification. The “New price” tag appears in the table once the record loads the price: open the notification, or switch tabs and come back.',
     'sc-pr-mark': 'I4 · In Draft, “Mark as sent” is always there: after sending by email or on WhatsApp. In Sent you can still use “Send again by email”.',
     'sc-pr-sum': 'I5 · The card lists the included offers, their amounts and the recommended one, so you don’t need to open the link.',
@@ -1022,7 +1226,10 @@ function scenario(a) {
   const propTab = () => { S.tab = 'proposal'; S.view = 'list'; S.propState = 'filled'; };
   const volvoAs = st => { const p = latest(find(1)); if (p) { p.status = st; delete p.editedAt; S.emailed[1] = false; if (st === 'Sent') p.sentAt = p.sentAt || '29/09/2026 09:42'; else delete p.sentAt; } };
   const addPanel = (form = formFrom(null), extra = {}) => { S.tab = 'vehicles'; S.view = 'list'; render(); openOverlay({ kind: 'vehicle', form, missing: [], ...extra }); };
-  if (a === 'sc-add' || a === 'sc-pr-c23') return addPanel();
+  if (a === 'sc-add') return addPanel();
+  if (a === 'sc-pr-c40') { const form = formFrom(null); form.routes = ['consignment']; return addPanel(form, { scrollTop: 900 }); }
+  if (a === 'sc-photos') { goVehicle(1); }
+  if (a === 'sc-preview') { S.page = 'board'; render(); openOverlay({ kind: 'preview' }); return; }
   if (a === 'sc-pr-p8') { const form = formFrom(null); form.brand = 'Mercedes'; form.model = 'Actros'; form.units[0].plate = '12-BLX-7'; return addPanel(form); }
   if (a === 'sc-pr-clear') { const form = formFrom(null); form.t1 = 'Yes'; return addPanel(form, { optOpen: true, scrollTop: 500 }); }
   if (a === 'sc-pr-c34') { const d = find(2); if (d) { goVehicle(2); render(); openOverlay({ kind: 'vehicle', id: 2, form: formFrom(d), missing: [], scrollTop: 900 }); return; } }
@@ -1031,12 +1238,15 @@ function scenario(a) {
   if (a === 'sc-arrive') { armDaf(); goVehicle(2); priceArrives(); }
   if (a === 'sc-error') { resetSchmitz(); S.failNext = true; goVehicle(3); }
   if (a === 'sc-again') goVehicle(1);
-  if (a === 'sc-pr-offer') { armDaf(); priceArrives(true, true); goVehicle(2); }
+  if (a === 'sc-pr-offer') { armDaf(); priceArrives(true, true); propTab(); render(); const d = find(2); const form = cloneProp(propData(d, null)); form.purchasePrice = '21000'; openOverlay({ kind: 'proposal', id: 2, form, errors: [] }); return; }
+  if (a === 'sc-pr-c41') { propTab(); render(); const v = find(1); if (v) openProposal(v); return; }
   if (a === 'sc-pr-new') { armDaf(); S.tab = 'vehicles'; S.view = 'list'; priceArrives(); }
   if (a === 'sc-create' || a === 'sc-pr-c28') { propTab(); render(); openCreate(); return; }
   if (a === 'sc-prop-error') { propTab(); S.failNext = true; render(); openCreate(); return; }
   if (a === 'sc-send' || a === 'sc-pr-mark') { propTab(); volvoAs('Draft'); }
   if (a === 'sc-edit-sent' || a === 'sc-pr-c29') { propTab(); volvoAs('Sent'); }
+  if (a === 'sc-outcome' || a === 'sc-pr-c42') { propTab(); volvoAs('Sent'); const p = latest(find(1)); if (p) delete p.outcome; }
+  if (a === 'sc-pr-c46') propTab();
   if (a === 'sc-pr-c35') { propTab(); volvoAs('Sent'); render(); const v = find(1); if (v) openProposal(v); return; }
   if (a === 'sc-pr-sum') propTab();
 }
@@ -1050,9 +1260,9 @@ function renderControls() {
   $('#pc-body').innerHTML = `
     <a class="pc-guide" href="guide.html" target="_blank" rel="noopener">Need help? Read the guide ↗</a>
     <div><label class="pc-l">Try it · guided scenarios</label>
-      <div class="pc-group"><p class="pc-sub">Vehicles</p><div class="pc-seg">${sc('sc-add', 'Add a vehicle')}${sc('sc-review', 'Complete a WhatsApp vehicle')}</div></div>
+      <div class="pc-group"><p class="pc-sub">Vehicles</p><div class="pc-seg">${sc('sc-add', 'Add a vehicle')}${sc('sc-review', 'Complete a WhatsApp vehicle')}${sc('sc-photos', 'Upload photos')}${sc('sc-preview', 'Photos from the list')}</div></div>
       <div class="pc-group"><p class="pc-sub">Price</p><div class="pc-seg">${sc('sc-ask', 'Ask for a price')}${sc('sc-arrive', 'PM price arrives')}${sc('sc-error', 'Bidmonitor error')}${sc('sc-again', 'Ask for a new price')}</div></div>
-      <div class="pc-group"><p class="pc-sub">Proposal</p><div class="pc-seg">${sc('sc-create', 'Create a proposal')}${sc('sc-prop-error', 'Proposal error')}${sc('sc-send', 'Send a proposal')}${sc('sc-edit-sent', 'Edit a sent proposal')}</div></div></div>
+      <div class="pc-group"><p class="pc-sub">Proposal</p><div class="pc-seg">${sc('sc-create', 'Create a proposal')}${sc('sc-prop-error', 'Proposal error')}${sc('sc-send', 'Send a proposal')}${sc('sc-edit-sent', 'Edit a sent proposal')}${sc('sc-outcome', 'Record the supplier’s answer')}</div></div></div>
     <details class="pc-props-wrap" ${S.propsOpen ? 'open' : ''}><summary>Our proposals · to confirm (${PROPOSALS.length}) <span aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></summary><p class="pc-note">C and P = our questions to BAS World, still open. I = our own ideas, not asked.</p>
       <ul class="pc-props">${PROPOSALS.map(([a, id, t]) => `<li><button data-pc-action="${a}"><b>${id}</b> ${t}</button></li>`).join('')}</ul></details>
     <div><label class="pc-l">Vehicles table</label>${seg('listState', [['filled', 'With data'], ['empty', 'Empty'], ['loading', 'Loading'], ['error', 'Error']])}</div>
@@ -1135,7 +1345,9 @@ document.addEventListener('click', e => {
       o.missing = missingFields(f);
       if (o.missing.length) { o.tried = true; o.scrollTop = 0; render(); break; }
       const num = x => blank(x) ? null : +x;
-      const data = { type: f.type, asking: num(f.asking), proposed: num(f.proposed), offer: num(f.offer),
+      // Solo se guardan los precios de las vías elegidas (C40)
+      const data = { type: f.type, routes: [...f.routes], asking: num(f.asking), maxPurchase: asksMaxPurchase(f.routes) ? num(f.maxPurchase) : null,
+        maxSelling: asksSelling(f.routes) ? num(f.maxSelling) : null, minSelling: asksSelling(f.routes) ? num(f.minSelling) : null,
         units: f.units.map(u => ({ mileage: num(u.mileage), plate: u.plate.trim().toUpperCase(), vin: u.vin.trim(), date: f.units.length > 1 ? u.date : '' })) };
       typeDef(f.type).fields.forEach(fd => { data[fd.k] = perUnitYear(f, fd) ? '' : f[fd.k]; });
       data.hpUnit = f.hpUnit;
@@ -1164,7 +1376,23 @@ document.addEventListener('click', e => {
     case 'set-main': v.main = S.photoIdx[id] ?? v.main; toast('Main photo updated'); render(); break;
     case 'unset-main': v.main = 0; toast('The first photo is the main photo again'); render(); break;
     case 'zoom': openOverlay({ kind: 'zoom', id }); break;
-    case 'add-photos': toast('Opens HubSpot’s file upload (native file property)'); break;
+    case 'add-photos': {
+      // Prototipo: simula que se suben dos fotos con el cargador de HubSpot. El slider no las ve hasta "Refresh photos" (D12)
+      const room = 10 - v.photos.length - (S.pendingPhotos[id] || 0);
+      if (room <= 0) { toast('Opens HubSpot’s file upload (native file property)'); break; }
+      S.pendingPhotos[id] = (S.pendingPhotos[id] || 0) + Math.min(2, room);
+      toast('Photos uploaded with HubSpot’s file upload. Refresh to see them in the slider.'); render(); break;
+    }
+    case 'refresh-photos': {
+      S.refreshingPhotos[id] = true; render();
+      setTimeout(() => {
+        S.refreshingPhotos[id] = false;
+        const n = S.pendingPhotos[id] || 0;
+        if (n) { v.photos.push(...photos(n, 90 + v.photos.length * 9)); delete S.pendingPhotos[id]; S.photoIdx[id] = v.photos.length - n; }
+        toast(n ? 'Photos updated' : 'No new photos'); render();
+      }, 800);
+      break;
+    }
     case 'ask-price': {
       const sel = document.getElementById(`urg-${id}`); if (sel) S.urg[id] = sel.value;
       S.errors[id] = false; S.requesting[id] = true; render();
@@ -1201,8 +1429,8 @@ document.addEventListener('click', e => {
     case 'send-email': openOverlay({ kind: 'email', id }); break;
     case 'do-send': {
       // El redactor es de HubSpot y no le dice a la card si el email salió (U11): la propuesta no cambia sola
-      const p = latest(v);
-      if (p.status === 'Draft') S.emailed[id] = true;
+      const p = v ? latest(v) : null;
+      if (p?.status === 'Draft') S.emailed[id] = true;
       closeOverlay(); toast('Email sent'); render();
       break;
     }
@@ -1212,8 +1440,32 @@ document.addEventListener('click', e => {
       inp.dispatchEvent(new Event('change', { bubbles: true })); break;
     }
     case 'clear-field': { const o = S.overlay; o.form[el.dataset.k] = ''; render(); document.querySelector(`[data-f="${el.dataset.k}"]`)?.focus(); break; }
+    // Respuesta del proveedor (C42)
+    case 'outcome-accept': { const d = propData(v, latest(v)); openOverlay({ kind: 'outcome', mode: 'accept', id, route: d.inc[d.rec] ? d.rec : SOLS.map(r => r[0]).find(k => d.inc[k]) }); break; }
+    case 'outcome-reject': openOverlay({ kind: 'outcome', mode: 'reject', id, reason: '' }); break;
+    case 'save-outcome': {
+      const o = S.overlay, p = latest(v);
+      p.outcome = o.mode === 'accept' ? { status: 'accepted', route: o.route } : { status: 'rejected' };
+      closeOverlay(); toast(o.mode === 'accept' ? 'Supplier’s choice saved' : 'Proposal marked as rejected'); render(); break;
+    }
+    case 'clear-outcome': {
+      delete latest(v).outcome;
+      render(); break;
+    }
+    // Resumen de todas las propuestas de la oportunidad (C45)
+    case 'make-summary': S.summary = 'loading'; render(); setTimeout(() => { S.summary = 'ready'; toast('Summary created'); render(); }, 1000); break;
+    case 'send-summary': openOverlay({ kind: 'email', summary: true }); break;
+    // Tablero y vista previa (C36)
+    case 'go-board': S.page = 'board'; S.hint = ''; render(); break;
+    case 'board-open': if (el.dataset.main) openOverlay({ kind: 'preview' }); else toast('Example card. Open “Noordhaven Logistics – fleet renewal”.'); break;
+    case 'view-record': closeOverlay(); S.page = 'record'; S.tab = 'vehicles'; S.view = 'list'; render(); break;
     case 'close': closeOverlay(); break;
   }
+});
+// Respuesta del proveedor: la vía elegida o el motivo de pérdida se guardan en el estado del modal
+document.addEventListener('change', e => {
+  if (S.overlay?.kind !== 'outcome' || !e.target.dataset.o) return;
+  S.overlay[e.target.dataset.o] = e.target.value;
 });
 
 document.addEventListener('change', e => {
@@ -1233,6 +1485,11 @@ document.addEventListener('change', e => {
         if (o.tried) o.missing = missingFields(o.form);
         later();
       }
+    }
+    if (t.dataset.route) {   // vías de venta: cambian qué precios se piden (C40)
+      const set = new Set(o.form.routes); if (t.checked) set.add(t.dataset.route); else set.delete(t.dataset.route);
+      o.form.routes = ROUTES.map(r => r[0]).filter(k => set.has(k));
+      later();
     }
     if (t.dataset.f === 'type' || t.dataset.f === 'brand') {
       const f = o.form;   // cascada: marca → modelo y cabina; al cambiar de tipo se conserva lo que sigue siendo válido
@@ -1264,6 +1521,7 @@ function syncProp(t) {
     f[t.dataset.p] = t.value;
     const tot = document.querySelector(`[data-tot="${t.dataset.p}"]`); if (tot) tot.textContent = bundleHint(f, t.dataset.p, qty(find(o.id)));
   } else return;
+  const om = document.getElementById('over-max'); if (om) om.innerHTML = overMaxHtml(find(o.id), f);
   if (o.tried) {
     // Se quitan las marcas de error de lo que ya está corregido
     const now = propErrors(f);

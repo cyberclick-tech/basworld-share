@@ -105,6 +105,8 @@
 .hs-check input:checked { background: var(--t-sys-color-foundational-fg-normal-default); border-color: var(--t-sys-color-foundational-fg-normal-default); }
 .hs-check input:checked::after { content: ""; width: 8px; height: 4px; border: 2px solid #fff; border-top: 0; border-right: 0; transform: rotate(-45deg) translate(1px, -1px); }
 .hs-radio input:checked { border: 5px solid var(--t-sys-color-foundational-fg-normal-default); }
+.hs-check:has(input:disabled), .hs-radio:has(input:disabled) { color: var(--t-sys-color-foundational-fg-normal-disabled); cursor: not-allowed; }
+.hs-check input:disabled, .hs-radio input:disabled { background: var(--t-sys-color-foundational-bg-normal-disabled); border-color: #e6e6e6; cursor: not-allowed; }
 .hs-toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 300; }
 .hs-toggle input { appearance: none; width: 32px; height: 16px; border-radius: 999px; border: 1px solid var(--t-sys-color-foundational-border-strong-default); background: #fff; position: relative; margin: 0; cursor: pointer; }
 .hs-toggle input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: var(--t-sys-color-foundational-border-strong-default); transition: left .12s; }

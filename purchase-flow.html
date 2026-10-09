@@ -297,6 +297,7 @@ ol.detail .d{font-size:15px;color:var(--muted);max-width:78ch}
 <div class="r">Maximum 10 photos per vehicle. If none is chosen, the first is the main one; it can be changed with "Set as main photo". No reordering.</div>
 <div class="c">One slider per vehicle: a vehicle selector is needed.</div>
 <div class="c">Our decision: native slider with large photo, arrows, "3 / 10" counter, thumbnails and zoom in a native modal. No iframe.</div>
+<div class="c">Thumbnail in the vehicles table. HubSpot's list and board can't show images: the photos will show in a card in the preview panel, which the developer confirms is possible; it opens with a small button, so it's an extra (9 Oct).</div>
 </div>
 </div>
 <div class="cell">
@@ -306,13 +307,15 @@ ol.detail .d{font-size:15px;color:var(--muted);max-width:78ch}
 <div class="c">Confirmed.</div>
 <div class="c">If urgent, the vehicle goes to the top of PM's list in Bidmonitor. Urgent today = before the end of the day; Urgent now = immediately (6 Oct).</div>
 <div class="c">If the supplier changes their price, a new one can be requested ("Ask for a new price") (6 Oct).</div>
+<div class="c">When adding the vehicle, the purchaser picks the routes of sale the supplier wants and enters their prices: asking price and max purchase price (direct sale); max and minimum selling price (Sell Maximum, Sell Yourself). Only the asking price is required, and not even that if the supplier only wants Sell Maximum or Sell Yourself (7 and 9 Oct).</div>
 </div>
 </div>
 <div class="cell">
 <div class="step card"><div class="top"><span class="n">8</span><h4>Sees PM's price constraints</h4></div>
-<p>Max offer, estimated selling range, minimum auction price, prefinance. Read-only.</p>
+<p>Max purchase price, minimum and maximum selling price, prefinance amount, and which routes of sale PM offers. Read-only.</p>
 <div class="chips"><span class="chip card">Design</span><span class="chip us">US-03</span></div>
-<div class="c">Confirmed.</div>
+<div class="c">PM says yes or no to each route (Sell Direct: Purchase and Auction; Sell Maximum; Sell Yourself) and always fills in all prices. The purchaser can't offer a route PM isn't offering (7 Oct).</div>
+<div class="q">Open: whether there's still a recommended route and who sets it; whether "Pricing strategy" is removed.</div>
 </div>
 <div class="step card"><div class="top"><span class="n">9</span><h4>Creates the proposal</h4></div>
 <p>Modal: costs, days to sell, explanation, language + which solutions to offer and which one to recommend.</p>
@@ -320,6 +323,9 @@ ol.detail .d{font-size:15px;color:var(--muted);max-width:78ch}
 <div class="r">Configurable proposal: the purchaser picks which offers are included (direct purchase, commission sale, auction) and which one is recommended. Ticked = included; unticked = left out.</div>
 <div class="c">Modal: the simplified version (meeting of 7 Oct).</div>
 <div class="c">One proposal per vehicle or bundle (line item with quantity). Different vehicles aren't combined.</div>
+<div class="c">Routes: Sell Direct (Purchase), Sell Direct (Auction), Sell Maximum (Consignment) and Sell Yourself (platform, with amount and fee). The auction amount is PM's minimum selling price for now (7 and 9 Oct).</div>
+<div class="c">From the opportunity, a summary of all proposals can be generated or sent: one page per proposal (9 Oct).</div>
+<div class="q">Open: whether the summary has its own link and status, whether all proposals go in, and whether it shows a total.</div>
 </div>
 </div>
 <div class="cell">
@@ -333,12 +339,13 @@ ol.detail .d{font-size:15px;color:var(--muted);max-width:78ch}
 <div class="c">Statuses: only Draft and Sent. The button is called "Edit proposal" (in Bidmonitor, "Adjust proposal") because it modifies the existing proposal. Email keeps a tracked record of the link; customers often use WhatsApp.</div>
 <div class="c">One sent proposal, the same link and no version history in HubSpot (BAS World, 6 Oct).</div>
 <div class="c">Sending: copy the link, with an option to email it from HubSpot. Either way it's marked with "Mark as sent": the app isn't told whether the email went out.</div>
-<div class="r">Open: the status of a sent proposal that is edited (proposal: it stays Sent) and where the supplier's answer is recorded.</div>
+<div class="c">If the supplier accepts, the purchaser records on the proposal which route they chose (7 Oct).</div>
+<div class="r">Open: the status of a sent proposal that is edited (proposal: it stays Sent), whether proposals expire, and what happens if the supplier doesn't reply.</div>
 </div>
 <div class="step"><div class="top"><span class="n">13</span><h4>Closes the Supply Opportunity</h4></div>
 <p>If accepted, the purchase order is created. If not, it's marked closed-lost with a reason.</p>
 <div class="chips"><span class="chip native">Native</span></div>
-<div class="c">Confirmed.</div>
+<div class="c">Confirmed. A rejection doesn't close the opportunity: the purchaser closes it by hand, with a reason (9 Oct). BAS World will send the list of reasons.</div>
 <div class="c">"Create purchase" is phase 2. Today the purchase order is created manually in the ERP.</div>
 </div>
 </div>
