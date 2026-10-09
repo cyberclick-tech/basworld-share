@@ -614,22 +614,28 @@ function proposalCard(v) {
 }
 const proposalUrl = v => `proposal.basworld.com/en/details/EXAMPLE${v.id}`;
 const SUMMARY_URL = 'proposal.basworld.com/en/summary/EXAMPLE-OPP';
-// Resumen de la oportunidad (C45): junta todas las propuestas en un documento, una página por propuesta.
-// Lo que falta saber (C46): si tiene su propio enlace y estado, si entran todas y si lleva un total.
+/// Resumen de la oportunidad (C45, C46): junta las propuestas en un documento, una página por propuesta, con un total de
+// la vía recomendada de cada una (C46.4, cierra la C38). Al marcarlo como enviado, sus propuestas pasan a Sent (C46.2).
+// Qué propuestas entran está por aclarar (C47: ¿estado "Ready to send"?); de momento, todas menos las rechazadas.
+const summaryList = () => vehicles.filter(v => v.proposal && v.proposal.outcome?.status !== 'rejected');
+const recAmount = v => { const d = propData(v, v.proposal); return d.rec ? (+d[SOL_AMOUNT[d.rec]] || 0) * qty(v) : 0; };
 function summaryCard() {
-  const list = vehicles.filter(v => v.proposal);
-  const items = list.map(v => `<li><span>${esc(v.name)}</span>${proposalTag(v)}</li>`).join('');
+  const list = summaryList();
+  const items = list.map(v => { const d = propData(v, v.proposal); return `<li><span>${esc(v.name)} · ${d.rec ? `${esc(routeName(d.rec))}: <b>${eur(recAmount(v))}</b>` : 'no route'}</span>${proposalTag(v)}</li>`; }).join('');
+  const total = list.reduce((n, v) => n + recAmount(v), 0);
   let action;
   if (!list.length) action = `<div class="hs-button-row"><span data-hs="Button (disabled)"><button class="hs-button hs-button--secondary hs-button--sm" disabled>Create summary</button></span></div>
-      <p class="hs-text hs-text--micro hs-text--subtle">Available once there's at least one proposal.</p>`;
+      <p class="hs-text hs-text--micro hs-text--subtle">Available once there's at least one proposal that wasn't rejected.</p>`;
   else if (S.summary === 'loading') action = `<div class="hs-button-row"><span data-hs="LoadingButton"><button class="hs-button hs-button--secondary hs-button--sm is-loading">Creating summary…</button></span></div>`;
   else if (S.summary === 'ready') action = `<dl class="hs-dl"><div><dt>Link</dt><dd><a class="hs-link" data-action="open-proposal">${SUMMARY_URL} ↗</a></dd></div></dl>
-      <div class="hs-button-row"><button class="hs-button hs-button--secondary hs-button--sm" data-action="send-summary" data-hs="CrmActionButton actionType=SEND_EMAIL">Send by email</button><button class="hs-button hs-button--secondary hs-button--sm" data-action="copy-link">Copy link</button></div>`;
+      ${S.summarySentAt ? `<p class="hs-text hs-text--micro hs-text--subtle">Sent on ${esc(S.summarySentAt)}. The proposals in it are now Sent.</p>` : '<p class="hs-text hs-text--micro hs-text--subtle">Once it’s sent, by email or on WhatsApp, click “Mark as sent”: the proposals in it become Sent.</p>'}
+      <div class="hs-button-row"><button class="hs-button hs-button--secondary hs-button--sm" data-action="send-summary" data-hs="CrmActionButton actionType=SEND_EMAIL">${S.summarySentAt ? 'Send again by email' : 'Send by email'}</button><button class="hs-button hs-button--secondary hs-button--sm" data-action="copy-link">Copy link</button>${S.summarySentAt ? '' : '<button class="hs-button hs-button--secondary hs-button--sm" data-action="summary-sent">Mark as sent</button>'}</div>`;
   else action = `<div class="hs-button-row"><span data-hs="LoadingButton"><button class="hs-button hs-button--secondary hs-button--sm" data-action="make-summary">Create summary</button></span></div>`;
-  return `<div class="hs-card" data-hs="App card · Opportunity summary (C45) · own link and status, what goes in and total: to confirm (C46)">
+  return `<div class="hs-card" data-hs="App card · Opportunity summary (C45, C46) · which proposals go in: to confirm (C47)">
     <div class="proposal-head"><h3 class="hs-card__title">All proposals in one document</h3><span class="nice">Proposal</span></div>
-    <p class="hs-text hs-text--subtle">For the supplier: one document with every proposal on this opportunity, one page per proposal.</p>
-    ${list.length ? `<ul class="offer-list" data-hs="Text + Tag · proposals included">${items}</ul>` : ''}
+    <p class="hs-text hs-text--subtle">For the supplier: one document with the proposals on this opportunity, one page per proposal. Rejected proposals aren't included.</p>
+    ${list.length ? `<ul class="offer-list" data-hs="Text + Tag · proposals included, with the recommended route's amount">${items}</ul>
+    <dl class="hs-dl" data-hs="DescriptionList · total of the recommended routes (C46.4, C38)"><div><dt>Total (recommended routes)</dt><dd><b>${eur(total)}</b></dd></div></dl>` : ''}
     ${action}
   </div>`;
 }
@@ -1172,7 +1178,7 @@ const PROPOSALS = [
   ['sc-pr-c41', 'C41', 'Recommended route: does it still exist, and who sets it?'],
   ['sc-pr-c28', 'C28', 'Proposal rules: at least one route, the recommended one must be included'],
   ['sc-pr-c42', 'C42', 'Reminder to close the opportunity when every proposal is rejected'],
-  ['sc-pr-c46', 'C46', 'Summary of all proposals: own link and status? A total?'],
+  ['sc-pr-c47', 'C47', 'Summary of all proposals: a “Ready to send” status to choose what goes in?'],
   ['sc-pr-c29', 'C29', 'Should the Purchase stage change once all proposals are Sent?'],
   ['sc-pr-c34', 'C34', 'License plate per unit in a bundle, in every vehicle type'],
   ['sc-pr-c35', 'C35', 'Editing a sent proposal keeps it Sent, on the same link'],
@@ -1208,7 +1214,7 @@ function scenario(a) {
     'sc-pr-c41': 'C41 · PM doesn’t want to buy the Volvo directly, so Sell Direct (Purchase) can’t be included, but Sell Direct (Auction) can. We kept the “Recommended” choice: does it still exist, and who sets it, PM or the purchaser?',
     'sc-pr-c28': 'C28 · Untick all the routes and click “Create proposal”, or untick the recommended one. Auction needs its amounts once it’s ticked.',
     'sc-pr-c42': 'C42 · Click “Supplier rejected” on the Volvo. The opportunity stays open: you close it by hand. As it was the only proposal, a reminder appears at the top of the tab (our proposal).',
-    'sc-pr-c46': 'C46 · At the top of this tab: one document with every proposal. Does it have its own link and Draft/Sent status? Does it show a total?',
+    'sc-pr-c47': 'C47 · At the top of this tab: one document with the proposals and the total of their recommended routes. “Mark as sent” makes them Sent. Today every proposal except rejected ones goes in: should only “Ready to send” ones go in?',
     'sc-pr-c29': 'C29 · Send a proposal and look at the Stage in the record header: it stays “Pricing”. In Bidmonitor the bid moved to “Under offer”. Should the opportunity stage move by itself, once all the proposals are Sent?',
     'sc-pr-c34': 'C34 · The DAF is a bundle of 5: each unit has its own first registration, mileage, license plate and VIN.',
     'sc-pr-c35': 'C35 · The Volvo proposal is Sent. Edit it: with one link the supplier sees the changes at once, so we suggest it stays Sent and you let them know by email.',
@@ -1246,7 +1252,7 @@ function scenario(a) {
   if (a === 'sc-send' || a === 'sc-pr-mark') { propTab(); volvoAs('Draft'); }
   if (a === 'sc-edit-sent' || a === 'sc-pr-c29') { propTab(); volvoAs('Sent'); }
   if (a === 'sc-outcome' || a === 'sc-pr-c42') { propTab(); volvoAs('Sent'); const p = latest(find(1)); if (p) delete p.outcome; }
-  if (a === 'sc-pr-c46') propTab();
+  if (a === 'sc-pr-c47') propTab();
   if (a === 'sc-pr-c35') { propTab(); volvoAs('Sent'); render(); const v = find(1); if (v) openProposal(v); return; }
   if (a === 'sc-pr-sum') propTab();
 }
@@ -1453,8 +1459,13 @@ document.addEventListener('click', e => {
       render(); break;
     }
     // Resumen de todas las propuestas de la oportunidad (C45)
-    case 'make-summary': S.summary = 'loading'; render(); setTimeout(() => { S.summary = 'ready'; toast('Summary created'); render(); }, 1000); break;
+    case 'make-summary': S.summarySentAt = null; S.summary = 'loading'; render(); setTimeout(() => { S.summary = 'ready'; toast('Summary created'); render(); }, 1000); break;
     case 'send-summary': openOverlay({ kind: 'email', summary: true }); break;
+    case 'summary-sent': {   // C46.2: al enviar el documento, sus propuestas pasan a Sent
+      const when = '29/09/2026 16:05';
+      summaryList().forEach(x => { if (x.proposal.status !== 'Sent') { x.proposal.status = 'Sent'; x.proposal.sentAt = when; S.emailed[x.id] = false; } });
+      S.summarySentAt = when; toast('Summary marked as sent. Its proposals are now Sent.'); render(); break;
+    }
     // Tablero y vista previa (C36)
     case 'go-board': S.page = 'board'; S.hint = ''; render(); break;
     case 'board-open': if (el.dataset.main) openOverlay({ kind: 'preview' }); else toast('Example card. Open “Noordhaven Logistics – fleet renewal”.'); break;
