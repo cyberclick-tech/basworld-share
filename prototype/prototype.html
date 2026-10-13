@@ -270,7 +270,7 @@ const vehicles = [
     address: 'Industrieweg 14, Waalwijk', postcode: '5145 PD', country: 'Netherlands',
     photos: photos(6, 200), main: 0,
     price: { status: 'received', urgency: 'Urgent today', requestedAt: '28/09/2026 10:12', receivedAt: '28/09/2026 16:40',
-             maxPurchase: 47000, minSelling: 52000, maxSelling: 56000, prefinance: 25000,
+             maxPurchase: null, auctionFloor: 45000, minSelling: 52000, maxSelling: 56000, maxPrefinance: 25000,
              offered: { purchase: false, auction: true, consignment: true, platform: true } },
     proposal: { status: 'Sent', createdAt: '29/09/2026 09:30', sentAt: '29/09/2026 09:42', by: 'Anna de Vries' } },
   { id: 2, name: 'DAF XF 480 FT', type: 'Tractor head', source: 'Incoming call', brand: 'DAF', model: 'XF', hp: '480', config: '4X2', cabin: 'Super Space Cab', euro: 'Euro 6', gearbox: 'Automatic gearbox', retarder: 'Intarder',
@@ -360,6 +360,13 @@ const routeName = k => ROUTES.find(r => r[0] === k)?.[1] || k;
 const DIRECT = ['purchase', 'auction'], SELLING = ['consignment', 'platform'];
 const asksMaxPurchase = rs => rs.some(r => DIRECT.includes(r));
 const asksSelling = rs => rs.some(r => SELLING.includes(r));
+// Lo que rellena PM por vía (captura de Basworld, 13/10)
+const PM_FIELDS = {
+  purchase: [['maxPurchase', 'Max purchase price']],
+  auction: [['auctionFloor', 'Auction floor price']],
+  consignment: [['minSelling', 'Minimum selling price'], ['maxSelling', 'Maximum selling price'], ['maxPrefinance', 'Max prefinance amount']],
+  platform: [],
+};
 // Asking price: siempre se pide. Obligatorio (C40.3) salvo si el proveedor solo quiere Sell Maximum o Sell Yourself:
 // entonces puede quedar vacío o en 0 (Robin, 09/10)
 const onlySelling = rs => rs.length > 0 && rs.every(r => SELLING.includes(r));
@@ -504,17 +511,16 @@ function pricingSection(v) {
       ${asksSelling(rs) ? `<div><dt>Max selling price</dt><dd>${eur(v.maxSelling)}</dd></div><div><dt>Minimum selling price</dt><dd>${eur(v.minSelling)}</dd></div>` : ''}
     </dl>${q > 1 ? `<p class="hs-text hs-text--micro hs-text--subtle">Per unit. Bundle of ${q}: asking ${eur(v.asking * q)} in total.</p>` : ''}`;
 
-  // Límites de PM (C41): cuatro precios, siempre rellenos, y un sí/no por vía de venta
-  const constraints = (p, prev = false) => `<dl class="hs-dl" style="margin-top:12px">
-        <div><dt>Max purchase price</dt><dd>${eur(p.maxPurchase)}</dd></div>
-        <div><dt>Minimum selling price</dt><dd>${eur(p.minSelling)}</dd></div>
-        <div><dt>Maximum selling price</dt><dd>${eur(p.maxSelling)}</dd></div>
-        <div><dt>Prefinance amount</dt><dd>${eur(p.prefinance)}</dd></div>
-      </dl>
-      ${p.offered ? `<div data-hs="Text + Tag × 4 · routes PM offers (yes/no per route, read-only)" style="margin-top:12px">
-        <p class="hs-text hs-text--strong" style="margin-bottom:6px">Routes PM offers</p>
-        <ul class="offer-list">${ROUTES.map(([k, name]) => `<li><span>${name}</span>${p.offered[k] ? '<span class="hs-tag hs-tag--success">Offered</span>' : '<span class="hs-tag">Not offered</span>'}</li>`).join('')}</ul>
-      </div>` : ''}
+  // Límites de PM (C41, captura de Basworld del 13/10): un bloque por vía, con su sí/no y sus precios. Sell Yourself no
+  // lleva precio de PM. Las vías que PM no ofrece salen sin precio.
+  const constraints = (p, prev = false) => `<div style="display:flex;flex-direction:column;gap:12px;margin-top:12px" data-hs="Text + Tag + DescriptionList per route · PM's constraints (read-only)">
+      ${ROUTES.map(([k, name]) => {
+        const on = !p.offered || p.offered[k];
+        const rows = (PM_FIELDS[k] || []).map(([fk, label]) => `<div><dt>${label}</dt><dd>${eur(p[fk])}</dd></div>`).join('');
+        return `<div><div class="proposal-head" style="min-height:0"><p class="hs-text hs-text--strong" style="flex:1">${name}</p>${on ? '<span class="hs-tag hs-tag--success">Offered</span>' : '<span class="hs-tag">Not offered</span>'}</div>
+          ${on && rows ? `<dl class="hs-dl" style="margin-top:4px">${rows}</dl>` : on ? '<p class="hs-text hs-text--micro hs-text--subtle">No price from PM: you set the amount and fee in the proposal.</p>' : ''}</div>`;
+      }).join('')}
+      </div>
       <p class="hs-text hs-text--micro hs-text--subtle" style="margin-top:8px">Received ${esc(p.receivedAt)} from Bidmonitor. Per unit.${prev ? ' Replaced when the new price arrives.' : ' You can only offer the routes PM offers.'}</p>`;
   // Precio anterior: se sigue viendo, plegado, mientras se espera el nuevo (C27)
   const prevBlock = v.price.prev ? `<details class="hs-accordion" data-hs="Accordion · previous PM constraints"><summary>Previous PM constraints (${esc(v.price.prev.receivedAt)})</summary><div class="hs-accordion__body">${constraints(v.price.prev, true)}</div></details>` : '';
@@ -945,10 +951,10 @@ function defaultProp(v) {
   const inc = Object.fromEntries(ROUTES.map(([k]) => [k, ['purchase', 'consignment'].includes(k) && !!off[k]]));
   if (!Object.values(inc).some(Boolean)) { const first = ROUTES.find(([k]) => off[k]); if (first) inc[first[0]] = true; }
   return { inc, rec: inc.consignment ? 'consignment' : ROUTES.map(r => r[0]).find(k => inc[k]) || null, loc: 'From BAS World',
-    // Importe de la subasta = Minimum selling price de PM, de momento (C41.1)
-    purchasePrice: S0(q.maxPurchase), auctionPrice: S0(q.minSelling), guaranteed: '', auctionFee: '',
-    salesPrice: S0(q.maxSelling), prefinance: S0(q.prefinance), platformAmount: '', platformFee: '',
-    minSales: S0(q.minSelling), maxSales: S0(q.maxSelling), days: '60', logistics: '', workshop: '500', strategy: '0',
+    // Subasta: parte del Auction floor price de PM (captura del 13/10; corrige la C41.1). Prefinanciación: el máximo de PM
+    purchasePrice: S0(q.maxPurchase), auctionPrice: S0(q.auctionFloor), guaranteed: '', auctionFee: '',
+    salesPrice: S0(q.maxSelling), prefinance: S0(q.maxPrefinance), platformAmount: '', platformFee: '',
+    minSales: S0(q.minSelling), maxSales: S0(q.maxSelling), days: '60', logistics: '', workshop: '500',
     explanation: 'Price based on the latest market data.', lang: 'English' };
 }
 const propData = (v, p) => p?.data ?? defaultProp(v);
@@ -977,6 +983,13 @@ function overMaxHtml(v, f) {
   return `<div class="hs-alert hs-alert--warning" data-hs="Alert variant=warning · purchase price above PM's max (proposal, P2)"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">Above PM's max purchase price <span class="nice">Proposal</span></p><p class="hs-alert__body">${eur(+f.purchasePrice)} is ${eur(f.purchasePrice - max)} above PM's max purchase price (${eur(max)}${qty(v) > 1 ? ' per unit' : ''}). Lower it or check with PM before sending.</p></div></div>`;
 }
 
+// Prefinanciación por encima del máximo de PM: mismo aviso que la P2 (propuesta nuestra, P3)
+function overPrefHtml(v, f) {
+  const max = v.price.maxPrefinance;
+  if (!f.inc.consignment || blank(f.prefinance) || max == null || +f.prefinance <= max) return '';
+  return `<div class="hs-alert hs-alert--warning" data-hs="Alert variant=warning · prefinance above PM's max (proposal, P3)"><span class="hs-alert__icon">!</span><div><p class="hs-alert__title">Above PM's max prefinance amount <span class="nice">Proposal</span></p><p class="hs-alert__body">${eur(+f.prefinance)} is ${eur(f.prefinance - max)} above PM's max prefinance amount (${eur(max)}${qty(v) > 1 ? ' per unit' : ''}). Lower it or check with PM before sending.</p></div></div>`;
+}
+
 function proposalModal(o) {
   const v = find(o.id), f = o.form, q = qty(v), last = latest(v), off = offeredBy(v);
   const editing = !!last, sent = editing && last.status === 'Sent';
@@ -988,8 +1001,8 @@ function proposalModal(o) {
   const plain = (label, k, hs = 'CurrencyInput') => `<div class="hs-field" data-hs="${hs}"><label class="hs-field__label">${label}</label><div class="hs-currency"><span>€</span><input class="hs-input" data-p="${k}" data-num inputmode="numeric" value="${esc(f[k])}"></div></div>`;
   const solFields = {
     purchase: `${money('Purchase price', 'purchasePrice', true)}<div id="over-max" style="grid-column:1/-1">${overMaxHtml(v, f)}</div>`,
-    auction: `${money('Auction price', 'auctionPrice', true)}${money('Guaranteed price', 'guaranteed', true)}${plain('Fee', 'auctionFee')}<p class="hs-field__help" style="grid-column:1/-1">Auction price starts at PM's minimum selling price.</p>`,
-    consignment: `<div class="hs-field" data-hs="ToggleGroup"><label class="hs-field__label">Location</label><div class="hs-toggle-group">${['From BAS World', "From seller's location"].map(x => `<label><input type="radio" name="loc" data-p="loc" value="${esc(x)}" ${x === f.loc ? 'checked' : ''}><span>${esc(x)}</span></label>`).join('')}</div></div>${money('Expected sales price', 'salesPrice', true)}${money('Prefinance amount', 'prefinance')}`,
+    auction: `${money('Auction price', 'auctionPrice', true)}${money('Guaranteed price', 'guaranteed', true)}${plain('Fee', 'auctionFee')}<p class="hs-field__help" style="grid-column:1/-1">Auction price starts at PM's auction floor price.</p>`,
+    consignment: `<div class="hs-field" data-hs="ToggleGroup"><label class="hs-field__label">Location</label><div class="hs-toggle-group">${['From BAS World', "From seller's location"].map(x => `<label><input type="radio" name="loc" data-p="loc" value="${esc(x)}" ${x === f.loc ? 'checked' : ''}><span>${esc(x)}</span></label>`).join('')}</div></div>${money('Expected sales price', 'salesPrice', true)}${money('Prefinance amount', 'prefinance')}<div id="over-pref" style="grid-column:1/-1">${overPrefHtml(v, f)}</div>`,
     platform: `${money('Amount', 'platformAmount', true)}${plain('Fee', 'platformFee')}` };
   const sol = ([key, title]) => {
     const ok = !!off[key], on = ok && f.inc[key];
@@ -1009,7 +1022,7 @@ function proposalModal(o) {
   const costs = `<div class="hs-form-grid">${plain('Minimum selling price', 'minSales')}${plain('Maximum selling price', 'maxSales')}</div>
       <div class="hs-form-grid">
         <div class="hs-field" data-hs="NumberInput"><label class="hs-field__label">Expected days of sale</label><input class="hs-input" data-p="days" data-num inputmode="numeric" value="${esc(f.days)}"></div>
-        ${plain('Logistics costs', 'logistics')}${plain('Workshop costs', 'workshop')}${plain('Pricing strategy amount', 'strategy', 'CurrencyInput · may be removed (C41.3, P13)')}
+        ${plain('Logistics costs', 'logistics')}${plain('Workshop costs', 'workshop')}
       </div>`;
   const explain = `<div class="hs-field" data-hs="TextArea"><label class="hs-field__label">Price explanation</label><textarea class="hs-textarea" data-p="explanation">${esc(f.explanation)}</textarea></div>`;
   const lang = `<div class="hs-field" data-hs="Select"><label class="hs-field__label">Proposal language</label><select class="hs-select" data-p="lang">${['English', 'Dutch', 'German'].map(x => `<option ${x === f.lang ? 'selected' : ''}>${x}</option>`).join('')}</select></div>`;
@@ -1128,7 +1141,7 @@ function priceArrives(quiet = false, live = false) {
   if (!v) return;
   if (v.price.status === 'received' || S.incoming[2]) { if (!quiet) toast('The DAF already has a price. Use Reset demo to start again.'); return; }
   // PM ofrece todas las vías menos Sell Yourself (el proveedor tampoco la quería)
-  S.incoming[2] = { status: 'received', receivedAt: '29/09/2026 15:20', maxPurchase: 18500, minSelling: 21500, maxSelling: 24500, prefinance: 10000,
+  S.incoming[2] = { status: 'received', receivedAt: '29/09/2026 15:20', maxPurchase: 18500, auctionFloor: 19500, minSelling: 21500, maxSelling: 24500, maxPrefinance: 10000,
     offered: { purchase: true, auction: true, consignment: true, platform: false }, unseen: true };
   S.notifications.unshift({ id: v.id, text: `PM sent the price for ${v.name}`, time: 'Just now', read: false });
   if (live) loadIncoming(2);
@@ -1183,7 +1196,7 @@ const PROPOSALS = [
   ['sc-pr-c34', 'C34', 'License plate per unit in a bundle, in every vehicle type'],
   ['sc-pr-c35', 'C35', 'Editing a sent proposal keeps it Sent, on the same link'],
   ['sc-pr-p8', 'P8', 'License plate lookup fills in only empty fields and lists the differences'],
-  ['sc-pr-offer', 'P2', 'Warning in the proposal when the purchase price is above PM’s max'],
+  ['sc-pr-offer', 'P2', 'Warning in the proposal when the purchase price or prefinance is above PM’s max'],
   ['sc-pr-new', 'I2', 'Notification and “New price” tag when PM answers'],
   ['sc-pr-mark', 'I4', '“Mark as sent” for email and WhatsApp; send again from Sent'],
   ['sc-pr-sum', 'I5', 'Summary of the included offers on the proposal card'],
@@ -1219,7 +1232,7 @@ function scenario(a) {
     'sc-pr-c34': 'C34 · The DAF is a bundle of 5: each unit has its own first registration, mileage, license plate and VIN.',
     'sc-pr-c35': 'C35 · The Volvo proposal is Sent. Edit it: with one link the supplier sees the changes at once, so we suggest it stays Sent and you let them know by email.',
     'sc-pr-p8': 'P8 · The supplier said Mercedes. Click “Look up”: the registry fills in only the empty fields and shows what’s different, without overwriting it.',
-    'sc-pr-offer': 'P2 · The purchase price is above PM’s max purchase price: see the warning under it. Lower it to make the warning go away. Should it be blocked instead, or need PM’s approval?',
+    'sc-pr-offer': 'P2 · The purchase price is above PM’s max purchase price, and the prefinance (Sell Maximum) above PM’s max prefinance: see the warnings under each. Lower them to make the warnings go away. Should it be blocked instead, or need PM’s approval?',
     'sc-photos': 'Click “Upload or remove files” (HubSpot’s uploader). The new photos only show in the slider after “Refresh photos”.',
     'sc-preview': 'This is the board of supply opportunities. Clicking a card opens HubSpot’s preview on the right. Board cards can’t show images, so our “Vehicles” card in the preview shows each vehicle’s main photo. “View record” opens the full record.',
     'sc-outcome': 'The Volvo proposal is Sent. Click “Supplier accepted” and choose the route, or “Supplier rejected”.',
@@ -1244,7 +1257,7 @@ function scenario(a) {
   if (a === 'sc-arrive') { armDaf(); goVehicle(2); priceArrives(); }
   if (a === 'sc-error') { resetSchmitz(); S.failNext = true; goVehicle(3); }
   if (a === 'sc-again') goVehicle(1);
-  if (a === 'sc-pr-offer') { armDaf(); priceArrives(true, true); propTab(); render(); const d = find(2); const form = cloneProp(propData(d, null)); form.purchasePrice = '21000'; openOverlay({ kind: 'proposal', id: 2, form, errors: [] }); return; }
+  if (a === 'sc-pr-offer') { armDaf(); priceArrives(true, true); propTab(); render(); const d = find(2); const form = cloneProp(propData(d, null)); form.purchasePrice = '21000'; form.prefinance = '12000'; openOverlay({ kind: 'proposal', id: 2, form, errors: [] }); return; }
   if (a === 'sc-pr-c41') { propTab(); render(); const v = find(1); if (v) openProposal(v); return; }
   if (a === 'sc-pr-new') { armDaf(); S.tab = 'vehicles'; S.view = 'list'; priceArrives(); }
   if (a === 'sc-create' || a === 'sc-pr-c28') { propTab(); render(); openCreate(); return; }
@@ -1533,6 +1546,7 @@ function syncProp(t) {
     const tot = document.querySelector(`[data-tot="${t.dataset.p}"]`); if (tot) tot.textContent = bundleHint(f, t.dataset.p, qty(find(o.id)));
   } else return;
   const om = document.getElementById('over-max'); if (om) om.innerHTML = overMaxHtml(find(o.id), f);
+  const op = document.getElementById('over-pref'); if (op) op.innerHTML = overPrefHtml(find(o.id), f);
   if (o.tried) {
     // Se quitan las marcas de error de lo que ya está corregido
     const now = propErrors(f);

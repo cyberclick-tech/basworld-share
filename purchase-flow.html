@@ -312,10 +312,11 @@ ol.detail .d{font-size:15px;color:var(--muted);max-width:78ch}
 </div>
 <div class="cell">
 <div class="step card"><div class="top"><span class="n">8</span><h4>Sees PM's price constraints</h4></div>
-<p>Max purchase price, minimum and maximum selling price, prefinance amount, and which routes of sale PM offers. Read-only.</p>
+<p>For each route, whether PM offers it and its prices: Purchase → max purchase price; Auction → auction floor price; Sell Maximum → minimum and maximum selling price and max prefinance amount; Sell Yourself → no price. Read-only.</p>
 <div class="chips"><span class="chip card">Design</span><span class="chip us">US-03</span></div>
-<div class="c">PM says yes or no to each route (Sell Direct: Purchase and Auction; Sell Maximum; Sell Yourself) and always fills in all prices. The purchaser can't offer a route PM isn't offering (7 Oct).</div>
-<div class="q">Open: whether there's still a recommended route and who sets it; whether "Pricing strategy" is removed.</div>
+<div class="c">PM says yes or no to each route (Sell Direct: Purchase and Auction; Sell Maximum; Sell Yourself). The purchaser can't offer a route PM isn't offering (7 Oct). PM's fields per route: BAS World's screenshot (13 Oct).</div>
+<div class="q">Open: does PM only fill in the prices of the routes it offers? (On 7 Oct they said always all of them.)</div>
+<div class="q">Open: whether there's still a recommended route and who sets it. «Pricing strategy» is removed (13 Oct).</div>
 </div>
 <div class="step card"><div class="top"><span class="n">9</span><h4>Creates the proposal</h4></div>
 <p>Modal: costs, days to sell, explanation, language + which solutions to offer and which one to recommend.</p>
@@ -323,7 +324,7 @@ ol.detail .d{font-size:15px;color:var(--muted);max-width:78ch}
 <div class="r">Configurable proposal: the purchaser picks which offers are included (direct purchase, commission sale, auction) and which one is recommended. Ticked = included; unticked = left out.</div>
 <div class="c">Modal: the simplified version (meeting of 7 Oct).</div>
 <div class="c">One proposal per vehicle or bundle (line item with quantity). Different vehicles aren't combined.</div>
-<div class="c">Routes: Sell Direct (Purchase), Sell Direct (Auction), Sell Maximum (Consignment) and Sell Yourself (platform, with amount and fee). The auction amount is PM's minimum selling price for now (7 and 9 Oct).</div>
+<div class="c">Routes: Sell Direct (Purchase), Sell Direct (Auction), Sell Maximum (Consignment) and Sell Yourself (platform, with amount and fee). The auction starts at PM's auction floor price, and the prefinance at PM's maximum (13 Oct).</div>
 <div class="c">From the opportunity, a summary of all proposals can be generated or sent: one page per proposal (9 Oct).</div>
 <div class="c">The summary shows the total of each proposal's recommended route; when it's sent, its proposals become Sent. One proposal per vehicle or bundle (9 Oct).</div>
 <div class="q">Open: which proposals go into the summary. BAS World suggests only «ready to send» ones, a status that doesn't exist today.</div>

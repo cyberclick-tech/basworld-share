@@ -90,7 +90,7 @@ tr:last-child td{border-bottom:0} td.id{font-family:var(--f-mono);font-weight:60
 <li><b>One proposal, with one link</b> and no versions: when it's edited, the supplier sees the changes on the same link.</li>
 <li><b>Urgency is chosen once</b>, with each level's timing shown. <b>The license plate is stored</b> with the vehicle. <b>Capacity</b> is in m³.</li>
 <li><b>«Purchase» is now «Supply Opportunity».</b> In bundles, <b>the first registration is per unit</b>. The vehicle has a <b>location</b> (address, postal code and country) and no longer a «Source», which belongs to the opportunity. The vehicles table shows a <b>thumbnail</b> of the main photo.</li>
-<li><b>Routes of sale:</b> Sell Direct (Purchase), Sell Direct (Auction), Sell Maximum (Consignment) and Sell Yourself (platform). When adding the vehicle you pick the ones the supplier is interested in and their prices are asked; <b>only the asking price is required</b>, unless the supplier only wants Sell Maximum or Sell Yourself. PM says which routes can be offered and always fills in all their prices; in the proposal, the ones PM doesn't offer are disabled. The auction starts at PM's minimum selling price. Sell Yourself has an amount and a fee.</li>
+<li><b>Routes of sale:</b> Sell Direct (Purchase), Sell Direct (Auction), Sell Maximum (Consignment) and Sell Yourself (platform). When adding the vehicle you pick the ones the supplier is interested in and their prices are asked; <b>only the asking price is required</b>, unless the supplier only wants Sell Maximum or Sell Yourself. PM says which routes can be offered and always fills in all their prices; in the proposal, the ones PM doesn't offer are disabled. The auction starts at PM's auction floor price. Sell Yourself has an amount and a fee.</li>
 <li><b>Supplier's answer:</b> if they accept, you record which route they chose; if they reject it, the proposal is marked as rejected and the opportunity stays open until you close it.</li>
 <li><b>Photos:</b> from the list and the board, in a card in the preview panel (the developer confirms it's possible; it opens with a small button, so it's an extra). After uploading photos, «Refresh photos» shows them in the slider.</li>
 </ul>
@@ -103,7 +103,7 @@ tr:last-child td{border-bottom:0} td.id{font-family:var(--f-mono);font-weight:60
 <table>
 <thead><tr><th>No.</th><th>Question</th></tr></thead>
 <tbody>
-<tr><td class="id">C41</td><td>We kept the <b>recommended</b> route. Does it still exist? Does PM or the purchaser set it? Should we remove «Pricing strategy»?</td></tr>
+<tr><td class="id">C41</td><td>We kept the <b>recommended</b> route. Does it still exist? Does PM or the purchaser set it? In the screenshot of PM's fields, the unticked route has no price: does PM only fill in the prices of the routes it offers?</td></tr>
 <tr><td class="id">C28</td><td>Proposal rules: at least one route included, the recommended one must be included, and the amounts of the included routes are required. Is that right? Are any other fields required?</td></tr>
 <tr><td class="id">C42</td><td>If the supplier rejects <b>every</b> proposal, a notice at the top of the Proposal tab reminds you that the opportunity is still open and that you close it from the stage. Does that help? What happens if the supplier doesn't reply?</td></tr>
 <tr><td class="id">C47</td><td>The document with all the proposals shows the total of each proposal's recommended route, and marking it as sent makes its proposals Sent. Today every proposal except rejected ones goes in. You suggested only «ready to send» ones: should we add that status between Draft and Sent? Should proposals that are already Sent go in too?</td></tr>
@@ -118,7 +118,7 @@ tr:last-child td{border-bottom:0} td.id{font-family:var(--f-mono);font-weight:60
 <table>
 <thead><tr><th>No.</th><th>Idea</th><th>What it is and where to see it</th></tr></thead>
 <tbody>
-<tr><td class="id">P2</td><td><b>Purchase price above PM's max</b></td><td>In the proposal modal, a warning under the purchase price when it's above PM's max purchase price. It warns, it doesn't block. Or would you rather block it, or have PM approve it?</td></tr>
+<tr><td class="id">P2</td><td><b>Purchase price or prefinance above PM's max</b></td><td>In the proposal modal, a warning under the purchase price when it's above PM's max purchase price, and another under the prefinance when it's above PM's max prefinance amount. It warns, it doesn't block. Or would you rather block it, or have PM approve it?</td></tr>
 <tr><td class="id">I2</td><td><b>Notification and «New price» tag</b></td><td>When PM's price arrives: a HubSpot notification in the bell and a «New price» tag in the table until you open the vehicle.</td></tr>
 <tr><td class="id">I4</td><td><b>«Mark as sent» and «Send again»</b></td><td>On a Draft proposal, «Mark as sent» is always available: after sending it by email or on WhatsApp. On a Sent one, there is «Send again by email».</td></tr>
 <tr><td class="id">I5</td><td><b>Offers summary on the proposal card</b></td><td>The proposal card lists the included offers, their amounts and the recommended one, without opening the link.</td></tr>
