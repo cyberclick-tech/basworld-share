@@ -27,6 +27,9 @@
   .hs-record.is-right-collapsed .sidebar-toggle__fill { opacity: 0; }
   .quick-fill { background: var(--trellis-color-fill-surface-recessed, #f5f5f5); border: 1px solid #ebebeb; border-radius: 16px; padding: 16px; }
   .proto-hint { margin: 6px 0 0; font: 400 11px/16px var(--hs-font-body); color: #b0005a; }
+  /* Marca de "esto es nativo de HubSpot" en lo que dibujamos solo para situarlo (solo prototipo) */
+  .native-note { display: inline-flex; align-self: flex-start; margin: 0; padding: 2px 8px; border: 1px dashed #b0005a; border-radius: 6px; font: 500 11px/16px var(--hs-font-body); color: #b0005a; }
+  .stage-btn { border: 0; background: none; padding: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font: inherit; color: #333; }
   .tab-body { background: #fff; border: 1px solid #ccc; border-top: 0; border-radius: 0 0 16px 16px; padding: 16px; display: flex; flex-direction: column; gap: 16px; min-height: 480px; }
   .tab-body > .hs-card { box-shadow: none; }
   .record-head { display: flex; flex-direction: column; gap: 12px; }
@@ -190,7 +193,7 @@
           <a class="back" data-action="go-board" tabindex="0" role="link" title="Back to the board of supply opportunities">‹ Supply opportunities</a>
           <h1 class="hs-record-title">Noordhaven Logistics – fleet renewal</h1>
           <dl class="record-props">
-            <dt>Stage:</dt><dd><span class="hs-stage hs-stage--magenta" id="rec-stage">Pricing</span></dd>
+            <dt>Stage:</dt><dd><button class="stage-btn" data-action="change-stage" title="Change the stage (native HubSpot)"><span class="hs-stage hs-stage--magenta" id="rec-stage">Pricing</span> ▾</button></dd>
             <dt>Supplier:</dt><dd>Noordhaven Logistics B.V.</dd>
             <dt>Purchaser:</dt><dd>Anna de Vries</dd>
             <dt>Source:</dt><dd>Incoming call</dd>
@@ -1009,7 +1012,7 @@ function proposalModal(o) {
     return `
     <div class="solution ${on ? '' : 'is-off'}" data-solution="${key}" data-hs="Tile · Checkbox · RadioButton${ok ? '' : ' · disabled: PM isn’t offering this route (C41)'}">
       <div class="solution__head"><label class="hs-check"><input type="checkbox" data-inc="${key}" ${on ? 'checked' : ''} ${ok ? '' : 'disabled'}> ${title}</label>
-        <label class="hs-radio" data-hs="RadioButton · recommended (C41: still open whether there's a recommended route and who sets it)"><input type="radio" name="recommended" data-p="rec" value="${key}" ${f.rec === key ? 'checked' : ''} ${on ? '' : 'disabled'}> Recommended</label></div>
+        <label class="hs-radio" data-hs="RadioButton · recommended route, set by the purchaser (C41) · shown to the supplier as the advice"><input type="radio" name="recommended" data-p="rec" value="${key}" ${f.rec === key ? 'checked' : ''} ${on ? '' : 'disabled'}> Recommended</label></div>
       ${ok ? `<div class="solution__fields hs-form-grid">${solFields[key]}</div>` : '<p class="hs-text hs-text--micro hs-text--subtle">PM isn’t offering this route, so it can’t be included.</p>'}
     </div>`;
   };
@@ -1075,6 +1078,41 @@ function outcomeModal(o) {
     </div></div>`;
 }
 
+// Cerrar como perdida (C42): diálogo NATIVO de HubSpot al cambiar la etapa a Closed lost. No es de la app; se dibuja
+// para enseñar dónde van los 13 motivos de Basworld (13/10). "Other" pide comentario.
+const LOST_REASONS = [
+  ['Seller', ['No reaction from seller', 'Seller not relevant', 'Seller decides not to sell']],
+  ['Product', ['Product outside our range', 'Product condition or value too low']],
+  ['Price', ['Asking price too high', 'Sold for a better price', 'Outstanding financing too high']],
+  ['Internal', ['Follow-up too slow', 'Pricing too slow']],
+  ['Exclude', ['Not a Supply lead', 'Duplicate']],
+  ['Other', ['Other']],
+];
+function lostModal(o) {
+  const closed = S.stage === 'Closed lost', other = o.reason === 'Other';
+  const errR = o.tried && !o.reason, errC = o.tried && other && !o.comment.trim();
+  const body = closed
+    ? `<p class="hs-text">This opportunity is Closed lost: ${esc(S.closingReason)}.</p>`
+    : `<p class="hs-text">HubSpot asks for the reason when the stage changes to Closed lost.</p>
+      <div class="hs-field"><label class="hs-field__label">Closed lost reason${req}</label>
+        <select class="hs-select ${errR ? 'is-error' : ''}" data-l="reason"><option value="">Select…</option>${LOST_REASONS.map(([cat, rs]) => `<optgroup label="${cat}">${rs.map(r => `<option ${r === o.reason ? 'selected' : ''}>${r}</option>`).join('')}</optgroup>`).join('')}</select>
+        ${errR ? '<p class="hs-field__error">Choose a reason.</p>' : ''}</div>
+      <div class="hs-field"><label class="hs-field__label">Comment${other ? req : ''}</label>
+        <textarea class="hs-textarea ${errC ? 'is-error' : ''}" data-l="comment">${esc(o.comment)}</textarea>
+        ${errC ? '<p class="hs-field__error">Add a comment for “Other”.</p>' : `<p class="hs-field__help">${other ? 'Required for “Other”.' : 'Optional.'}</p>`}</div>`;
+  return `<div class="hs-overlay" data-overlay>
+    <div class="hs-modal hs-modal--sm" role="dialog" aria-modal="true" aria-labelledby="lm-title" data-hs="Stage change dialog (native HubSpot, not part of the app) · Closed lost reason: 13 reasons from BAS World (C42), set up by the developer">
+      <div class="hs-modal__header"><h2 class="hs-modal__title" id="lm-title">${closed ? 'Closed lost' : 'Close as lost'}</h2><button class="hs-close" data-action="close" aria-label="Close">×</button></div>
+      <div class="hs-modal__body">
+        <p class="native-note">Native HubSpot · not part of the app</p>
+        ${body}
+      </div>
+      <div class="hs-modal__footer">${closed
+        ? '<button class="hs-button hs-button--secondary" data-action="reopen-stage">Reopen (back to Pricing)</button><button class="hs-button hs-button--transparent" data-action="close">Close</button>'
+        : '<button class="hs-button hs-button--primary" data-action="save-lost">Close as lost</button><button class="hs-button hs-button--secondary" data-action="close">Cancel</button>'}</div>
+    </div></div>`;
+}
+
 function emailModal(o) {
   const v = o.summary ? null : find(o.id);
   const subject = v ? `Your proposal for the ${esc(v.name)}` : 'Our proposals for your vehicles';
@@ -1115,7 +1153,7 @@ function renderOverlay() {
   const sel = '.hs-panel__body, .hs-modal__body';
   const scroll = root.dataset.kind === o.kind ? (root.querySelector(sel)?.scrollTop ?? 0) : 0;
   root.dataset.kind = o.kind;
-  root.innerHTML = { vehicle: vehiclePanel, proposal: proposalModal, confirm: confirmModal, email: emailModal, zoom: zoomModal, outcome: outcomeModal, preview: previewPanel }[o.kind](o);
+  root.innerHTML = { vehicle: vehiclePanel, proposal: proposalModal, confirm: confirmModal, email: emailModal, zoom: zoomModal, outcome: outcomeModal, preview: previewPanel, lost: lostModal }[o.kind](o);
   const body = root.querySelector(sel); if (body) body.scrollTop = o.scrollTop ?? scroll; delete o.scrollTop;
   if (o.entering) { root.firstElementChild?.classList.add('is-entering'); delete o.entering; }
 }
@@ -1188,7 +1226,6 @@ function goVehicle(id) { S.tab = 'vehicles'; S.view = 'detail'; S.vehicleId = id
 // Lo que proponemos nosotras y Basworld tiene que confirmar (preguntas C, P) e ideas nuestras (I)
 const PROPOSALS = [
   ['sc-pr-c40', 'C40', 'Asking price optional when the supplier only wants Sell Maximum or Sell Yourself'],
-  ['sc-pr-c41', 'C41', 'Recommended route: does it still exist, and who sets it?'],
   ['sc-pr-c28', 'C28', 'Proposal rules: at least one route, the recommended one must be included'],
   ['sc-pr-c42', 'C42', 'Reminder to close the opportunity when every proposal is rejected'],
   ['sc-pr-c47', 'C47', 'Summary of all proposals: a “Ready to send” status to choose what goes in?'],
@@ -1224,9 +1261,8 @@ function scenario(a) {
     'sc-edit-sent': 'The Volvo proposal is Sent. Click “Edit proposal”: the supplier will see the changes on the same link, and the proposal stays Sent.',
     'sc-prop-error': 'Click “Create proposal”: the proposal service doesn’t answer. Then click “Retry”.',
     'sc-pr-c40': 'C40 · The supplier only wants Sell Maximum, so only the selling prices are asked. The asking price is still asked, but it’s optional: no asterisk. Tick a Sell Direct route and it becomes required again.',
-    'sc-pr-c41': 'C41 · PM doesn’t want to buy the Volvo directly, so Sell Direct (Purchase) can’t be included, but Sell Direct (Auction) can. We kept the “Recommended” choice: does it still exist, and who sets it, PM or the purchaser?',
     'sc-pr-c28': 'C28 · Untick all the routes and click “Create proposal”, or untick the recommended one. Auction needs its amounts once it’s ticked.',
-    'sc-pr-c42': 'C42 · Click “Supplier rejected” on the Volvo. The opportunity stays open: you close it by hand. As it was the only proposal, a reminder appears at the top of the tab (our proposal).',
+    'sc-pr-c42': 'C42 · Click “Supplier rejected” on the Volvo. The opportunity stays open: you close it by hand. As it was the only proposal, a reminder appears at the top of the tab (our proposal). Then click the stage “Pricing” at the top left: HubSpot’s own dialog (native) asks for one of BAS World’s 13 lost reasons.',
     'sc-pr-c47': 'C47 · At the top of this tab: one document with the proposals and the total of their recommended routes. “Mark as sent” makes them Sent. Today every proposal except rejected ones goes in: should only “Ready to send” ones go in?',
     'sc-pr-c29': 'C29 · Send a proposal and look at the Stage in the record header: it stays “Pricing”. In Bidmonitor the bid moved to “Under offer”. Should the opportunity stage move by itself, once all the proposals are Sent?',
     'sc-pr-c34': 'C34 · The DAF is a bundle of 5: each unit has its own first registration, mileage, license plate and VIN.',
@@ -1235,6 +1271,7 @@ function scenario(a) {
     'sc-pr-offer': 'P2 · The purchase price is above PM’s max purchase price, and the prefinance (Sell Maximum) above PM’s max prefinance: see the warnings under each. Lower them to make the warnings go away. Should it be blocked instead, or need PM’s approval?',
     'sc-photos': 'Click “Upload or remove files” (HubSpot’s uploader). The new photos only show in the slider after “Refresh photos”.',
     'sc-preview': 'This is the board of supply opportunities. Clicking a card opens HubSpot’s preview on the right. Board cards can’t show images, so our “Vehicles” card in the preview shows each vehicle’s main photo. “View record” opens the full record.',
+    'sc-lost': 'HubSpot’s own dialog (native, not part of the app) when the stage changes to Closed lost: choose one of BAS World’s 13 reasons. “Other” needs a comment. You open it by clicking the stage at the top left of the record.',
     'sc-outcome': 'The Volvo proposal is Sent. Click “Supplier accepted” and choose the route, or “Supplier rejected”.',
     'sc-pr-new': 'I2 · The bell shows HubSpot’s notification. The “New price” tag appears in the table once the record loads the price: open the notification, or switch tabs and come back.',
     'sc-pr-mark': 'I4 · In Draft, “Mark as sent” is always there: after sending by email or on WhatsApp. In Sent you can still use “Send again by email”.',
@@ -1258,7 +1295,6 @@ function scenario(a) {
   if (a === 'sc-error') { resetSchmitz(); S.failNext = true; goVehicle(3); }
   if (a === 'sc-again') goVehicle(1);
   if (a === 'sc-pr-offer') { armDaf(); priceArrives(true, true); propTab(); render(); const d = find(2); const form = cloneProp(propData(d, null)); form.purchasePrice = '21000'; form.prefinance = '12000'; openOverlay({ kind: 'proposal', id: 2, form, errors: [] }); return; }
-  if (a === 'sc-pr-c41') { propTab(); render(); const v = find(1); if (v) openProposal(v); return; }
   if (a === 'sc-pr-new') { armDaf(); S.tab = 'vehicles'; S.view = 'list'; priceArrives(); }
   if (a === 'sc-create' || a === 'sc-pr-c28') { propTab(); render(); openCreate(); return; }
   if (a === 'sc-prop-error') { propTab(); S.failNext = true; render(); openCreate(); return; }
@@ -1266,6 +1302,7 @@ function scenario(a) {
   if (a === 'sc-edit-sent' || a === 'sc-pr-c29') { propTab(); volvoAs('Sent'); }
   if (a === 'sc-outcome' || a === 'sc-pr-c42') { propTab(); volvoAs('Sent'); const p = latest(find(1)); if (p) delete p.outcome; }
   if (a === 'sc-pr-c47') propTab();
+  if (a === 'sc-lost') { S.stage = 'Pricing'; S.closingReason = ''; render(); openOverlay({ kind: 'lost', reason: '', comment: '' }); return; }
   if (a === 'sc-pr-c35') { propTab(); volvoAs('Sent'); render(); const v = find(1); if (v) openProposal(v); return; }
   if (a === 'sc-pr-sum') propTab();
 }
@@ -1281,7 +1318,7 @@ function renderControls() {
     <div><label class="pc-l">Try it · guided scenarios</label>
       <div class="pc-group"><p class="pc-sub">Vehicles</p><div class="pc-seg">${sc('sc-add', 'Add a vehicle')}${sc('sc-review', 'Complete a WhatsApp vehicle')}${sc('sc-photos', 'Upload photos')}${sc('sc-preview', 'Photos from the list')}</div></div>
       <div class="pc-group"><p class="pc-sub">Price</p><div class="pc-seg">${sc('sc-ask', 'Ask for a price')}${sc('sc-arrive', 'PM price arrives')}${sc('sc-error', 'Bidmonitor error')}${sc('sc-again', 'Ask for a new price')}</div></div>
-      <div class="pc-group"><p class="pc-sub">Proposal</p><div class="pc-seg">${sc('sc-create', 'Create a proposal')}${sc('sc-prop-error', 'Proposal error')}${sc('sc-send', 'Send a proposal')}${sc('sc-edit-sent', 'Edit a sent proposal')}${sc('sc-outcome', 'Record the supplier’s answer')}</div></div></div>
+      <div class="pc-group"><p class="pc-sub">Proposal</p><div class="pc-seg">${sc('sc-create', 'Create a proposal')}${sc('sc-prop-error', 'Proposal error')}${sc('sc-send', 'Send a proposal')}${sc('sc-edit-sent', 'Edit a sent proposal')}${sc('sc-outcome', 'Record the supplier’s answer')}${sc('sc-lost', 'Close as lost (native)')}</div></div></div>
     <details class="pc-props-wrap" ${S.propsOpen ? 'open' : ''}><summary>Our proposals · to confirm (${PROPOSALS.length}) <span aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></summary><p class="pc-note">C and P = our questions to BAS World, still open. I = our own ideas, not asked.</p>
       <ul class="pc-props">${PROPOSALS.map(([a, id, t]) => `<li><button data-pc-action="${a}"><b>${id}</b> ${t}</button></li>`).join('')}</ul></details>
     <div><label class="pc-l">Vehicles table</label>${seg('listState', [['filled', 'With data'], ['empty', 'Empty'], ['loading', 'Loading'], ['error', 'Error']])}</div>
@@ -1482,9 +1519,25 @@ document.addEventListener('click', e => {
     // Tablero y vista previa (C36)
     case 'go-board': S.page = 'board'; S.hint = ''; render(); break;
     case 'board-open': if (el.dataset.main) openOverlay({ kind: 'preview' }); else toast('Example card. Open “Noordhaven Logistics – fleet renewal”.'); break;
+    // Cerrar como perdida: diálogo nativo (C42)
+    case 'change-stage': openOverlay({ kind: 'lost', reason: '', comment: '' }); break;
+    case 'save-lost': {
+      const o = S.overlay;
+      if (!o.reason || (o.reason === 'Other' && !o.comment.trim())) { o.tried = true; render(); break; }
+      S.stage = 'Closed lost'; S.closingReason = o.reason === 'Other' ? `Other: ${o.comment.trim()}` : o.reason;
+      closeOverlay(); toast('Opportunity closed as lost'); render(); break;
+    }
+    case 'reopen-stage': S.stage = 'Pricing'; S.closingReason = ''; closeOverlay(); toast('Opportunity reopened'); render(); break;
     case 'view-record': closeOverlay(); S.page = 'record'; S.tab = 'vehicles'; S.view = 'list'; render(); break;
     case 'close': closeOverlay(); break;
   }
+});
+// Cerrar como perdida: motivo y comentario se guardan en el estado del modal
+document.addEventListener('input', e => { if (S.overlay?.kind === 'lost' && e.target.dataset.l === 'comment') S.overlay.comment = e.target.value; });
+document.addEventListener('change', e => {
+  if (S.overlay?.kind !== 'lost' || e.target.dataset.l !== 'reason') return;
+  S.overlay.reason = e.target.value; render();   // "Other" vuelve obligatorio el comentario
+  document.querySelector('[data-l="reason"]')?.focus();
 });
 // Respuesta del proveedor: la vía elegida o el motivo de pérdida se guardan en el estado del modal
 document.addEventListener('change', e => {
